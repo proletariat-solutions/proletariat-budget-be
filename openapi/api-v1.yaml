@@ -1,0 +1,1503 @@
+openapi: 3.0.2
+info:
+  version: 1.0.0
+  title: Proletariat Budget API
+  contact: {}
+
+paths:
+  /expenditures:
+    post:
+      summary: Create a new expenditure
+      description: Creates a new expenditure record
+      operationId: createExpenditure
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ExpenditureRequest'
+      responses:
+        201:
+          description: Expenditure created successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Expenditure'
+        400:
+          $ref: '#/components/responses/400'
+        401:
+          $ref: '#/components/responses/401'
+        500:
+          $ref: '#/components/responses/500'
+    
+    get:
+      summary: List all expenditures
+      description: Returns a list of all expenditures with optional filtering
+      operationId: listExpenditures
+      parameters:
+        - name: categoryId
+          in: query
+          schema:
+            type: string
+          description: Filter by category ID
+        - name: tag
+          in: query
+          schema:
+            type: string
+          description: Filter by tag
+        - name: startDate
+          in: query
+          schema:
+            type: string
+            format: date
+          description: Filter by start date (inclusive)
+        - name: endDate
+          in: query
+          schema:
+            type: string
+            format: date
+          description: Filter by end date (inclusive)
+        - name: declared
+          in: query
+          schema:
+            type: boolean
+          description: Filter by declared status
+        - name: planned
+          in: query
+          schema:
+            type: boolean
+          description: Filter by planned status
+        - name: currency
+          in: query
+          schema:
+            type: string
+          description: Filter by currency
+      responses:
+        200:
+          description: List of expenditures
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Expenditure'
+        401:
+          $ref: '#/components/responses/401'
+        500:
+          $ref: '#/components/responses/500'
+  
+  /expenditures/{id}:
+    parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+        description: Expenditure ID
+    
+    get:
+      summary: Get expenditure by ID
+      description: Returns a single expenditure by ID
+      operationId: getExpenditure
+      responses:
+        200:
+          description: Expenditure found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Expenditure'
+        404:
+          $ref: '#/components/responses/404'
+        401:
+          $ref: '#/components/responses/401'
+        500:
+          $ref: '#/components/responses/500'
+    
+    put:
+      summary: Update expenditure
+      description: Updates an existing expenditure
+      operationId: updateExpenditure
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ExpenditureRequest'
+      responses:
+        200:
+          description: Expenditure updated successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Expenditure'
+        400:
+          $ref: '#/components/responses/400'
+        404:
+          $ref: '#/components/responses/404'
+        401:
+          $ref: '#/components/responses/401'
+        500:
+          $ref: '#/components/responses/500'
+    
+    delete:
+      summary: Delete expenditure
+      description: Deletes an expenditure by ID
+      operationId: deleteExpenditure
+      responses:
+        204:
+          description: Expenditure deleted successfully
+        404:
+          $ref: '#/components/responses/404'
+        401:
+          $ref: '#/components/responses/401'
+        500:
+          $ref: '#/components/responses/500'
+
+  /ingresses:
+    post:
+      summary: Create a new ingress
+      description: Creates a new money ingress record
+      operationId: createIngress
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/IngressRequest'
+      responses:
+        201:
+          description: Ingress created successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Ingress'
+        400:
+          $ref: '#/components/responses/400'
+        401:
+          $ref: '#/components/responses/401'
+        500:
+          $ref: '#/components/responses/500'
+    
+    get:
+      summary: List all ingresses
+      description: Returns a list of all money ingresses with optional filtering
+      operationId: listIngresses
+      parameters:
+        - name: category
+          in: query
+          schema:
+            type: string
+          description: Filter by category
+        - name: source
+          in: query
+          schema:
+            type: string
+          description: Filter by source
+        - name: tag
+          in: query
+          schema:
+            type: string
+          description: Filter by tag
+        - name: startDate
+          in: query
+          schema:
+            type: string
+            format: date
+          description: Filter by start date (inclusive)
+        - name: endDate
+          in: query
+          schema:
+            type: string
+            format: date
+          description: Filter by end date (inclusive)
+        - name: isRecurring
+          in: query
+          schema:
+            type: boolean
+          description: Filter by recurring status
+        - name: currency
+          in: query
+          schema:
+            type: string
+          description: Filter by currency
+      responses:
+        200:
+          description: List of ingresses
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Ingress'
+        401:
+          $ref: '#/components/responses/401'
+        500:
+          $ref: '#/components/responses/500'
+  
+  /ingresses/{id}:
+    parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+        description: Ingress ID
+    
+    get:
+      summary: Get ingress by ID
+      description: Returns a single money ingress by ID
+      operationId: getIngress
+      responses:
+        200:
+          description: Ingress found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Ingress'
+        404:
+          $ref: '#/components/responses/404'
+        401:
+          $ref: '#/components/responses/401'
+        500:
+          $ref: '#/components/responses/500'
+    
+    put:
+      summary: Update ingress
+      description: Updates an existing money ingress
+      operationId: updateIngress
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/IngressRequest'
+      responses:
+        200:
+          description: Ingress updated successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Ingress'
+        400:
+          $ref: '#/components/responses/400'
+        404:
+          $ref: '#/components/responses/404'
+        401:
+          $ref: '#/components/responses/401'
+        500:
+          $ref: '#/components/responses/500'
+    
+    delete:
+      summary: Delete ingress
+      description: Deletes a money ingress by ID
+      operationId: deleteIngress
+      responses:
+        204:
+          description: Ingress deleted successfully
+        404:
+          $ref: '#/components/responses/404'
+        401:
+          $ref: '#/components/responses/401'
+        500:
+          $ref: '#/components/responses/500'
+  /accounts:
+    post:
+      summary: Create a new money account
+      description: Creates a new account to track money (bank account, cash, investment platform, etc.)
+      operationId: createAccount
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AccountRequest'
+      responses:
+        201:
+          description: Account created successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Account'
+        400:
+          $ref: '#/components/responses/400'
+        401:
+          $ref: '#/components/responses/401'
+        500:
+          $ref: '#/components/responses/500'
+
+    get:
+      summary: List all accounts
+      description: Returns a list of all money accounts with optional filtering
+      operationId: listAccounts
+      parameters:
+        - name: type
+          in: query
+          schema:
+            type: string
+          description: Filter by account type (bank, cash, platform)
+        - name: currency
+          in: query
+          schema:
+            type: string
+          description: Filter by currency
+        - name: active
+          in: query
+          schema:
+            type: boolean
+          description: Filter by active status
+      responses:
+        200:
+          description: List of accounts
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Account'
+        401:
+          $ref: '#/components/responses/401'
+        500:
+          $ref: '#/components/responses/500'
+
+  /accounts/{id}:
+    parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+        description: Account ID
+
+    get:
+      summary: Get account by ID
+      description: Returns a single account by ID
+      operationId: getAccount
+      responses:
+        200:
+          description: Account found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Account'
+        404:
+          $ref: '#/components/responses/404'
+        401:
+          $ref: '#/components/responses/401'
+        500:
+          $ref: '#/components/responses/500'
+
+    put:
+      summary: Update account
+      description: Updates an existing account
+      operationId: updateAccount
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AccountRequest'
+      responses:
+        200:
+          description: Account updated successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Account'
+        400:
+          $ref: '#/components/responses/400'
+        404:
+          $ref: '#/components/responses/404'
+        401:
+          $ref: '#/components/responses/401'
+        500:
+          $ref: '#/components/responses/500'
+
+    delete:
+      summary: Delete account
+      description: Deletes an account by ID
+      operationId: deleteAccount
+      responses:
+        204:
+          description: Account deleted successfully
+        404:
+          $ref: '#/components/responses/404'
+        401:
+          $ref: '#/components/responses/401'
+        500:
+          $ref: '#/components/responses/500'
+
+  /transfers:
+    post:
+      summary: Create a new money transfer
+      description: Creates a new transfer between accounts (including currency conversion)
+      operationId: createTransfer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TransferRequest'
+      responses:
+        201:
+          description: Transfer created successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Transfer'
+        400:
+          $ref: '#/components/responses/400'
+        401:
+          $ref: '#/components/responses/401'
+        500:
+          $ref: '#/components/responses/500'
+
+    get:
+      summary: List all transfers
+      description: Returns a list of all transfers with optional filtering
+      operationId: listTransfers
+      parameters:
+        - name: sourceAccountId
+          in: query
+          schema:
+            type: string
+          description: Filter by source account ID
+        - name: destinationAccountId
+          in: query
+          schema:
+            type: string
+          description: Filter by destination account ID
+        - name: startDate
+          in: query
+          schema:
+            type: string
+            format: date
+          description: Filter by start date (inclusive)
+        - name: endDate
+          in: query
+          schema:
+            type: string
+            format: date
+          description: Filter by end date (inclusive)
+        - name: type
+          in: query
+          schema:
+            type: string
+          description: Filter by transfer type (deposit, withdrawal, transfer)
+      responses:
+        200:
+          description: List of transfers
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Transfer'
+        401:
+          $ref: '#/components/responses/401'
+        500:
+          $ref: '#/components/responses/500'
+
+  /transfers/{id}:
+    parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+        description: Transfer ID
+
+    get:
+      summary: Get transfer by ID
+      description: Returns a single transfer by ID
+      operationId: getTransfer
+      responses:
+        200:
+          description: Transfer found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Transfer'
+        404:
+          $ref: '#/components/responses/404'
+        401:
+          $ref: '#/components/responses/401'
+        500:
+          $ref: '#/components/responses/500'
+
+    delete:
+      summary: Delete transfer
+      description: Deletes a transfer by ID (if possible)
+      operationId: deleteTransfer
+      responses:
+        204:
+          description: Transfer deleted successfully
+        404:
+          $ref: '#/components/responses/404'
+        401:
+          $ref: '#/components/responses/401'
+        500:
+          $ref: '#/components/responses/500'
+
+  /balances:
+    get:
+      summary: Get current balances
+      description: Returns current balances across all accounts
+      operationId: getBalances
+      parameters:
+        - name: currency
+          in: query
+          schema:
+            type: string
+          description: Convert all balances to this currency
+        - name: groupBy
+          in: query
+          schema:
+            type: string
+            enum: [account, currency, type]
+          description: How to group the balance results
+      responses:
+        200:
+          description: Current balances
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BalanceSummary'
+        401:
+          $ref: '#/components/responses/401'
+        500:
+          $ref: '#/components/responses/500'
+
+  /exchange-rates:
+    get:
+      summary: Get current exchange rates
+      description: Returns current exchange rates for currency conversion
+      operationId: getExchangeRates
+      parameters:
+        - name: baseCurrency
+          in: query
+          schema:
+            type: string
+          description: Base currency for rates
+          required: true
+        - name: targetCurrencies
+          in: query
+          schema:
+            type: array
+            items:
+              type: string
+          description: Target currencies to get rates for
+          explode: true
+      responses:
+        200:
+          description: Exchange rates
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ExchangeRates'
+        400:
+          $ref: '#/components/responses/400'
+        401:
+          $ref: '#/components/responses/401'
+        500:
+          $ref: '#/components/responses/500'
+          
+  /savings:
+    post:
+      summary: Create a new savings goal
+      description: Creates a new savings goal with target amount and optional deadline
+      operationId: createSavingsGoal
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SavingsGoalRequest'
+      responses:
+        201:
+          description: Savings goal created successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SavingsGoal'
+        400:
+          $ref: '#/components/responses/400'
+        401:
+          $ref: '#/components/responses/401'
+        500:
+          $ref: '#/components/responses/500'
+    
+    get:
+      summary: List all savings goals
+      description: Returns a list of all savings goals with optional filtering
+      operationId: listSavingsGoals
+      parameters:
+        - name: category
+          in: query
+          schema:
+            type: string
+          description: Filter by goal category
+        - name: status
+          in: query
+          schema:
+            type: string
+            enum: [active, completed, abandoned]
+          description: Filter by goal status
+        - name: currency
+          in: query
+          schema:
+            type: string
+          description: Filter by currency
+        - name: accountId
+          in: query
+          schema:
+            type: string
+          description: Filter by associated account ID
+        - name: targetDateBefore
+          in: query
+          schema:
+            type: string
+            format: date
+          description: Filter by target date before specified date
+        - name: targetDateAfter
+          in: query
+          schema:
+            type: string
+            format: date
+          description: Filter by target date after specified date
+      responses:
+        200:
+          description: List of savings goals
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/SavingsGoal'
+        401:
+          $ref: '#/components/responses/401'
+        500:
+          $ref: '#/components/responses/500'
+  
+  /savings/{id}:
+    parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+        description: Savings goal ID
+    
+    get:
+      summary: Get savings goal by ID
+      description: Returns a single savings goal by ID
+      operationId: getSavingsGoal
+      responses:
+        200:
+          description: Savings goal found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SavingsGoal'
+        404:
+          $ref: '#/components/responses/404'
+        401:
+          $ref: '#/components/responses/401'
+        500:
+          $ref: '#/components/responses/500'
+    
+    put:
+      summary: Update savings goal
+      description: Updates an existing savings goal
+      operationId: updateSavingsGoal
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SavingsGoalRequest'
+      responses:
+        200:
+          description: Savings goal updated successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SavingsGoal'
+        400:
+          $ref: '#/components/responses/400'
+        404:
+          $ref: '#/components/responses/404'
+        401:
+          $ref: '#/components/responses/401'
+        500:
+          $ref: '#/components/responses/500'
+    
+    delete:
+      summary: Delete savings goal
+      description: Deletes a savings goal by ID
+      operationId: deleteSavingsGoal
+      responses:
+        204:
+          description: Savings goal deleted successfully
+        404:
+          $ref: '#/components/responses/404'
+        401:
+          $ref: '#/components/responses/401'
+        500:
+          $ref: '#/components/responses/500'
+  
+  /savings/{id}/contributions:
+    parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+        description: Savings goal ID
+    
+    post:
+      summary: Add contribution to savings goal
+      description: Adds a new contribution to an existing savings goal
+      operationId: addSavingsContribution
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SavingsContributionRequest'
+      responses:
+        201:
+          description: Contribution added successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SavingsContribution'
+        400:
+          $ref: '#/components/responses/400'
+        404:
+          $ref: '#/components/responses/404'
+        401:
+          $ref: '#/components/responses/401'
+        500:
+          $ref: '#/components/responses/500'
+    
+    get:
+      summary: List contributions for a savings goal
+      description: Returns a list of all contributions for a specific savings goal
+      operationId: listSavingsContributions
+      parameters:
+        - name: startDate
+          in: query
+          schema:
+            type: string
+            format: date
+          description: Filter by start date (inclusive)
+        - name: endDate
+          in: query
+          schema:
+            type: string
+            format: date
+          description: Filter by end date (inclusive)
+        - name: sourceAccountId
+          in: query
+          schema:
+            type: string
+          description: Filter by source account ID
+      responses:
+        200:
+          description: List of contributions
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/SavingsContribution'
+        404:
+          $ref: '#/components/responses/404'
+        401:
+          $ref: '#/components/responses/401'
+        500:
+          $ref: '#/components/responses/500'
+  
+  /savings/{id}/withdrawals:
+    parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+        description: Savings goal ID
+    
+    post:
+      summary: Add withdrawal from savings goal
+      description: Records a withdrawal from an existing savings goal
+      operationId: addSavingsWithdrawal
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SavingsWithdrawalRequest'
+      responses:
+        201:
+          description: Withdrawal recorded successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SavingsWithdrawal'
+        400:
+          $ref: '#/components/responses/400'
+        404:
+          $ref: '#/components/responses/404'
+        401:
+          $ref: '#/components/responses/401'
+        500:
+          $ref: '#/components/responses/500'
+    
+    get:
+      summary: List withdrawals from a savings goal
+      description: Returns a list of all withdrawals from a specific savings goal
+      operationId: listSavingsWithdrawals
+      parameters:
+        - name: startDate
+          in: query
+          schema:
+            type: string
+            format: date
+          description: Filter by start date (inclusive)
+        - name: endDate
+          in: query
+          schema:
+            type: string
+            format: date
+          description: Filter by end date (inclusive)
+        - name: destinationAccountId
+          in: query
+          schema:
+            type: string
+          description: Filter by destination account ID
+      responses:
+        200:
+          description: List of withdrawals
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/SavingsWithdrawal'
+        404:
+          $ref: '#/components/responses/404'
+        401:
+          $ref: '#/components/responses/401'
+        500:
+          $ref: '#/components/responses/500'
+  
+  /savings/{id}/progress:
+    parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+        description: Savings goal ID
+    
+    get:
+      summary: Get savings goal progress
+      description: Returns detailed progress information for a savings goal
+      operationId: getSavingsProgress
+      responses:
+        200:
+          description: Savings goal progress
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SavingsProgress'
+        404:
+          $ref: '#/components/responses/404'
+        401:
+          $ref: '#/components/responses/401'
+        500:
+          $ref: '#/components/responses/500'
+components:
+  schemas:
+    ExpenditureRequest:
+      type: object
+      properties:
+        amount:
+          type: number
+          format: float
+          description: The expenditure amount
+          example: 125.50
+        categoryId:
+          type: string
+          description: The category ID this expenditure belongs to
+          example: "groceries"
+        tags:
+          type: array
+          items:
+            type: string
+          description: List of tags associated with this expenditure
+          example: ["food", "cleaning"]
+        date:
+          type: string
+          format: date
+          description: The date of the expenditure
+          example: "2023-05-15"
+        declared:
+          type: boolean
+          description: Whether the expenditure has been declared
+          example: true
+        currency:
+          type: string
+          description: The currency of the expenditure
+          example: "USD"
+        planned:
+          type: boolean
+          description: Whether the expenditure is planned or already happened
+          example: false
+      required:
+        - amount
+        - categoryId
+        - date
+        - currency
+    
+    Expenditure:
+      allOf:
+        - $ref: '#/components/schemas/ExpenditureRequest'
+        - type: object
+          properties:
+            id:
+              type: string
+              description: Unique identifier for the expenditure
+              example: "exp123"
+            createdAt:
+              type: string
+              format: date-time
+              description: Timestamp when the expenditure was created
+            updatedAt:
+              type: string
+              format: date-time
+              description: Timestamp when the expenditure was last updated
+          required:
+            - id
+            - createdAt
+            - updatedAt
+    IngressRequest:
+      type: object
+      properties:
+        amount:
+          type: number
+          format: float
+          description: The ingress amount
+          example: 2500.00
+        category:
+          type: string
+          description: The category of this ingress
+          example: "salary"
+        source:
+          type: string
+          description: The source of the income
+          example: "Acme Corp"
+        description:
+          type: string
+          description: Additional details about the ingress
+          example: "Monthly salary payment"
+        tags:
+          type: array
+          items:
+            type: string
+          description: List of tags associated with this ingress
+          example: [ "regular", "work" ]
+        date:
+          type: string
+          format: date
+          description: The date of the ingress
+          example: "2023-05-01"
+        currency:
+          type: string
+          description: The currency of the ingress
+          example: "USD"
+        isRecurring:
+          type: boolean
+          description: Whether this is a recurring income
+          example: true
+        recurrencePattern:
+          type: object
+          properties:
+            frequency:
+              type: string
+              enum: [ daily, weekly, monthly, yearly ]
+              description: How often the income recurs
+              example: "monthly"
+            interval:
+              type: integer
+              description: How many frequency units between occurrences
+              example: 1
+            endDate:
+              type: string
+              format: date
+              description: When the recurring income ends (if applicable)
+              example: "2024-12-31"
+        attachments:
+          type: array
+          items:
+            type: string
+          description: Links to receipts, payment slips, etc.
+          example: [ "https://example.com/payslip.pdf" ]
+      required:
+        - amount
+        - category
+        - date
+        - currency
+
+    Ingress:
+      allOf:
+        - $ref: '#/components/schemas/IngressRequest'
+        - type: object
+          properties:
+            id:
+              type: string
+              description: Unique identifier for the ingress
+              example: "ing123"
+            createdAt:
+              type: string
+              format: date-time
+              description: Timestamp when the ingress was created
+            updatedAt:
+              type: string
+              format: date-time
+              description: Timestamp when the ingress was last updated
+          required:
+            - id
+            - createdAt
+            - updatedAt
+
+    Error:
+      type: object
+      properties:
+        code:
+          allOf:
+            - $ref: '#/components/schemas/ErrorCode'
+          x-go-type-skip-optional-pointer: true
+        message:
+          type: string
+          example: Required field is missed
+          x-go-type-skip-optional-pointer: true
+      required:
+        - code
+        - message
+    ErrorCode:
+      enum:
+        - NotAuthorized
+        - InvalidParameter
+        - InternalServerError
+        - Forbidden
+        - NotFound
+        - Conflict
+      type: string
+      x-enum-varnames:
+        - ErrorCodeNotAuthorized
+        - ErrorCodeInvalidParameter
+        - ErrorCodeInternalServerError
+        - ErrCodeForbidden
+        - ErrCodeNotFound
+        - ErrCodeConflict
+    AccountRequest:
+      type: object
+      properties:
+        name:
+          type: string
+          description: Name of the account
+          example: "Main Checking Account"
+        type:
+          type: string
+          enum: [ bank, cash, investment, crypto, other ]
+          description: Type of account
+          example: "bank"
+        institution:
+          type: string
+          description: Financial institution name (if applicable)
+          example: "Chase Bank"
+        currency:
+          type: string
+          description: Primary currency of the account
+          example: "USD"
+        initialBalance:
+          type: number
+          format: float
+          description: Initial balance when creating the account
+          example: 1000.00
+        active:
+          type: boolean
+          description: Whether the account is active
+          example: true
+        description:
+          type: string
+          description: Additional details about the account
+          example: "Main checking account for daily expenses"
+        accountNumber:
+          type: string
+          description: Last 4 digits or masked account number (for reference only)
+          example: "****1234"
+        accountInformation:
+          type: string
+          description: Plain text field containing account information
+          example: "IBAN: DE89 3704 0044 0532 0130 00, Account holder: John Doe"
+      required:
+        - name
+        - type
+        - currency
+        - initialBalance
+
+    Account:
+      allOf:
+        - $ref: '#/components/schemas/AccountRequest'
+        - type: object
+          properties:
+            id:
+              type: string
+              description: Unique identifier for the account
+              example: "acc123"
+            currentBalance:
+              type: number
+              format: float
+              description: Current balance of the account
+              example: 1250.75
+            accountInformation:
+              type: string
+              description: Plain text field containing account information
+              example: "IBAN: DE89 3704 0044 0532 0130 00, Account holder: John Doe"
+            createdAt:
+              type: string
+              format: date-time
+              description: Timestamp when the account was created
+            updatedAt:
+              type: string
+              format: date-time
+              description: Timestamp when the account was last updated
+          required:
+            - id
+            - currentBalance
+            - createdAt
+            - updatedAt
+
+    TransferRequest:
+      type: object
+      properties:
+        sourceAccountId:
+          type: string
+          description: ID of the source account
+          example: "acc123"
+        destinationAccountId:
+          type: string
+          description: ID of the destination account
+          example: "acc456"
+        amount:
+          type: number
+          format: float
+          description: Amount to transfer from source account
+          example: 500.00
+        destinationAmount:
+          type: number
+          format: float
+          description: Amount to be received at destination (for currency conversions)
+          example: 450.00
+        exchangeRate:
+          type: number
+          format: float
+          description: Exchange rate used for currency conversion
+          example: 0.9
+        date:
+          type: string
+          format: date
+          description: Date of the transfer
+          example: "2023-06-15"
+        type:
+          type: string
+          enum: [deposit, withdrawal, transfer]
+          description: Type of transfer
+          example: "transfer"
+        fees:
+          type: number
+          format: float
+          description: Any fees associated with the transfer
+          example: 5.00
+        description:
+          type: string
+          description: Additional details about the transfer
+          example: "Moving funds to savings account"
+        tags:
+          type: array
+          items:
+            type: string
+          description: List of tags associated with this transfer
+          example: ["savings", "monthly"]
+      required:
+        - sourceAccountId
+        - destinationAccountId
+        - amount
+        - date
+        - type
+
+    Transfer:
+      allOf:
+        - $ref: '#/components/schemas/TransferRequest'
+        - type: object
+          properties:
+            id:
+              type: string
+              description: Unique identifier for the transfer
+              example: "trf123"
+            status:
+              type: string
+              enum: [pending, completed, failed, cancelled]
+              description: Status of the transfer
+              example: "completed"
+            createdAt:
+              type: string
+              format: date-time
+              description: Timestamp when the transfer was created
+            updatedAt:
+              type: string
+              format: date-time
+              description: Timestamp when the transfer was last updated
+          required:
+            - id
+            - status
+            - createdAt
+            - updatedAt
+
+    BalanceSummary:
+      type: object
+      properties:
+        totalBalance:
+          type: number
+          format: float
+          description: Total balance across all accounts
+          example: 5750.25
+        currency:
+          type: string
+          description: Currency of the total balance
+          example: "USD"
+        accounts:
+          type: array
+          items:
+            type: object
+            properties:
+              accountId:
+                type: string
+                description: Account ID
+                example: "acc123"
+              name:
+                type: string
+                description: Account name
+                example: "Main Checking Account"
+              balance:
+                type: number
+                format: float
+                description: Current balance
+                example: 1250.75
+              currency:
+                type: string
+                description: Account currency
+                example: "USD"
+              convertedBalance:
+                type: number
+                format: float
+                description: Balance converted to requested currency
+                example: 1250.75
+              type:
+                type: string
+                description: Account type
+                example: "bank"
+        groupedBalances:
+          type: array
+          items:
+            type: object
+            properties:
+              groupKey:
+                type: string
+                description: Grouping key (currency, type, etc.)
+                example: "USD"
+              totalAmount:
+                type: number
+                format: float
+                description: Total amount for this group
+                example: 3500.25
+              percentage:
+                type: number
+                format: float
+                description: Percentage of total balance
+                example: 60.87
+      required:
+        - totalBalance
+        - currency
+        - accounts
+    SavingsGoalRequest:
+      type: object
+      properties:
+        name:
+          type: string
+          description: Name of the savings goal
+          example: "New Car"
+        category:
+          type: string
+          description: Category of the savings goal
+          example: "vehicle"
+        description:
+          type: string
+          description: Detailed description of the savings goal
+          example: "Saving for a new electric car"
+        targetAmount:
+          type: number
+          format: float
+          description: Target amount to save
+          example: 30000.00
+        currency:
+          type: string
+          description: Currency of the savings goal
+          example: "USD"
+        targetDate:
+          type: string
+          format: date
+          description: Target date to reach the goal (optional)
+          example: "2025-12-31"
+        initialAmount:
+          type: number
+          format: float
+          description: Initial amount already saved
+          example: 5000.00
+        accountId:
+          type: string
+          description: ID of the account where funds are stored
+          example: "acc123"
+        priority:
+          type: integer
+          description: Priority level (1-5, where 1 is highest)
+          example: 2
+        autoContribute:
+          type: boolean
+          description: Whether to automatically contribute to this goal
+          example: true
+        autoContributeAmount:
+          type: number
+          format: float
+          description: Amount to auto-contribute periodically
+          example: 500.00
+        autoContributeFrequency:
+          type: string
+          enum: [ daily, weekly, monthly, yearly ]
+          description: Frequency of auto-contributions
+          example: "monthly"
+        tags:
+          type: array
+          items:
+            type: string
+          description: Tags associated with this savings goal
+          example: [ "car", "major purchase" ]
+      required:
+        - name
+        - category
+        - targetAmount
+        - currency
+        - accountId
+
+    SavingsGoal:
+      allOf:
+        - $ref: '#/components/schemas/SavingsGoalRequest'
+        - type: object
+          properties:
+            id:
+              type: string
+              description: Unique identifier for the savings goal
+              example: "sav123"
+            currentAmount:
+              type: number
+              format: float
+              description: Current amount saved
+              example: 7500.00
+            percentComplete:
+              type: number
+              format: float
+              description: Percentage of goal completed
+              example: 25.0
+            status:
+              type: string
+              enum: [ active, completed, abandoned ]
+              description: Current status of the savings goal
+              example: "active"
+            projectedCompletionDate:
+              type: string
+              format: date
+              description: Estimated completion date based on contribution history
+              example: "2025-06-15"
+            createdAt:
+              type: string
+              format: date-time
+              description: Timestamp when the savings goal was created
+            updatedAt:
+              type: string
+              format: date-time
+
+    ExchangeRates:
+      type: object
+      properties:
+        baseCurrency:
+          type: string
+          description: Base currency for the rates
+          example: "USD"
+        date:
+          type: string
+          format: date
+          description: Date of the exchange rates
+          example: "2023-06-15"
+        rates:
+          type: object
+          additionalProperties:
+            type: number
+            format: float
+          description: Exchange rates for different currencies
+          example:
+            EUR: 0.92
+            GBP: 0.79
+            JPY: 145.32
+      required:
+        - baseCurrency
+        - date
+        - rates
+  responses:
+    200:
+      description: Success
+    400:
+      description: Bad Request
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/Error"
+    401:
+      description: Authentication failed
+    403:
+      description: Authorization failed
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+    404:
+      description: Not Found
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+    409:
+      description: Conflict
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+    500:
+      description: Internal Server Error
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+    503:
+      description: Service Unavailable
