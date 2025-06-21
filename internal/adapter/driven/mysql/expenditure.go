@@ -292,24 +292,22 @@ func (r *ExpenditureRepo) FindCategory(ctx context.Context, id string) (*openapi
 }
 
 func (r *ExpenditureRepo) ListCategories(ctx context.Context) ([]openapi.ExpenditureCategory, error) {
-	query := `SELECT id, name FROM expenditures_categories`
+	query := `SELECT id, name, description, color, background_color, active FROM expenditures_categories`
 
 	rows, errQuery := r.db.QueryContext(ctx, query)
 	if errQuery != nil {
 		return nil, fmt.Errorf("failed to select categories: %w", errQuery)
 	}
-
 	defer rows.Close()
-	var categories []string
+	var categories []openapi.ExpenditureCategory
 	for rows.Next() {
-		var categoryId, categoryName string
-		err := rows.Scan(&categoryId, &categoryName)
-		if err != nil {
-			return nil, fmt.Errorf("failed to scan row: %w", err)
-		}
-		categories = append(categories, fmt.Sprintf("%s (%s)", categoryId, categoryName))
+		var category openapi.ExpenditureCategory
+        err := rows.Scan(&category.Id, &category.Name, &category.Description, &category.Color, &category.BackgroundColor, &category.Active)
+        if err != nil {
+            return nil, fmt.Errorf("failed to scan row: %w", err)
+        }
+        categories = append(categories, category)
 	}
-
 	return categories, nil
 }
 

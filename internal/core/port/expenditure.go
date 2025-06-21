@@ -20,7 +20,7 @@ type ExpenditureRepo interface {
 
 	// Category operations
 	FindCategory(ctx context.Context, id string) (*openapi.ExpenditureCategory, error)
-	ListCategories(ctx context.Context) ([]string, error)
+	ListCategories(ctx context.Context) ([]openapi.ExpenditureCategory, error)
 	CreateCategory(ctx context.Context, name, description string) (string, error)
 	UpdateCategory(ctx context.Context, id string, name, description string) error
 	DeleteCategory(ctx context.Context, id string) error
