@@ -1,0 +1,36 @@
+type: object
+properties:
+  id:
+    type: string
+    description: Unique identifier for the user
+    example: "usr_123456789"
+  email:
+    type: string
+    format: email
+    description: User's email address
+    example: user@example.com
+  firstName:
+    type: string
+    description: User's first name
+    example: John
+  lastName:
+    type: string
+    description: User's last name
+    example: Doe
+  createdAt:
+    type: string
+    format: date-time
+    description: When the user account was created
+    example: 2023-01-15T10:30:00Z
+  updatedAt:
+    type: string
+    format: date-time
+    description: When the user account was last updated
+    example: 2023-01-15T10:30:00Z
+required:
+  - id
+  - email
+  - firstName
+  - lastName
+  - createdAt
+  - updatedAt

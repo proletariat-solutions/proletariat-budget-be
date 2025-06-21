@@ -1,0 +1,45 @@
+type: object
+properties:
+  amount:
+    type: number
+    format: float
+    description: The expenditure amount
+    example: 50
+  categoryId:
+    type: string
+    description: The category ID this expenditure belongs to
+    example: groceries
+  description:
+    type: string
+    description: The description of the expenditure
+    example: Groceries for the week, including food, hygiene, and snacks
+  accountId:
+    type: string
+    description: The account ID this expenditure is associated with
+    example: acc456
+  date:
+    type: string
+    format: date
+    description: The date of the expenditure
+    example: '2023-06-15'
+  planned:
+    type: boolean
+    description: Whether the expenditure is planned or non-planned
+    example: false
+  declared:
+    type: boolean
+    description: Whether the expenditure has been fiscally declared
+    example: true
+  tags:
+    type: array
+    items:
+      type: string
+    description: List of tag IDs associated with this expenditure
+    example:
+      - groceries
+      - weekly
+required:
+  - amount
+  - categoryId
+  - accountId
+  - date

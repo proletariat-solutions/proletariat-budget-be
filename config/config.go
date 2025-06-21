@@ -8,17 +8,15 @@ import (
 )
 
 type Configs struct {
-	Auth    *Auth
 	App     *App
-	MongoDB *Mongodb
+	MySQL   *MySQL
 	HTTP    *HTTP
 }
 
 func Load() *Configs {
 	cfg := &Configs{
-		Auth:    &Auth{},
 		App:     &App{},
-		MongoDB: &Mongodb{},
+		MySQL:   &MySQL{},
 		HTTP:    &HTTP{},
 	}
 	if err := env.Parse(cfg); err != nil {
@@ -26,21 +24,6 @@ func Load() *Configs {
 	}
 
 	return cfg
-}
-
-type Auth struct {
-	KeycloakHost    string `env:"KC_HOST" envDefault:"https://auth.hub-dev.invenco.com"`
-	KeycloakRealm   string `env:"KC_REALM" envDefault:"invenco-hub"`
-	ClientID        string `env:"AUTH_CLIENT_ID"`
-	ClientSecret    string `env:"AUTH_CLIENT_SECRET"`
-	ServiceUsername string `env:"AUTH_SERVICE_USERNAME"`
-	ServicePassword string `env:"AUTH_SERVICE_PASSWORD"`
-	LookupApiHost   string `env:"localhost:8080"`
-}
-
-type Mongodb struct {
-	Database     string `env:"MONGO_DATABASE" envDefault:"mydb"`
-	MyCollection string `env:"MONGO_MY_COLLECTION" envDefault:"mycoll"`
 }
 
 type HTTP struct {
@@ -52,4 +35,42 @@ type App struct {
 	LogLevel    string        `env:"LOG_LEVEL" envDefault:"debug"`
 	ServerPort  int           `env:"SERVER_PORT" envDefault:"8080"`
 	ReadTimeout time.Duration `env:"SERVER_READ_TIMEOUT" envDefault:"500s"`
+}
+
+// Add MySQL configuration
+type MySQL struct {
+	Host         string `env:"MYSQL_HOST" envDefault:"localhost"`
+	Port         string `env:"MYSQL_PORT" envDefault:"3306"`
+	Database     string `env:"MYSQL_DATABASE" envDefault:"proletariat_budget"`
+	User         string `env:"MYSQL_USER" envDefault:"root"`
+	Password     string `env:"MYSQL_PASSWORD" envDefault:""`
+	MaxOpenConns int    `env:"MYSQL_MAX_OPEN_CONNS" envDefault:"10"`
+	MaxIdleConns int    `env:"MYSQL_MAX_IDLE_CONNS" envDefault:"5"`
+	ConnMaxLife  int    `env:"MYSQL_CONN_MAX_LIFETIME" envDefault:"300"` // seconds
+}
+
+// ParseConfig parses environment variables into the config struct
+func ParseConfig() (*Configs, error) {
+	app := &App{}
+	mysql := &MySQL{}
+	http := &HTTP{}
+
+
+	if err := env.Parse(app); err != nil {
+		return nil, err
+	}
+
+	if err := env.Parse(mysql); err != nil {
+		return nil, err
+	}
+
+	if err := env.Parse(http); err != nil {
+		return nil, err
+	}
+
+	return &Configs{
+		App:     app,
+		MySQL:   mysql,
+		HTTP:    http,
+	}, nil
 }

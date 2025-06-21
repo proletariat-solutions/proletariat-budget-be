@@ -1,0 +1,68 @@
+post:
+  summary: Create a new money account
+  description: >-
+    Creates a new account to track money (bank account, cash, investment
+    platform, etc.)
+  operationId: createAccount
+  requestBody:
+    required: true
+    content:
+      application/json:
+        schema:
+          $ref: ../components/schemas/AccountRequest.yaml
+  responses:
+    '201':
+      description: Account created successfully
+      content:
+        application/json:
+          schema:
+            $ref: ../components/schemas/Account.yaml
+    '400':
+      $ref: ../components/responses/400.yaml
+    '401':
+      $ref: ../components/responses/401.yaml
+    '500':
+      $ref: ../components/responses/500.yaml
+get:
+  summary: List all accounts
+  description: Returns a list of all money accounts with optional filtering
+  operationId: listAccounts
+  parameters:
+    - name: type
+      in: query
+      schema:
+        type: string
+      description: Filter by account type (bank, cash, platform)
+    - name: currency
+      in: query
+      schema:
+        type: string
+      description: Filter by currency
+    - name: active
+      in: query
+      schema:
+        type: boolean
+      description: Filter by active status
+    - name: limit
+      in: query
+      schema:
+        type: integer
+      description: Limit the number of results
+    - name: offset
+      in: query
+      schema:
+        type: integer
+      description: Offset the result set
+  responses:
+    '200':
+      description: List of accounts
+      content:
+        application/json:
+          schema:
+            type: array
+            items:
+              $ref: ../components/schemas/AccountList.yaml
+    '401':
+      $ref: ../components/responses/401.yaml
+    '500':
+      $ref: ../components/responses/500.yaml

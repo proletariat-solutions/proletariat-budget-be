@@ -1,0 +1,22 @@
+type: object
+properties:
+  name:
+    type: string
+    description: Name of the tag
+    example: monthly
+  color:
+    type: string
+    description: Text color code for UI representation (hex format)
+    example: '#2196F3'
+    pattern: ^#([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})$
+  backgroundColor:
+    type: string
+    description: Background color code for UI representation (hex format)
+    example: '#E3F2FD'
+    pattern: ^#([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})$
+  description:
+    type: string
+    description: Description of the tag
+    example: Regular monthly expenses
+required:
+  - name

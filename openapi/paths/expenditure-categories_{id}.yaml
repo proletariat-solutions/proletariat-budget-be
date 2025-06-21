@@ -1,0 +1,50 @@
+delete:
+  summary: Delete expenditure category
+  operationId: deleteExpenditureCategory
+  description: Delete an expenditure category by ID
+  parameters:
+    - name: id
+      in: path
+      required: true
+      schema:
+        type: string
+      description: Expenditure category ID
+  responses:
+    '204':
+      description: Category deleted successfully
+    '401':
+      $ref: ../components/responses/401.yaml
+    '404':
+      $ref: ../components/responses/404.yaml
+    '500':
+      $ref: ../components/responses/500.yaml
+put:
+  summary: Update expenditure category
+  operationId: updateExpenditureCategory
+  description: Update an expenditure category by ID
+  parameters:
+    - name: id
+      in: path
+      required: true
+      schema:
+        type: string
+      description: Expenditure category ID
+  requestBody:
+    required: true
+    content:
+      application/json:
+        schema:
+          $ref: ../components/schemas/ExpenditureCategoryRequest.yaml
+  responses:
+    '200':
+      description: Category updated successfully
+      content:
+        application/json:
+          schema:
+            $ref: ../components/schemas/ExpenditureCategory.yaml
+    '400':
+      $ref: ../components/responses/400.yaml
+    '404':
+      $ref: ../components/responses/404.yaml
+    '500':
+      $ref: ../components/responses/500.yaml

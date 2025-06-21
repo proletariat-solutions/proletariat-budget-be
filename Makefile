@@ -17,8 +17,10 @@ lint:
 ## codegen: installs (if necessary) and updates the oapi specs
 codegen:
 	go install github.com/oapi-codegen/oapi-codegen/v2/cmd/oapi-codegen@latest
-	oapi-codegen -config ./openapi/oapi-gen.cfg.yaml ./openapi/api-v1.yaml
-	go mod tidy
+	npx @redocly/cli bundle ./openapi/openapi.yaml > ./openapi/out.yaml
+	oapi-codegen -config ./openapi/oapi-gen.cfg.yaml ./openapi/out.yaml
+	go mod tidy && \
+    rm ./openapi/out.yaml
 
 .PHONY: test
 ## test: run unit tests
@@ -34,6 +36,18 @@ run:
 ## down: stop and remove docker containers
 down:
 	docker compose -f examples/docker-compose.yaml down
+
+.PHONY: migrate-create migrate-up migrate-down
+
+migrate-create:
+	@read -p "Enter migration name: " name; \
+	migrate create -ext sql -dir migrations/mysql -seq $$name
+
+migrate-up:
+	migrate -path migrations/mysql -database "mysql://${MYSQL_USER}:${MYSQL_PASSWORD}@tcp(${MYSQL_HOST}:${MYSQL_PORT})/${MYSQL_DATABASE}" up
+
+migrate-down:
+	migrate -path migrations/mysql -database "mysql://${MYSQL_USER}:${MYSQL_PASSWORD}@tcp(${MYSQL_HOST}:${MYSQL_PORT})/${MYSQL_DATABASE}" down
 
 # help: show this help message
 help: Makefile

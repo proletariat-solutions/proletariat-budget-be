@@ -1,0 +1,61 @@
+post:
+  summary: Create a new household member
+  description: Creates a new household member record for budget management
+  operationId: createHouseholdMember
+  requestBody:
+    required: true
+    content:
+      application/json:
+        schema:
+          $ref: ../components/schemas/HouseholdMemberRequest.yaml
+  responses:
+    '201':
+      description: Household member created successfully
+      content:
+        application/json:
+          schema:
+            $ref: ../components/schemas/HouseholdMember.yaml
+    '400':
+      $ref: ../components/responses/400.yaml
+    '401':
+      $ref: ../components/responses/401.yaml
+    '500':
+      $ref: ../components/responses/500.yaml
+get:
+  summary: List all household members
+  description: Returns a list of all household members with optional filtering
+  operationId: listHouseholdMembers
+  parameters:
+    - name: active
+      in: query
+      schema:
+        type: boolean
+      description: Filter by active status
+    - name: role
+      in: query
+      schema:
+        type: string
+      description: Filter by household role
+    - name: limit
+      in: query
+      schema:
+        type: integer
+      description: Limit the number of results
+    - name: offset
+      in: query
+      schema:
+        type: integer
+      description: Offset the result set
+  responses:
+    '200':
+      description: List of household members
+      content:
+        application/json:
+          schema:
+            type: array
+            items:
+              $ref: ../components/schemas/HouseholdMemberList.yaml
+    '401':
+      $ref: ../components/responses/401.yaml
+    '500':
+      $ref: ../components/responses/500.yaml

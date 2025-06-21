@@ -2,20 +2,20 @@ package main
 
 import (
 	"context"
-	"net/http"
+	"database/sql"
+	"fmt"
+	mysql2 "ghorkov32/proletariat-budget-be/internal/adapter/driven/mysql"
+	resthttp2 "ghorkov32/proletariat-budget-be/internal/adapter/driving/resthttp"
 	"os"
 	"os/signal"
 	"syscall"
+	"time"
 
 	"ghorkov32/proletariat-budget-be/config"
-	"ghorkov32/proletariat-budget-be/internal/adapter/mongodb"
 	"ghorkov32/proletariat-budget-be/internal/adapter/resthttp"
 	"ghorkov32/proletariat-budget-be/internal/common"
 	"ghorkov32/proletariat-budget-be/internal/core/usecase"
 	"ghorkov32/proletariat-budget-be/openapi"
-	"github.com/inv-cloud-platform/hub-com-auth-go/hubauth"
-	"github.com/inv-cloud-platform/hub-com-tools-go/hubmiddlewares"
-	"github.com/inv-cloud-platform/hub-com-tools-go/hubmongo"
 	"github.com/rs/zerolog/log"
 )
 
@@ -25,69 +25,54 @@ func main() {
 	common.SetupLogger(configs.App.LogLevel)
 
 	appCtx := context.Background()
-	token := hubauth.NewTokenV2(hubauth.TokenConfig{
-		Host:     configs.Auth.KeycloakHost,
-		Realm:    configs.Auth.KeycloakRealm,
-		Client:   configs.Auth.ClientID,
-		Secret:   configs.Auth.ClientSecret,
-		Username: configs.Auth.ServiceUsername,
-		Password: configs.Auth.ServicePassword,
-	})
-
-	token.StartAutoRefreshV2(appCtx, func(err error) {
-		log.Fatal().Err(err).Msg("unable to generate token")
-	})
-
-	// https://github.com/inv-cloud-platform/hub-com-tools-go/blob/main/hubmongo/README.md#connect
-	mongoClient, errMongo := hubmongo.ConnectV2(hubmongo.DefaultConnection())
-	if errMongo != nil {
-		log.Fatal().Err(errMongo).Msg("unable to connect to mongodb")
-	}
-
-	scopeLookup, errLookup := hubauth.NewScopeLookup(hubauth.DefaultScopeOptions().WithAddress(configs.Auth.LookupApiHost))
-	if errLookup != nil {
-		log.Fatal().Err(errLookup).Msg("unable to create scope lookup")
-	}
 
 	accessChecker := usecase.NewAccessChecker(scopeLookup)
-	userRepo := mongodb.NewUserRepo(mongoClient)
 	userSvc := usecase.NewCreateUser(userRepo)
 	userController := resthttp.NewUserController(userSvc, accessChecker)
 	userHandler := openapi.NewStrictHandler(userController, nil)
 
-	auth := hubauth.NewAuthorization(
-		configs.Auth.KeycloakHost,
-		configs.Auth.KeycloakRealm,
-	)
+	// Run database migrations
+	migrationConfig := mysql2.MigrationConfig{
+		MigrationsPath: "./migrations/mysql",
+		DBName:         configs.MySQL.Database,
+		DBUser:         configs.MySQL.User,
+		DBPassword:     configs.MySQL.Password,
+		DBHost:         configs.MySQL.Host,
+		DBPort:         configs.MySQL.Port,
+	}
+
+	if err := mysql2.RunMigrations(migrationConfig); err != nil {
+		log.Fatal().Err(err).Msg("Failed to run database migrations")
+	}
+
+	// Initialize MySQL connection
+	dsn := fmt.Sprintf("%s:%s@tcp(%s:%s)/%s?parseTime=true",
+		configs.MySQL.User, configs.MySQL.Password, configs.MySQL.Host, configs.MySQL.Port, configs.MySQL.Database)
+
+	db, err := sql.Open("mysql", dsn)
+	if err != nil {
+		log.Fatal().Err(err).Msg("Failed to connect to MySQL")
+	}
+	defer db.Close()
+
+	// Configure connection pool
+	db.SetMaxOpenConns(configs.MySQL.MaxOpenConns)
+	db.SetMaxIdleConns(configs.MySQL.MaxIdleConns)
+	db.SetConnMaxLifetime(time.Duration(configs.MySQL.ConnMaxLife) * time.Second)
+
+	// Initialize repositories
+	accountRepo := mysql2.NewAccountRepo(db)
 
 	oapiSpec, errSw := openapi.GetSwagger()
 	if errSw != nil {
 		log.Warn().Err(errSw).Msg("unable to fetch openapi spec")
 	}
 
-	httpServer := resthttp.NewHTTPServer(
+	httpServer := resthttp2.NewHTTPServer(
 		configs.App,
 		openapi.Handler(userHandler),
-		resthttp.MetricsCollector,
-		// TODO:  Remove if you don't need. Generally used by BFFs.
-		hubmiddlewares.Proxy("/proxy/myApi", "http://localhost:8080", &hubmiddlewares.ProxyOptions{
-			ProxyLogic: hubmiddlewares.PROXY_SELECTED,
-			Endpoints: map[string][]string{
-				"/something": {http.MethodGet},
-			},
-		}),
-		hubmiddlewares.RequestTrack("/health"),
-		hubmiddlewares.Health("/health",
-			hubmiddlewares.HealthCheckMongoDB("mongodb", mongoClient),
-		),
-		hubmiddlewares.Spec(
-			hubmiddlewares.SpecOptionsTitle(oapiSpec.Info.Title),
-			hubmiddlewares.SpecOptionsObjectSpec(oapiSpec),
-		),
-		auth.Middleware(&hubauth.MiddlewareConfig{
-			Strategy: hubauth.AllOf,
-			Domains:  []string{common.Domain},
-		}),
+		resthttp2.MetricsCollector,
+		// TODO:  Middlewares
 	)
 	go httpServer.Start()
 	defer func(ctx context.Context) {

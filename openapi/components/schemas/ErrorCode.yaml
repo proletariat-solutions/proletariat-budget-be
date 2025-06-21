@@ -1,0 +1,15 @@
+enum:
+  - NotAuthorized
+  - InvalidParameter
+  - InternalServerError
+  - Forbidden
+  - NotFound
+  - Conflict
+type: string
+x-enum-varnames:
+  - ErrorCodeNotAuthorized
+  - ErrorCodeInvalidParameter
+  - ErrorCodeInternalServerError
+  - ErrCodeForbidden
+  - ErrCodeNotFound
+  - ErrCodeConflict

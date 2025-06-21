@@ -18,7 +18,8 @@ COPY . ./
 
 # Install oapi-codegen and generate go-chi boilerplate
 RUN go install github.com/oapi-codegen/oapi-codegen/v2/cmd/oapi-codegen@v2.4.0 \
-    && mkdir -p openapi && oapi-codegen -package openapi -config oapi-gen.cfg.yaml api-v1.yaml
+    && mkdir -p openapi && npx @redocly/cli bundle ./openapi/openapi.yaml > ./openapi/out.yaml \
+    && oapi-codegen -package openapi -config oapi-gen.cfg.yaml out.yaml
 
 # Build and run the app
 RUN CGO_ENABLED=0 GOOS=linux go build -ldflags "-s -w" -o /api

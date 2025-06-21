@@ -1,0 +1,69 @@
+parameters:
+  - name: id
+    in: path
+    required: true
+    schema:
+      type: string
+    description: Savings goal ID
+post:
+  summary: Add contribution to savings goal
+  description: Adds a new contribution to an existing savings goal
+  operationId: addSavingsContribution
+  requestBody:
+    required: true
+    content:
+      application/json:
+        schema:
+          $ref: ../components/schemas/SavingsContributionRequest.yaml
+  responses:
+    '201':
+      description: Contribution added successfully
+      content:
+        application/json:
+          schema:
+            $ref: ../components/schemas/SavingsContribution.yaml
+    '400':
+      $ref: ../components/responses/400.yaml
+    '401':
+      $ref: ../components/responses/401.yaml
+    '404':
+      $ref: ../components/responses/404.yaml
+    '500':
+      $ref: ../components/responses/500.yaml
+get:
+  summary: List contributions for a savings goal
+  description: Returns a list of all contributions for a specific savings goal
+  operationId: listSavingsContributions
+  parameters:
+    - name: startDate
+      in: query
+      schema:
+        type: string
+        format: date
+      description: Filter by start date (inclusive)
+    - name: endDate
+      in: query
+      schema:
+        type: string
+        format: date
+      description: Filter by end date (inclusive)
+    - name: sourceAccountId
+      in: query
+      schema:
+        type: string
+      description: Filter by source account ID
+  responses:
+    '200':
+      description: List of contributions
+      content:
+        application/json:
+          schema:
+            type: array
+            items:
+              $ref: ../components/schemas/SavingsContribution.yaml
+    '401':
+      $ref: ../components/responses/401.yaml
+    '404':
+      $ref: ../components/responses/404.yaml
+    '500':
+      $ref: ../components/responses/500.yaml

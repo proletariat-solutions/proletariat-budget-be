@@ -1,0 +1,62 @@
+parameters:
+  - name: id
+    in: path
+    required: true
+    schema:
+      type: string
+    description: Savings goal ID
+get:
+  summary: Get savings goal by ID
+  description: Returns a single savings goal by ID
+  operationId: getSavingsGoal
+  responses:
+    '200':
+      description: Savings goal found
+      content:
+        application/json:
+          schema:
+            $ref: ../components/schemas/SavingsGoal.yaml
+    '401':
+      $ref: ../components/responses/401.yaml
+    '404':
+      $ref: ../components/responses/404.yaml
+    '500':
+      $ref: ../components/responses/500.yaml
+put:
+  summary: Update savings goal
+  description: Updates an existing savings goal
+  operationId: updateSavingsGoal
+  requestBody:
+    required: true
+    content:
+      application/json:
+        schema:
+          $ref: ../components/schemas/SavingsGoalRequest.yaml
+  responses:
+    '200':
+      description: Savings goal updated successfully
+      content:
+        application/json:
+          schema:
+            $ref: ../components/schemas/SavingsGoal.yaml
+    '400':
+      $ref: ../components/responses/400.yaml
+    '401':
+      $ref: ../components/responses/401.yaml
+    '404':
+      $ref: ../components/responses/404.yaml
+    '500':
+      $ref: ../components/responses/500.yaml
+delete:
+  summary: Delete savings goal
+  description: Deletes a savings goal by ID
+  operationId: deleteSavingsGoal
+  responses:
+    '204':
+      description: Savings goal deleted successfully
+    '401':
+      $ref: ../components/responses/401.yaml
+    '404':
+      $ref: ../components/responses/404.yaml
+    '500':
+      $ref: ../components/responses/500.yaml

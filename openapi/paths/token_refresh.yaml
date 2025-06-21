@@ -1,0 +1,20 @@
+post:
+  tags:
+    - Authentication
+  summary: Refresh authentication token
+  operationId: refreshToken
+  security:
+    - BearerAuth: [ ]
+  responses:
+    '200':
+      description: Token refreshed
+      content:
+        application/json:
+          schema:
+            $ref: '../components/schemas/LoginResponse.yaml'
+    '401':
+      description: Unauthorized
+      content:
+        application/json:
+          schema:
+            $ref: '../components/schemas/LoginResponse.yaml'

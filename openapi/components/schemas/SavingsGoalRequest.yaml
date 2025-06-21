@@ -1,0 +1,73 @@
+type: object
+properties:
+  name:
+    type: string
+    description: Name of the savings goal
+    example: New Car
+  category:
+    type: string
+    description: Category of the savings goal
+    example: vehicle
+  description:
+    type: string
+    description: Detailed description of the savings goal
+    example: Saving for a new electric car
+  targetAmount:
+    type: number
+    format: float
+    description: Target amount to save
+    example: 30000
+  currency:
+    type: string
+    description: Currency of the savings goal
+    example: USD
+  targetDate:
+    type: string
+    format: date
+    description: Target date to reach the goal (optional)
+    example: '2025-12-31'
+  initialAmount:
+    type: number
+    format: float
+    description: Initial amount already saved
+    example: 5000
+  accountId:
+    type: string
+    description: ID of the account where funds are stored
+    example: acc123
+  priority:
+    type: integer
+    description: Priority level (1-5, where 1 is highest)
+    example: 2
+  autoContribute:
+    type: boolean
+    description: Whether to automatically contribute to this goal
+    example: true
+  autoContributeAmount:
+    type: number
+    format: float
+    description: Amount to auto-contribute periodically
+    example: 500
+  autoContributeFrequency:
+    type: string
+    enum:
+      - daily
+      - weekly
+      - monthly
+      - yearly
+    description: Frequency of auto-contributions
+    example: monthly
+  tags:
+    type: array
+    items:
+      type: string
+    description: Tag IDs associated with this savings goal
+    example:
+      - car
+      - major purchase
+required:
+  - name
+  - category
+  - targetAmount
+  - currency
+  - accountId

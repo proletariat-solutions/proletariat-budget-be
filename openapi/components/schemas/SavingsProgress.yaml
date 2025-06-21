@@ -1,0 +1,101 @@
+type: object
+properties:
+  goalId:
+    type: string
+    description: ID of the savings goal
+    example: goal123
+  name:
+    type: string
+    description: Name of the savings goal
+    example: New Car Fund
+  targetAmount:
+    type: number
+    format: float
+    description: Target amount to save
+    example: 15000
+  currentAmount:
+    type: number
+    format: float
+    description: Current amount saved
+    example: 5000
+  percentComplete:
+    type: number
+    format: float
+    description: Percentage of goal completed
+    example: 33.33
+  remainingAmount:
+    type: number
+    format: float
+    description: Amount still needed to reach goal
+    example: 10000
+  currency:
+    type: string
+    description: Currency of the savings goal
+    example: USD
+  targetDate:
+    type: string
+    format: date
+    description: Target date to reach the goal
+    example: '2024-12-31'
+  daysRemaining:
+    type: integer
+    description: Number of days remaining until target date
+    example: 245
+  projectedCompletionDate:
+    type: string
+    format: date
+    description: Projected date when goal will be reached based on current rate
+    example: '2025-03-15'
+  onTrack:
+    type: boolean
+    description: Whether the goal is on track to be completed by target date
+    example: false
+  contributionHistory:
+    type: array
+    items:
+      type: object
+      properties:
+        month:
+          type: string
+          format: date
+          description: Month of contributions (YYYY-MM format)
+          example: 2023-07
+        amount:
+          type: number
+          format: float
+          description: Total contributions for that month
+          example: 300
+  recentActivity:
+    type: array
+    items:
+      type: object
+      properties:
+        type:
+          type: string
+          enum:
+            - contribution
+            - withdrawal
+          description: Type of activity
+          example: contribution
+        date:
+          type: string
+          format: date
+          description: Date of activity
+          example: '2023-07-15'
+        amount:
+          type: number
+          format: float
+          description: Amount of activity
+          example: 100
+        description:
+          type: string
+          description: Description of activity
+          example: Monthly contribution from salary
+required:
+  - goalId
+  - name
+  - targetAmount
+  - currentAmount
+  - percentComplete
+  - remainingAmount
+  - currency

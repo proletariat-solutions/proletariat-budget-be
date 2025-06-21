@@ -1,0 +1,22 @@
+type: object
+required:
+  - firstName
+  - lastName
+  - role
+properties:
+  firstName:
+    type: string
+    description: First name of the household member
+  lastName:
+    type: string
+    description: Last name of the household member
+  nickname:
+    type: string
+    description: Nickname or preferred name of the household member
+  role:
+    type: string
+    description: Role in the household (e.g., parent, child, roommate)
+  active:
+    type: boolean
+    description: Whether the household member is currently active in budget planning
+    default: true

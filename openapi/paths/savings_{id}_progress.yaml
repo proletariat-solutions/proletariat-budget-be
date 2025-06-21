@@ -1,0 +1,24 @@
+parameters:
+  - name: id
+    in: path
+    required: true
+    schema:
+      type: string
+    description: Savings goal ID
+get:
+  summary: Get savings goal progress
+  description: Returns detailed progress information for a savings goal
+  operationId: getSavingsProgress
+  responses:
+    '200':
+      description: Savings goal progress
+      content:
+        application/json:
+          schema:
+            $ref: ../components/schemas/SavingsProgress.yaml
+    '401':
+      $ref: ../components/responses/401.yaml
+    '404':
+      $ref: ../components/responses/404.yaml
+    '500':
+      $ref: ../components/responses/500.yaml

@@ -1,0 +1,87 @@
+post:
+  summary: Create a new savings goal
+  description: Creates a new savings goal with target amount and optional deadline
+  operationId: createSavingsGoal
+  requestBody:
+    required: true
+    content:
+      application/json:
+        schema:
+          $ref: ../components/schemas/SavingsGoalRequest.yaml
+  responses:
+    '201':
+      description: Savings goal created successfully
+      content:
+        application/json:
+          schema:
+            $ref: ../components/schemas/SavingsGoal.yaml
+    '400':
+      $ref: ../components/responses/400.yaml
+    '401':
+      $ref: ../components/responses/401.yaml
+    '500':
+      $ref: ../components/responses/500.yaml
+get:
+  summary: List all savings goals
+  description: Returns a list of all savings goals with optional filtering
+  operationId: listSavingsGoals
+  parameters:
+    - name: category
+      in: query
+      schema:
+        type: string
+      description: Filter by goal category
+    - name: status
+      in: query
+      schema:
+        type: string
+        enum:
+          - active
+          - completed
+          - abandoned
+      description: Filter by goal status
+    - name: currency
+      in: query
+      schema:
+        type: string
+      description: Filter by currency
+    - name: accountId
+      in: query
+      schema:
+        type: string
+      description: Filter by associated account ID
+    - name: targetDateBefore
+      in: query
+      schema:
+        type: string
+        format: date
+      description: Filter by target date before specified date
+    - name: targetDateAfter
+      in: query
+      schema:
+        type: string
+        format: date
+      description: Filter by target date after specified date
+    - name: limit
+      in: query
+      schema:
+        type: integer
+      description: Limit the number of results
+    - name: offset
+      in: query
+      schema:
+        type: integer
+      description: Offset the result set
+  responses:
+    '200':
+      description: List of savings goals
+      content:
+        application/json:
+          schema:
+            type: array
+            items:
+              $ref: ../components/schemas/SavingsGoalList.yaml
+    '401':
+      $ref: ../components/responses/401.yaml
+    '500':
+      $ref: ../components/responses/500.yaml

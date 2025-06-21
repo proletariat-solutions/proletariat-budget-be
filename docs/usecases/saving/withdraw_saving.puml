@@ -1,0 +1,162 @@
+/'
+    Use case: User withdraws funds from a savings goal.
+    Actors: User, System
+    Precondition:
+    - A savings goal exists and has funds available.
+    - The goal is in "active" or "completed" status.
+    Postcondition:
+    - Funds are transferred from the goal's account to the destination account.
+    - The current amount of the savings goal is decreased.
+    - The progress percentage is updated.
+    - The soft lock on the account is reduced.
+    - Transaction records are created.
+    - Goal status may change if fully withdrawn.
+    Trigger: User initiates a withdrawal from a savings goal.
+'/
+
+@startuml
+left to right direction
+actor "User" as user
+actor "System" as system
+
+rectangle "Savings Goal Withdrawal System" {
+  usecase "Withdraw from Savings Goal" as UC1
+  usecase "Select Savings Goal" as UC2
+  usecase "Specify Withdrawal Amount" as UC3
+  usecase "Select Destination Account" as UC4
+  usecase "Verify Available Funds in Goal" as UC5
+  usecase "Provide Withdrawal Reason" as UC6
+  usecase "Confirm Withdrawal" as UC7
+  usecase "Process Transfer" as UC8
+  usecase "Update Savings Goal Progress" as UC9
+  usecase "Reduce Soft Lock" as UC10
+  usecase "Create Transaction Records" as UC11
+  usecase "Check Goal Status" as UC12
+  usecase "Generate Withdrawal Receipt" as UC13
+}
+
+user --> UC1
+UC1 ..> UC2 : <<include>>
+UC1 ..> UC3 : <<include>>
+UC1 ..> UC4 : <<include>>
+UC1 ..> UC5 : <<include>>
+UC1 ..> UC6 : <<include>>
+UC1 ..> UC7 : <<include>>
+UC7 ..> UC8 : <<extend>> <<if user confirms>>
+UC8 ..> UC9 : <<include>>
+UC9 ..> UC10 : <<include>>
+UC8 ..> UC11 : <<include>>
+UC9 ..> UC12 : <<include>>
+UC8 ..> UC13 : <<include>>
+
+user --> UC2
+user --> UC3
+user --> UC4
+user --> UC6
+user --> UC7
+system --> UC5
+system --> UC8
+system --> UC9
+system --> UC10
+system --> UC11
+system --> UC12
+system --> UC13
+
+note right of UC1
+  User initiates:
+  - Withdrawal from savings goal
+  - Partial or full withdrawal
+end note
+
+note right of UC2
+  User:
+  - Views list of savings goals with funds
+  - Selects goal to withdraw from
+  - Views current goal progress
+end note
+
+note right of UC3
+  User:
+  - Enters withdrawal amount
+  - System validates amount is positive
+  - System checks amount <= current goal amount
+  - System warns if withdrawal impacts goal progress
+end note
+
+note right of UC4
+  User:
+  - Selects destination account for funds
+  - System validates account is active
+  - System checks account can receive funds
+end note
+
+note right of UC5
+  System:
+  - Verifies goal has sufficient funds
+  - Checks current amount >= withdrawal amount
+  - Validates goal is not locked/frozen
+end note
+
+note right of UC6
+  User:
+  - Provides reason for withdrawal
+  - Selects from common reasons or enters custom
+  - System records reason for reporting
+end note
+
+note right of UC7
+  System:
+  - Displays withdrawal summary
+  - Shows impact on goal progress
+  - Warns about potential consequences
+  - Asks user to confirm withdrawal
+end note
+
+note right of UC8
+  System:
+  - Transfers funds from goal account
+  - Updates goal account balance
+  - Updates destination account balance
+  - Records transfer timestamp
+end note
+
+note right of UC9
+  System:
+  - Decreases current amount of savings goal
+  - Recalculates progress percentage
+  - Updates projected completion date
+  - Refreshes goal statistics
+end note
+
+note right of UC10
+  System:
+  - Decreases soft lock amount on account
+  - Updates account metadata
+  - Adjusts available balance calculation
+end note
+
+note right of UC11
+  System:
+  - Creates goal withdrawal record
+  - Creates destination account transaction
+  - Links transactions together
+  - Records transaction metadata
+end note
+
+note right of UC12
+  System:
+  - Checks if goal is now empty
+  - Updates goal status if needed
+  - May mark as "abandoned" if fully withdrawn
+  - Checks if auto-contributions should continue
+end note
+
+note right of UC13
+  System:
+  - Generates withdrawal confirmation
+  - Shows updated goal progress
+  - Provides transaction reference
+  - Offers options for next actions
+end note
+
+@enduml

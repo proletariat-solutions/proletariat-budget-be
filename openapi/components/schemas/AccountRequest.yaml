@@ -1,0 +1,50 @@
+type: object
+properties:
+  name:
+    type: string
+    description: Name of the account
+    example: Main Checking Account
+  type:
+    type: string
+    enum:
+      - bank
+      - cash
+      - investment
+      - crypto
+      - other
+    description: Type of account
+    example: bank
+  institution:
+    type: string
+    description: Financial institution name (if applicable)
+    example: Chase Bank
+  currency:
+    type: string
+    description: Primary currency of the account
+    example: USD
+  initialBalance:
+    type: number
+    format: float
+    description: Initial balance when creating the account
+    example: 1000
+  active:
+    type: boolean
+    description: Whether the account is active
+    example: true
+  description:
+    type: string
+    description: Additional details about the account
+    example: Main checking account for daily expenses
+  accountNumber:
+    type: string
+    description: Last 4 digits or masked account number (for reference only)
+    example: '****1234'
+  accountInformation:
+    type: string
+    description: Plain text field containing account information
+    example: 'IBAN: DE89 3704 0044 0532 0130 00, Account holder: John Doe'
+required:
+  - name
+  - type
+  - currency
+  - initialBalance

@@ -1,0 +1,62 @@
+parameters:
+  - name: id
+    in: path
+    required: true
+    schema:
+      type: string
+    description: Expenditure ID
+get:
+  summary: Get expenditure by ID
+  description: Returns a single expenditure by ID
+  operationId: getExpenditure
+  responses:
+    '200':
+      description: Expenditure found
+      content:
+        application/json:
+          schema:
+            $ref: ../components/schemas/Expenditure.yaml
+    '401':
+      $ref: ../components/responses/401.yaml
+    '404':
+      $ref: ../components/responses/404.yaml
+    '500':
+      $ref: ../components/responses/500.yaml
+put:
+  summary: Update expenditure
+  description: Updates an existing expenditure
+  operationId: updateExpenditure
+  requestBody:
+    required: true
+    content:
+      application/json:
+        schema:
+          $ref: ../components/schemas/ExpenditureRequest.yaml
+  responses:
+    '200':
+      description: Expenditure updated successfully
+      content:
+        application/json:
+          schema:
+            $ref: ../components/schemas/Expenditure.yaml
+    '400':
+      $ref: ../components/responses/400.yaml
+    '401':
+      $ref: ../components/responses/401.yaml
+    '404':
+      $ref: ../components/responses/404.yaml
+    '500':
+      $ref: ../components/responses/500.yaml
+delete:
+  summary: Delete expenditure
+  description: Deletes an expenditure by ID
+  operationId: deleteExpenditure
+  responses:
+    '204':
+      description: Expenditure deleted successfully
+    '401':
+      $ref: ../components/responses/401.yaml
+    '404':
+      $ref: ../components/responses/404.yaml
+    '500':
+      $ref: ../components/responses/500.yaml

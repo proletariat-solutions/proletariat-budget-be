@@ -1,0 +1,87 @@
+get:
+  summary: List all transactions
+  description: |
+    Retrieves a list of all financial transactions across the system, including expenditures, 
+    ingresses, transfers, savings contributions, and savings withdrawals.
+  operationId: listTransactions
+  parameters:
+    - name: startDate
+      in: query
+      description: Filter transactions after this date
+      required: false
+      schema:
+        type: string
+        format: date
+    - name: endDate
+      in: query
+      description: Filter transactions before this date
+      required: false
+      schema:
+        type: string
+        format: date
+    - name: accountId
+      in: query
+      description: Filter by account ID
+      required: false
+      schema:
+        type: string
+    - name: transactionType
+      in: query
+      description: Filter by transaction type
+      required: false
+      schema:
+        type: string
+        enum: [expenditure, ingress, transfer, savings_contribution, savings_withdrawal]
+    - name: minAmount
+      in: query
+      description: Filter by minimum amount
+      required: false
+      schema:
+        type: number
+        format: float
+    - name: maxAmount
+      in: query
+      description: Filter by maximum amount
+      required: false
+      schema:
+        type: number
+        format: float
+    - name: currency
+      in: query
+      description: Filter by currency
+      required: false
+      schema:
+        type: string
+    - name: limit
+      in: query
+      description: Limit the number of results
+      required: true
+      schema:
+        type: integer
+        default: 50
+    - name: offset
+      in: query
+      description: Offset the result set
+      required: true
+      schema:
+        type: integer
+        default: 0
+  responses:
+    '200':
+      description: List of transactions
+      content:
+        application/json:
+          schema:
+            $ref: '../components/schemas/TransactionList.yaml'
+    '400':
+      description: Bad request
+      content:
+        application/json:
+          schema:
+            $ref: '../components/schemas/Error.yaml'
+    '500':
+      description: Internal server error
+      content:
+        application/json:
+          schema:
+            $ref: '../components/schemas/Error.yaml'

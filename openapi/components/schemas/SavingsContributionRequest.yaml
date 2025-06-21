@@ -1,0 +1,32 @@
+type: object
+properties:
+  amount:
+    type: number
+    format: float
+    description: The contribution amount
+    example: 100
+  date:
+    type: string
+    format: date
+    description: The date of the contribution
+    example: '2023-07-15'
+  sourceAccountId:
+    type: string
+    description: ID of the account the contribution is coming from
+    example: acc123
+  notes:
+    type: string
+    description: Additional notes about the contribution
+    example: Monthly contribution from salary
+  tags:
+    type: array
+    items:
+      type: string
+    description: List of tag IDs associated with this contribution
+    example:
+      - monthly
+      - automatic
+required:
+  - amount
+  - date
+  - sourceAccountId
