@@ -1,0 +1,10 @@
+allOf:
+  - $ref: ./IngressCategoryRequest.yaml
+  - type: object
+    properties:
+      id:
+        type: string
+        description: Unique identifier for the ingress
+        example: ing123
+    required:
+      - id

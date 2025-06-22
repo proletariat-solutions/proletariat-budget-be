@@ -1,0 +1,32 @@
+get:
+  summary: Get current exchange rates
+  description: Returns current exchange rates for currency conversion
+  operationId: getExchangeRates
+  parameters:
+    - name: baseCurrency
+      in: query
+      schema:
+        type: string
+      description: Base currency for rates
+      required: true
+    - name: targetCurrencies
+      in: query
+      schema:
+        type: array
+        items:
+          type: string
+      description: Target currencies to get rates for
+      explode: true
+  responses:
+    '200':
+      description: Exchange rates
+      content:
+        application/json:
+          schema:
+            $ref: ../components/schemas/ExchangeRates.yaml
+    '400':
+      $ref: ../components/responses/400.yaml
+    '401':
+      $ref: ../components/responses/401.yaml
+    '500':
+      $ref: ../components/responses/500.yaml

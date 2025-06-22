@@ -1,0 +1,18 @@
+type: object
+required:
+  - transactions
+  - total
+properties:
+  transactions:
+    type: array
+    items:
+      $ref: './SavingsTransaction.yaml'
+  total:
+    type: integer
+    description: Total number of transactions matching the filter criteria
+  limit:
+    type: integer
+    description: Limit used for the query
+  offset:
+    type: integer
+    description: Offset used for the query

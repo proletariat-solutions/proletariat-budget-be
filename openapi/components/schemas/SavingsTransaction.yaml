@@ -1,0 +1,40 @@
+type: object
+required:
+  - id
+  - savingsGoalId
+  - amount
+  - date
+  - type
+properties:
+  id:
+    type: string
+    description: Unique identifier for the transaction
+  savingsGoalId:
+    type: string
+    description: ID of the savings goal this transaction belongs to
+  amount:
+    type: number
+    format: float
+    description: Amount of the transaction
+  date:
+    type: string
+    format: date-time
+    description: Date and time when the transaction occurred
+  type:
+    type: string
+    enum: [contribution, withdrawal]
+    description: Type of transaction
+  description:
+    type: string
+    description: Optional description of the transaction
+  tags:
+    type: array
+    items:
+      type: string
+    description: Optional tag IDs associated with this transaction
+  accountId:
+    type: string
+    description: ID of the account from/to which the money was transferred
+  transactionId:
+    type: string
+    description: ID of the related financial transaction (if applicable)

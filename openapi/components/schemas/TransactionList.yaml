@@ -1,0 +1,20 @@
+type: object
+properties:
+  total:
+    type: integer
+    description: Total number of transactions matching the filter criteria
+  limit:
+    type: integer
+    description: Maximum number of transactions returned
+  offset:
+    type: integer
+    description: Offset of the returned transactions
+  transactions:
+    type: array
+    items:
+      $ref: './Transaction.yaml'
+required:
+  - total
+  - limit
+  - offset
+  - transactions

@@ -1,0 +1,25 @@
+allOf:
+  - $ref: ./UserSettingsRequest.yaml
+  - type: object
+    properties:
+      id:
+        type: string
+        description: Unique identifier for the settings
+        example: set123
+      userId:
+        type: string
+        description: ID of the user these settings belong to
+        example: user456
+      createdAt:
+        type: string
+        format: date-time
+        description: Timestamp when the settings were created
+      updatedAt:
+        type: string
+        format: date-time
+        description: Timestamp when the settings were last updated
+    required:
+      - id
+      - userId
+      - createdAt
+      - updatedAt

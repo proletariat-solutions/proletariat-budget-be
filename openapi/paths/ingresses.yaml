@@ -1,0 +1,88 @@
+post:
+  summary: Create a new ingress
+  description: Creates a new money ingress record
+  operationId: createIngress
+  requestBody:
+    required: true
+    content:
+      application/json:
+        schema:
+          $ref: ../components/schemas/IngressRequest.yaml
+  responses:
+    '201':
+      description: Ingress created successfully
+      content:
+        application/json:
+          schema:
+            $ref: ../components/schemas/Ingress.yaml
+    '400':
+      $ref: ../components/responses/400.yaml
+    '401':
+      $ref: ../components/responses/401.yaml
+    '500':
+      $ref: ../components/responses/500.yaml
+get:
+  summary: List all ingresses
+  description: Returns a list of all money ingresses with optional filtering
+  operationId: listIngresses
+  parameters:
+    - name: category
+      in: query
+      schema:
+        type: string
+      description: Filter by category
+    - name: source
+      in: query
+      schema:
+        type: string
+      description: Filter by source
+    - name: tag
+      in: query
+      schema:
+        type: string
+      description: Filter by tag
+    - name: startDate
+      in: query
+      schema:
+        type: string
+        format: date
+      description: Filter by start date (inclusive)
+    - name: endDate
+      in: query
+      schema:
+        type: string
+        format: date
+      description: Filter by end date (inclusive)
+    - name: isRecurring
+      in: query
+      schema:
+        type: boolean
+      description: Filter by recurring status
+    - name: currency
+      in: query
+      schema:
+        type: string
+      description: Filter by currency
+    - name: limit
+      in: query
+      schema:
+        type: integer
+      description: Limit the number of results
+    - name: offset
+      in: query
+      schema:
+        type: integer
+      description: Offset the result set
+  responses:
+    '200':
+      description: List of ingresses
+      content:
+        application/json:
+          schema:
+            type: array
+            items:
+              $ref: ../components/schemas/IngressList.yaml
+    '401':
+      $ref: ../components/responses/401.yaml
+    '500':
+      $ref: ../components/responses/500.yaml

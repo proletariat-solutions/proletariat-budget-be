@@ -1,0 +1,37 @@
+parameters:
+  - name: id
+    in: path
+    required: true
+    schema:
+      type: string
+    description: Transfer ID
+get:
+  summary: Get transfer by ID
+  description: Returns a single transfer by ID
+  operationId: getTransfer
+  responses:
+    '200':
+      description: Transfer found
+      content:
+        application/json:
+          schema:
+            $ref: ../components/schemas/Transfer.yaml
+    '401':
+      $ref: ../components/responses/401.yaml
+    '404':
+      $ref: ../components/responses/404.yaml
+    '500':
+      $ref: ../components/responses/500.yaml
+delete:
+  summary: Delete transfer
+  description: Deletes a transfer by ID (if possible)
+  operationId: deleteTransfer
+  responses:
+    '204':
+      description: Transfer deleted successfully
+    '401':
+      $ref: ../components/responses/401.yaml
+    '404':
+      $ref: ../components/responses/404.yaml
+    '500':
+      $ref: ../components/responses/500.yaml

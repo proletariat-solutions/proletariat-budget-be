@@ -1,0 +1,103 @@
+post:
+  summary: Create a new expenditure
+  description: Creates a new expenditure record
+  operationId: createExpenditure
+  requestBody:
+    required: true
+    content:
+      application/json:
+        schema:
+          $ref: ../components/schemas/ExpenditureRequest.yaml
+  responses:
+    '201':
+      description: Expenditure created successfully
+      content:
+        application/json:
+          schema:
+            $ref: ../components/schemas/Expenditure.yaml
+    '400':
+      $ref: ../components/responses/400.yaml
+    '401':
+      $ref: ../components/responses/401.yaml
+    '500':
+      $ref: ../components/responses/500.yaml
+get:
+  summary: List all expenditures
+  description: Returns a list of all expenditures with optional filtering
+  operationId: listExpenditures
+  parameters:
+    - name: categoryId
+      in: query
+      schema:
+        type: string
+      description: Filter by category ID
+    - name: tag
+      in: query
+      schema:
+        type: string
+      description: Filter by tag
+    - name: startDate
+      in: query
+      schema:
+        type: string
+        format: date
+      description: Filter by start date (inclusive)
+    - name: endDate
+      in: query
+      schema:
+        type: string
+        format: date
+      description: Filter by end date (inclusive)
+    - name: declared
+      in: query
+      schema:
+        type: boolean
+      description: Filter by declared status
+    - name: planned
+      in: query
+      schema:
+        type: boolean
+      description: Filter by planned status
+    - name: currency
+      in: query
+      schema:
+        type: string
+      description: Filter by currency
+    - name: description
+      in: query
+      schema:
+        type: string
+      description: Filter by description
+    - name: accountId
+      in: query
+      schema:
+        type: string
+      description: Filter by account ID
+    - name: tags
+      in: query
+      schema:
+        type: array
+        items:
+          type: string
+      description: Filter by tag IDs
+    - name: limit
+      in: query
+      schema:
+        type: integer
+      description: Limit the number of results
+    - name: offset
+      in: query
+      schema:
+        type: integer
+      description: Offset the result set
+  responses:
+    '200':
+      description: List of expenditures
+      content:
+        application/json:
+          schema:
+            $ref: ../components/schemas/ExpenditureList.yaml
+    '401':
+      $ref: ../components/responses/401.yaml
+    '500':
+      $ref: ../components/responses/500.yaml

@@ -1,0 +1,65 @@
+type: object
+properties:
+  totalBalance:
+    type: number
+    format: float
+    description: Total balance across all accounts
+    example: 5750.25
+  currency:
+    type: string
+    description: Currency of the total balance
+    example: USD
+  accounts:
+    type: array
+    items:
+      type: object
+      properties:
+        accountId:
+          type: string
+          description: Account ID
+          example: acc123
+        name:
+          type: string
+          description: Account name
+          example: Main Checking Account
+        balance:
+          type: number
+          format: float
+          description: Current balance
+          example: 1250.75
+        currency:
+          type: string
+          description: Account currency
+          example: USD
+        convertedBalance:
+          type: number
+          format: float
+          description: Balance converted to requested currency
+          example: 1250.75
+        type:
+          type: string
+          description: Account type
+          example: bank
+  groupedBalances:
+    type: array
+    items:
+      type: object
+      properties:
+        groupKey:
+          type: string
+          description: Grouping key (currency, type, etc.)
+          example: USD
+        totalAmount:
+          type: number
+          format: float
+          description: Total amount for this group
+          example: 3500.25
+        percentage:
+          type: number
+          format: float
+          description: Percentage of total balance
+          example: 60.87
+required:
+  - totalBalance
+  - currency
+  - accounts

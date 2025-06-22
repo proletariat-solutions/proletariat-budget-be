@@ -1,0 +1,94 @@
+@startuml
+/'
+    Use case: Add a new household member to the budget system
+    Pre-conditions: User has access to the household management section
+    Post-conditions: New household member is added to the system and can be associated with accounts and transactions
+    Trigger: User initiates the process to add a new household member
+'/
+
+left to right direction
+actor "User" as user
+actor "System" as system
+
+rectangle "Household Member Management" {
+  usecase "Add Household Member" as UC1
+  usecase "Enter Member Details" as UC2
+  usecase "Validate Member Information" as UC3
+  usecase "Assign Account Ownership" as UC4
+  usecase "Set Transaction Responsibility" as UC5
+  usecase "Confirm Member Addition" as UC6
+  usecase "Generate Member ID" as UC7
+}
+
+user --> UC1
+UC1 ..> UC2 : <<include>>
+UC1 ..> UC4 : <<include>> <<optional>>
+UC1 ..> UC5 : <<include>> <<optional>>
+UC1 ..> UC6 : <<include>>
+UC2 ..> UC3 : <<include>>
+UC6 ..> UC7 : <<extend>> <<if confirmed>>
+
+user --> UC2
+user --> UC4
+user --> UC5
+user --> UC6
+system --> UC3
+system --> UC7
+
+note right of UC1
+  User initiates:
+  - Adding a new household member
+  - Can be family member, roommate, etc.
+end note
+
+note right of UC2
+  User enters:
+  - Member name
+  - Relationship to household
+  - Contact information (optional)
+  - Date of birth (optional)
+  - Profile picture (optional)
+end note
+
+note right of UC3
+  System:
+  - Validates required fields are completed
+  - Checks for duplicate member entries
+  - Validates format of contact information
+  - Ensures data meets requirements
+end note
+
+note right of UC4
+  User can:
+  - Designate member as account holder
+  - Link existing accounts to member
+  - Create new accounts for member
+  - Set primary account holder status
+end note
+
+note right of UC5
+  User can:
+  - Set member as responsible for expenditures
+  - Set member as responsible for ingresses
+  - Set member as responsible for transfers
+  - Set member as responsible for savings transactions
+end note
+
+note right of UC6
+  System:
+  - Displays summary of member details
+  - Shows account ownership assignments
+  - Shows transaction responsibility settings
+  - User reviews and confirms information
+end note
+
+note right of UC7
+  System:
+  - Creates member record in database
+  - Links member to selected accounts
+  - Sets transaction responsibility settings
+  - Generates unique member identifier
+  - Makes ID available for future references
+end note
+
+@enduml

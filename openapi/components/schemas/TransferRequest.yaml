@@ -1,0 +1,61 @@
+type: object
+properties:
+  sourceAccountId:
+    type: string
+    description: ID of the source account
+    example: acc123
+  destinationAccountId:
+    type: string
+    description: ID of the destination account
+    example: acc456
+  amount:
+    type: number
+    format: float
+    description: Amount to transfer from source account
+    example: 500
+  destinationAmount:
+    type: number
+    format: float
+    description: Amount to be received at destination (for currency conversions)
+    example: 450
+  exchangeRate:
+    type: number
+    format: float
+    description: Exchange rate used for currency conversion
+    example: 0.9
+  date:
+    type: string
+    format: date
+    description: Date of the transfer
+    example: '2023-06-15'
+  type:
+    type: string
+    enum:
+      - deposit
+      - withdrawal
+      - transfer
+    description: Type of transfer
+    example: transfer
+  fees:
+    type: number
+    format: float
+    description: Any fees associated with the transfer
+    example: 5
+  description:
+    type: string
+    description: Additional details about the transfer
+    example: Moving funds to savings account
+  tags:
+    type: array
+    items:
+      type: string
+    description: List of tag IDs associated with this transfer
+    example:
+      - savings
+      - monthly
+required:
+  - sourceAccountId
+  - destinationAccountId
+  - amount
+  - date
+  - type

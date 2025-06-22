@@ -1,0 +1,9 @@
+type: object
+properties:
+  total:
+    type: number
+    description: Total amount of expenditures in result
+  expenditures:
+    type: array
+    items:
+      $ref: ./Expenditure.yaml

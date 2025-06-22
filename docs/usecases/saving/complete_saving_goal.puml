@@ -1,0 +1,144 @@
+
+/'
+    Use case: User completes a fully funded savings goal.
+    Actors: User, System
+    Precondition:
+    - A savings goal exists and has reached its target amount (current amount >= target amount).
+    - The goal status is currently "active".
+    Postcondition:
+    - The savings goal is marked as completed.
+    - The soft lock on the account balance is released.
+    - Any auto-contributions are canceled.
+    - The funds remain in the account but are no longer allocated to the goal.
+    - Achievement statistics are updated.
+    Trigger: System notifies user that a goal is fully funded, or user manually marks a goal as complete.
+'/
+
+@startuml
+left to right direction
+actor "User" as user
+actor "System" as system
+
+rectangle "Savings Goal Management System" {
+  usecase "Complete Savings Goal" as UC1
+  usecase "Verify Goal is Fully Funded" as UC2
+  usecase "Notify User of Goal Achievement" as UC3
+  usecase "Prompt for Completion Confirmation" as UC4
+  usecase "Mark Goal as Completed" as UC5
+  usecase "Release Soft Lock on Account" as UC6
+  usecase "Cancel Auto-Contributions" as UC7
+  usecase "Update Achievement Statistics" as UC8
+  usecase "Record Completion Date" as UC9
+  usecase "Generate Completion Report" as UC10
+  usecase "Suggest Next Goal" as UC11
+}
+
+system --> UC2
+UC2 ..> UC3 : <<extend>> <<if goal is fully funded>>
+system --> UC3
+user --> UC3
+UC3 ..> UC4 : <<include>>
+user --> UC4
+UC4 ..> UC5 : <<extend>> <<if user confirms>>
+UC5 ..> UC6 : <<include>>
+UC5 ..> UC7 : <<extend>> <<if auto-contribute enabled>>
+UC5 ..> UC8 : <<include>>
+UC5 ..> UC9 : <<include>>
+UC5 ..> UC10 : <<include>>
+UC5 ..> UC11 : <<extend>>
+
+system --> UC5
+system --> UC6
+system --> UC7
+system --> UC8
+system --> UC9
+system --> UC10
+system --> UC11
+
+note right of UC1
+  System or User initiates:
+  - System detects goal is fully funded
+  - Or user manually requests completion
+  - Savings goal ID is identified
+end note
+
+note right of UC2
+  System:
+  - Verifies current amount >= target amount
+  - Checks all contributions are processed
+  - Validates goal is in "active" status
+end note
+
+note right of UC3
+  System:
+  - Sends notification to user
+  - Displays achievement message
+  - Shows goal completion details
+  - Prompts for next action
+end note
+
+note right of UC4
+  System:
+  - Displays goal summary
+  - Shows final amount saved
+  - Explains what happens after completion
+  - Asks user to confirm completion
+end note
+
+note right of UC5
+  System:
+  - Updates goal status to "completed"
+  - Records completion timestamp
+  - Updates goal metadata
+  - Triggers completion events
+end note
+
+note right of UC6
+  System:
+  - Identifies soft lock amount
+  - Removes soft lock from account
+  - Updates account metadata
+  - Recalculates available balance
+end note
+
+note right of UC7
+  System:
+  - Identifies auto-contribution schedule
+  - Cancels all pending contributions
+  - Removes recurring transfer rules
+  - Records cancellation timestamp
+end note
+
+note right of UC8
+  System:
+  - Updates user's completed goals count
+  - Calculates total amount saved
+  - Updates achievement badges/rewards
+  - Records goal completion metrics
+end note
+
+note right of UC9
+  System:
+  - Records actual completion date
+  - Calculates time to completion
+  - Compares with target date (if set)
+  - Updates goal completion history
+end note
+
+note right of UC10
+  System:
+  - Generates summary of contributions
+  - Creates timeline of goal progress
+  - Calculates savings efficiency
+  - Provides completion certificate
+end note
+
+note right of UC11
+  System:
+  - Analyzes user's saving patterns
+  - Suggests potential new goals
+  - Recommends goal categories
+  - Proposes target amounts based on history
+end note
+
+@enduml

@@ -1,0 +1,20 @@
+allOf:
+  - $ref: ./ExpenditureRequest.yaml
+  - type: object
+    properties:
+      id:
+        type: string
+        description: Unique identifier for the expenditure
+        example: exp123
+      createdAt:
+        type: string
+        format: date-time
+        description: Timestamp when the expenditure was created
+      updatedAt:
+        type: string
+        format: date-time
+        description: Timestamp when the expenditure was last updated
+    required:
+      - id
+      - createdAt
+      - updatedAt

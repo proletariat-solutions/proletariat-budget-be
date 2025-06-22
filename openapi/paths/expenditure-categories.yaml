@@ -1,0 +1,46 @@
+get:
+  summary: List expenditure categories
+  operationId: listExpenditureCategories
+  description: Retrieve a list of all expenditure categories
+  responses:
+    '200':
+      description: Successfully retrieved expenditure categories
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              total:
+                type: integer
+                description: Total number of categories
+              categories:
+                type: array
+                items:
+                  $ref: ../components/schemas/ExpenditureCategory.yaml
+    '401':
+      $ref: ../components/responses/401.yaml
+    '500':
+      $ref: ../components/responses/500.yaml
+post:
+  summary: Create expenditure category
+  operationId: createExpenditureCategory
+  description: Create a new expenditure category
+  requestBody:
+    required: true
+    content:
+      application/json:
+        schema:
+          $ref: ../components/schemas/ExpenditureCategoryRequest.yaml
+  responses:
+    '201':
+      description: Category created successfully
+      content:
+        application/json:
+          schema:
+            $ref: ../components/schemas/ExpenditureCategory.yaml
+    '400':
+      $ref: ../components/responses/400.yaml
+    '401':
+      $ref: ../components/responses/401.yaml
+    '500':
+      $ref: ../components/responses/500.yaml

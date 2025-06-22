@@ -1,0 +1,13 @@
+type: object
+properties:
+  code:
+    allOf:
+      - $ref: ./ErrorCode.yaml
+    x-go-type-skip-optional-pointer: true
+  message:
+    type: string
+    example: Required field is missed
+    x-go-type-skip-optional-pointer: true
+required:
+  - code
+  - message

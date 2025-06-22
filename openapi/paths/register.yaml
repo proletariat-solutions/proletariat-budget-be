@@ -1,0 +1,68 @@
+post:
+  tags:
+    - Authentication
+  summary: Register a new user
+  operationId: registerUser
+  security: []  # No authentication required for registration
+  requestBody:
+    required: true
+    content:
+      application/json:
+        schema:
+          type: object
+          required:
+            - email
+            - password
+            - firstName
+            - lastName
+          properties:
+            email:
+              type: string
+              format: email
+              description: User's email address
+              example: user@example.com
+            password:
+              type: string
+              format: password
+              description: User's password
+              minLength: 8
+              example: SecureP@ssw0rd
+            firstName:
+              type: string
+              description: User's first name
+              example: John
+            lastName:
+              type: string
+              description: User's last name
+              example: Doe
+  responses:
+    '201':
+      description: User successfully registered
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              token:
+                type: string
+                description: JWT authentication token
+                example: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
+              expiresAt:
+                type: string
+                format: date-time
+                description: Token expiration time
+                example: 2023-04-15T14:30:00Z
+              user:
+                $ref: '../components/schemas/User.yaml'
+    '400':
+      description: Invalid request or email already in use
+      content:
+        application/json:
+          schema:
+            $ref: '../components/schemas/Error.yaml'
+    '500':
+      description: Internal server error
+      content:
+        application/json:
+          schema:
+            $ref: '../components/schemas/Error.yaml'

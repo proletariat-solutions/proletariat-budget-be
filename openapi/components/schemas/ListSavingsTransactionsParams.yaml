@@ -1,0 +1,30 @@
+type: object
+properties:
+  type:
+    type: string
+    enum: [contribution, withdrawal]
+    description: Filter by transaction type
+  startDate:
+    type: string
+    format: date
+    description: Filter transactions after this date (inclusive)
+  endDate:
+    type: string
+    format: date
+    description: Filter transactions before this date (inclusive)
+  minAmount:
+    type: number
+    format: float
+    description: Filter transactions with amount greater than or equal to this value
+  maxAmount:
+    type: number
+    format: float
+    description: Filter transactions with amount less than or equal to this value
+  limit:
+    type: integer
+    default: 20
+    description: Limit the number of results
+  offset:
+    type: integer
+    default: 0
+    description: Offset the result set

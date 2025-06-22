@@ -1,0 +1,62 @@
+parameters:
+  - name: id
+    in: path
+    required: true
+    schema:
+      type: string
+    description: Household member ID
+get:
+  summary: Get household member by ID
+  description: Returns a single household member by ID
+  operationId: getHouseholdMember
+  responses:
+    '200':
+      description: Household member found
+      content:
+        application/json:
+          schema:
+            $ref: ../components/schemas/HouseholdMember.yaml
+    '401':
+      $ref: ../components/responses/401.yaml
+    '404':
+      $ref: ../components/responses/404.yaml
+    '500':
+      $ref: ../components/responses/500.yaml
+put:
+  summary: Update household member
+  description: Updates an existing household member
+  operationId: updateHouseholdMember
+  requestBody:
+    required: true
+    content:
+      application/json:
+        schema:
+          $ref: ../components/schemas/HouseholdMemberRequest.yaml
+  responses:
+    '200':
+      description: Household member updated successfully
+      content:
+        application/json:
+          schema:
+            $ref: ../components/schemas/HouseholdMember.yaml
+    '400':
+      $ref: ../components/responses/400.yaml
+    '401':
+      $ref: ../components/responses/401.yaml
+    '404':
+      $ref: ../components/responses/404.yaml
+    '500':
+      $ref: ../components/responses/500.yaml
+delete:
+  summary: Delete household member
+  description: Deletes a household member by ID
+  operationId: deleteHouseholdMember
+  responses:
+    '204':
+      description: Household member deleted successfully
+    '401':
+      $ref: ../components/responses/401.yaml
+    '404':
+      $ref: ../components/responses/404.yaml
+    '500':
+      $ref: ../components/responses/500.yaml

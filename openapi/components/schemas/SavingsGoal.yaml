@@ -1,0 +1,38 @@
+allOf:
+  - $ref: ./SavingsGoalRequest.yaml
+  - type: object
+    properties:
+      id:
+        type: string
+        description: Unique identifier for the savings goal
+        example: sav123
+      currentAmount:
+        type: number
+        format: float
+        description: Current amount saved
+        example: 7500
+      percentComplete:
+        type: number
+        format: float
+        description: Percentage of goal completed
+        example: 25
+      status:
+        type: string
+        enum:
+          - active
+          - completed
+          - abandoned
+        description: Current status of the savings goal
+        example: active
+      projectedCompletionDate:
+        type: string
+        format: date
+        description: Estimated completion date based on contribution history
+        example: '2025-06-15'
+      createdAt:
+        type: string
+        format: date-time
+        description: Timestamp when the savings goal was created
+      updatedAt:
+        type: string
+        format: date-time

@@ -1,0 +1,62 @@
+parameters:
+  - name: id
+    in: path
+    required: true
+    schema:
+      type: string
+    description: Account ID
+get:
+  summary: Get account by ID
+  description: Returns a single account by ID
+  operationId: getAccount
+  responses:
+    '200':
+      description: Account found
+      content:
+        application/json:
+          schema:
+            $ref: ../components/schemas/Account.yaml
+    '401':
+      $ref: ../components/responses/401.yaml
+    '404':
+      $ref: ../components/responses/404.yaml
+    '500':
+      $ref: ../components/responses/500.yaml
+put:
+  summary: Update account
+  description: Updates an existing account
+  operationId: updateAccount
+  requestBody:
+    required: true
+    content:
+      application/json:
+        schema:
+          $ref: ../components/schemas/AccountRequest.yaml
+  responses:
+    '200':
+      description: Account updated successfully
+      content:
+        application/json:
+          schema:
+            $ref: ../components/schemas/Account.yaml
+    '400':
+      $ref: ../components/responses/400.yaml
+    '401':
+      $ref: ../components/responses/401.yaml
+    '404':
+      $ref: ../components/responses/404.yaml
+    '500':
+      $ref: ../components/responses/500.yaml
+delete:
+  summary: Delete account
+  description: Deletes an account by ID
+  operationId: deleteAccount
+  responses:
+    '204':
+      description: Account deleted successfully
+    '401':
+      $ref: ../components/responses/401.yaml
+    '404':
+      $ref: ../components/responses/404.yaml
+    '500':
+      $ref: ../components/responses/500.yaml

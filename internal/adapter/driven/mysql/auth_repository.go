@@ -1,0 +1,105 @@
+package mysql
+
+import (
+	"context"
+	"database/sql"
+	"errors"
+	"ghorkov32/proletariat-budget-be/internal/core/domain"
+	"github.com/golang-jwt/jwt/v5"
+	"time"
+)
+
+type AuthRepository struct {
+	db     *sql.DB
+	secret []byte // JWT secret
+}
+
+func NewAuthRepository(db *sql.DB, secret string) *AuthRepository {
+	return &AuthRepository{
+		db:     db,
+		secret: []byte(secret),
+	}
+}
+
+func (r *AuthRepository) CreateUser(ctx context.Context, user domain.User) (string, error) {
+	// Implementation for creating a user in the database
+	// Remember to hash the password before storing
+	// ...
+}
+
+func (r *AuthRepository) GetUserByEmail(ctx context.Context, email string) (*domain.User, error) {
+	// Implementation for retrieving a user by email
+	// ...
+}
+
+func (r *AuthRepository) GetUserByID(ctx context.Context, id string) (*domain.User, error) {
+	// Implementation for retrieving a user by ID
+	// ...
+}
+
+func (r *AuthRepository) UpdateUser(ctx context.Context, id string, user domain.User) error {
+	// Implementation for updating a user
+	// ...
+}
+
+func (r *AuthRepository) CreateToken(ctx context.Context, userID string) (*domain.AuthToken, error) {
+	// Create JWT token
+	expiresAt := time.Now().Add(24 * time.Hour)
+
+	claims := jwt.MapClaims{
+		"sub": userID,
+		"exp": expiresAt.Unix(),
+		"iat": time.Now().Unix(),
+	}
+
+	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
+	tokenString, err := token.SignedString(r.secret)
+	if err != nil {
+		return nil, err
+	}
+
+	// Store token in database for revocation capability
+	// ...
+
+	return &domain.AuthToken{
+		Token:     tokenString,
+		ExpiresAt: expiresAt,
+		UserID:    userID,
+	}, nil
+}
+
+func (r *AuthRepository) ValidateToken(ctx context.Context, tokenStr string) (*domain.User, error) {
+	// Parse and validate JWT token
+	token, err := jwt.Parse(tokenStr, func(token *jwt.Token) (interface{}, error) {
+		if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
+			return nil, errors.New("unexpected signing method")
+		}
+		return r.secret, nil
+	})
+
+	if err != nil || !token.Valid {
+		return nil, errors.New("invalid token")
+	}
+
+	// Check if token is revoked
+	// ...
+
+	// Extract user ID from claims
+	claims, ok := token.Claims.(jwt.MapClaims)
+	if !ok {
+		return nil, errors.New("invalid token claims")
+	}
+
+	userID, ok := claims["sub"].(string)
+	if !ok {
+		return nil, errors.New("invalid user ID in token")
+	}
+
+	// Get user from database
+	return r.GetUserByID(ctx, userID)
+}
+
+func (r *AuthRepository) RevokeToken(ctx context.Context, token string) error {
+	// Implementation for revoking a token
+	// ...
+}

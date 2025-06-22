@@ -1,0 +1,140 @@
+version: "2"
+linters:
+  default: none
+  enable:
+    - asciicheck
+    - bodyclose
+    - copyloopvar
+    - decorder
+    - dogsled
+    - err113
+    - errcheck
+    - errname
+    - errorlint
+    - funlen
+    - gocheckcompilerdirectives
+    - gocognit
+    - goconst
+    - gocritic
+    - gocyclo
+    - godox
+    - goprintffuncname
+    - gosec
+    - govet
+    - ineffassign
+    - misspell
+    - mnd
+    - nakedret
+    - nestif
+    - nlreturn
+    - noctx
+    - nolintlint
+    - perfsprint
+    - prealloc
+    - revive
+    - staticcheck
+    - testpackage
+    - unconvert
+    - unparam
+    - unused
+    - whitespace
+  settings:
+    forbidigo:
+      forbid:
+        - pattern: ^print.*$
+        - pattern: ^fmt\.Print.*$
+          msg: Do not commit print statements.
+        - pattern: fmt\.Print.*(# Do not commit print statements\.)?
+    funlen:
+      lines: -1
+      statements: 100
+      ignore-comments: true
+    gocritic:
+      disabled-checks:
+        - ifElseChain
+        - typeAssertChain
+        - yodaStyleExpr
+      enabled-tags:
+        - diagnostic
+        - performance
+        - style
+      settings:
+        hugeParam:
+          sizeThreshold: 256
+        rangeValCopy:
+          sizeThreshold: 256
+    gocyclo:
+      min-complexity: 50
+    govet:
+      disable:
+        - fieldalignment
+      enable-all: true
+      settings:
+        shadow:
+          strict: true
+    misspell:
+      locale: US
+    mnd:
+      checks:
+        - argument
+        - case
+        - condition
+        - return
+      ignored-numbers:
+        - "0"
+        - "1"
+        - "2"
+        - "3"
+      ignored-functions:
+        - strings.SplitN
+    nestif:
+      min-complexity: 2
+    nolintlint:
+      require-explanation: false
+      require-specific: false
+      allow-unused: false
+    revive:
+      rules:
+        - name: unexported-return
+          disabled: true
+        - name: unused-parameter
+    staticcheck:
+      checks:
+        - all
+        - -ST1003
+  exclusions:
+    generated: lax
+    presets:
+      - comments
+      - common-false-positives
+      - legacy
+      - std-error-handling
+    rules:
+      - linters:
+          - gocritic
+          - gocyclo
+          - gosec
+        path: _test\.go
+    paths:
+      - third_party$
+      - builtin$
+      - examples$
+issues:
+  max-same-issues: 20
+formatters:
+  enable:
+    - gci
+    - gofmt
+  settings:
+    gofmt:
+      rewrite-rules:
+        - pattern: interface{}
+          replacement: any
+        - pattern: a[b:len(a)]
+          replacement: a[b:]
+  exclusions:
+    generated: lax
+    paths:
+      - third_party$
+      - builtin$
+      - examples$

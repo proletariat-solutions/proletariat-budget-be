@@ -1,0 +1,66 @@
+type: object
+properties:
+  amount:
+    type: number
+    format: float
+    description: The ingress amount
+    example: 2500
+  category:
+    type: string
+    description: The category of this ingress
+    example: salary
+  source:
+    type: string
+    description: The source of the income
+    example: Acme Corp
+  description:
+    type: string
+    description: Additional details about the ingress
+    example: Monthly salary payment
+  tags:
+    type: array
+    items:
+      type: string
+    description: List of tag IDs associated with this ingress
+    example:
+      - regular
+      - work
+  date:
+    type: string
+    format: date
+    description: The date of the ingress
+    example: '2023-05-01'
+  currency:
+    type: string
+    description: The currency of the ingress
+    example: USD
+  isRecurring:
+    type: boolean
+    description: Whether this is a recurring income
+    example: true
+  recurrencePattern:
+    type: object
+    properties:
+      frequency:
+        type: string
+        enum:
+          - daily
+          - weekly
+          - monthly
+          - yearly
+        description: How often the income recurs
+        example: monthly
+      interval:
+        type: integer
+        description: How many frequency units between occurrences
+        example: 1
+      endDate:
+        type: string
+        format: date
+        description: When the recurring income ends (if applicable)
+        example: '2024-12-31'
+required:
+  - amount
+  - category
+  - date
+  - currency

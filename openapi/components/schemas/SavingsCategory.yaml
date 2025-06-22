@@ -1,0 +1,19 @@
+type: object
+required:
+  - id
+  - name
+properties:
+  id:
+    type: string
+    description: Unique identifier for the savings category
+  name:
+    type: string
+    description: Name of the savings category
+  description:
+    type: string
+    nullable: true
+    description: Optional description of the savings category
+  goalsCount:
+    type: integer
+    description: Number of savings goals using this category
+    nullable: true

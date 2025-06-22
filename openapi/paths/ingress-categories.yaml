@@ -1,0 +1,46 @@
+get:
+  summary: List ingress categories
+  operationId: listIngressCategories
+  description: Retrieve a list of all ingress categories
+  responses:
+    '200':
+      description: Successfully retrieved ingress categories
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              total:
+                type: integer
+                description: Total number of categories
+              categories:
+                type: array
+                items:
+                  $ref: ../components/schemas/IngressCategory.yaml
+    '401':
+      $ref: ../components/responses/401.yaml
+    '500':
+      $ref: ../components/responses/500.yaml
+post:
+  summary: Create Ingress category
+  operationId: createIngressCategory
+  description: Create a new Ingress category
+  requestBody:
+    required: true
+    content:
+      application/json:
+        schema:
+          $ref: ../components/schemas/IngressCategoryRequest.yaml
+  responses:
+    '201':
+      description: Category created successfully
+      content:
+        application/json:
+          schema:
+            $ref: ../components/schemas/IngressCategory.yaml
+    '400':
+      $ref: ../components/responses/400.yaml
+    '401':
+      $ref: ../components/responses/401.yaml
+    '500':
+      $ref: ../components/responses/500.yaml

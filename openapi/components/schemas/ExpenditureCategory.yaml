@@ -1,0 +1,10 @@
+allOf:
+  - $ref: ./ExpenditureCategoryRequest.yaml
+  - type: object
+    properties:
+      id:
+        type: string
+        description: Unique identifier for the category
+        example: cat123
+    required:
+      - id

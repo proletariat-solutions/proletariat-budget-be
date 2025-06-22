@@ -1,0 +1,78 @@
+post:
+  summary: Create a new money transfer
+  description: Creates a new transfer between accounts (including currency conversion)
+  operationId: createTransfer
+  requestBody:
+    required: true
+    content:
+      application/json:
+        schema:
+          $ref: ../components/schemas/TransferRequest.yaml
+  responses:
+    '201':
+      description: Transfer created successfully
+      content:
+        application/json:
+          schema:
+            $ref: ../components/schemas/Transfer.yaml
+    '400':
+      $ref: ../components/responses/400.yaml
+    '401':
+      $ref: ../components/responses/401.yaml
+    '500':
+      $ref: ../components/responses/500.yaml
+get:
+  summary: List all transfers
+  description: Returns a list of all transfers with optional filtering
+  operationId: listTransfers
+  parameters:
+    - name: sourceAccountId
+      in: query
+      schema:
+        type: string
+      description: Filter by source account ID
+    - name: destinationAccountId
+      in: query
+      schema:
+        type: string
+      description: Filter by destination account ID
+    - name: startDate
+      in: query
+      schema:
+        type: string
+        format: date
+      description: Filter by start date (inclusive)
+    - name: endDate
+      in: query
+      schema:
+        type: string
+        format: date
+      description: Filter by end date (inclusive)
+    - name: type
+      in: query
+      schema:
+        type: string
+      description: Filter by transfer type (deposit, withdrawal, transfer)
+    - name: limit
+      in: query
+      schema:
+        type: integer
+      description: Limit the number of results
+    - name: offset
+      in: query
+      schema:
+        type: integer
+      description: Offset the result set
+  responses:
+    '200':
+      description: List of transfers
+      content:
+        application/json:
+          schema:
+            type: array
+            items:
+              $ref: ../components/schemas/TransferList.yaml
+    '401':
+      $ref: ../components/responses/401.yaml
+    '500':
+      $ref: ../components/responses/500.yaml

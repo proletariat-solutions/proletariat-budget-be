@@ -1,0 +1,71 @@
+type: object
+properties:
+  id:
+    type: string
+    description: Unique identifier for the transaction
+  transactionType:
+    type: string
+    enum: [expenditure, ingress, transfer, savings_contribution, savings_withdrawal]
+    description: Type of transaction
+  date:
+    type: string
+    format: date-time
+    description: Date and time when the transaction occurred
+  description:
+    type: string
+    description: Description of the transaction
+  debit:
+    type: number
+    format: float
+    description: Amount debited (negative value)
+    nullable: true
+  credit:
+    type: number
+    format: float
+    description: Amount credited (positive value)
+    nullable: true
+  currency:
+    type: string
+    description: Currency of the transaction
+  fees:
+    type: number
+    format: float
+    description: Any fees associated with the transaction
+    default: 0
+  fromAccountId:
+    type: string
+    description: Source account ID (for transfers, expenditures, savings withdrawals)
+    nullable: true
+  toAccountId:
+    type: string
+    description: Destination account ID (for transfers, ingresses, savings contributions)
+    nullable: true
+  balanceAfter:
+    type: number
+    format: float
+    description: Account balance after the transaction (for the primary account)
+  status:
+    type: string
+    enum: [pending, completed, failed, cancelled]
+    description: Status of the transaction
+  relatedEntityId:
+    type: string
+    description: ID of the related entity (expenditure, ingress, transfer, savings goal)
+    nullable: true
+  relatedEntityType:
+    type: string
+    enum: [expenditure, ingress, transfer, savings_goal]
+    description: Type of the related entity
+    nullable: true
+  tags:
+    type: array
+    items:
+      type: string
+    description: Tag IDs associated with the transaction
+required:
+  - id
+  - transactionType
+  - date
+  - description
+  - currency
+  - status

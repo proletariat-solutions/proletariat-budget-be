@@ -1,0 +1,13 @@
+type: object
+required:
+  - name
+properties:
+  name:
+    type: string
+    description: Name of the savings category
+    minLength: 1
+    maxLength: 100
+  description:
+    type: string
+    nullable: true
+    description: Optional description of the savings category

@@ -1,0 +1,30 @@
+get:
+  summary: Get current balances
+  description: Returns current balances across all accounts
+  operationId: getBalances
+  parameters:
+    - name: currency
+      in: query
+      schema:
+        type: string
+      description: Convert all balances to this currency
+    - name: groupBy
+      in: query
+      schema:
+        type: string
+        enum:
+          - account
+          - currency
+          - type
+      description: How to group the balance results
+  responses:
+    '200':
+      description: Current balances
+      content:
+        application/json:
+          schema:
+            $ref: ../components/schemas/BalanceSummary.yaml
+    '401':
+      $ref: ../components/responses/401.yaml
+    '500':
+      $ref: ../components/responses/500.yaml
