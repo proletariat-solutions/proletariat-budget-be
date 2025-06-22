@@ -36,11 +36,13 @@ get:
       schema:
         type: string
       description: Filter by source
-    - name: tag
+    - name: tags
       in: query
       schema:
-        type: string
-      description: Filter by tag
+        type: array
+        items:
+          type: string
+      description: Filter by tags
     - name: startDate
       in: query
       schema:
