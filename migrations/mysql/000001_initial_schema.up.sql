@@ -242,7 +242,6 @@ CREATE TABLE expenditures
     date        DATE      NOT NULL,
     declared    BOOLEAN   NOT NULL DEFAULT FALSE,
     planned     BOOLEAN   NOT NULL DEFAULT FALSE,
-    description TEXT,
     created_at  TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
     updated_at  TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     INDEX idx_category (category_id),
@@ -298,7 +297,6 @@ CREATE TABLE ingresses
     id           BIGINT auto_increment PRIMARY KEY,
     category     bigint    NOT NULL,
     source       VARCHAR(255),
-    description  TEXT,
     date         DATE      NOT NULL,
     is_recurring BOOLEAN            DEFAULT FALSE,
     created_at   TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
@@ -336,10 +334,12 @@ Create table ingress_tags_junction
 CREATE TABLE ingress_recurrence_patterns
 (
     id             BIGINT auto_increment PRIMARY KEY,
+    ingress_id     BIGINT NOT NULL,
     frequency      ENUM ('daily', 'weekly', 'monthly', 'yearly') NOT NULL,
     interval_value INT                                           NOT NULL DEFAULT 1,
     amount         DECIMAL(15, 2),
-    end_date       DATE
+    end_date       DATE,
+    foreign key (ingress_id) REFERENCES ingresses (id) ON DELETE CASCADE
 );
 
 -- Create index for common query patterns
@@ -545,7 +545,6 @@ CREATE TABLE transfers
     date                     DATE                                       NOT NULL,
     type                     ENUM ('deposit', 'withdrawal', 'transfer') NOT NULL,
     fees                     DECIMAL(15, 2),
-    description              TEXT,
     created_at               TIMESTAMP                                  NOT NULL DEFAULT CURRENT_TIMESTAMP,
     updated_at               TIMESTAMP                                  NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
 
