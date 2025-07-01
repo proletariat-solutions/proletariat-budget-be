@@ -9,6 +9,8 @@ get:
   summary: Get expenditure by ID
   description: Returns a single expenditure by ID
   operationId: getExpenditure
+  tags:
+    - Expenditures
   responses:
     '200':
       description: Expenditure found
@@ -26,6 +28,8 @@ put:
   summary: Update expenditure
   description: Updates an existing expenditure
   operationId: updateExpenditure
+  tags:
+    - Expenditures
   requestBody:
     required: true
     content:
@@ -51,6 +55,8 @@ delete:
   summary: Delete expenditure
   description: Deletes an expenditure by ID
   operationId: deleteExpenditure
+  tags:
+    - Expenditures
   responses:
     '204':
       description: Expenditure deleted successfully

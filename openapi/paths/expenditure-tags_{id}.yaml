@@ -2,6 +2,8 @@ delete:
   summary: Delete expenditure tag
   operationId: deleteExpenditureTag
   description: Delete an expenditure tag by ID
+  tags:
+    - Expenditures
   parameters:
     - name: id
       in: path

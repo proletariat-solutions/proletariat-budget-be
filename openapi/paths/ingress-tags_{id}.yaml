@@ -2,6 +2,8 @@ delete:
   summary: Delete ingress tag
   operationId: deleteIngressTag
   description: Delete an ingress tag by ID
+  tags:
+    - Ingresses
   parameters:
     - name: id
       in: path

@@ -9,6 +9,8 @@ post:
   summary: Add contribution to savings goal
   description: Adds a new contribution to an existing savings goal
   operationId: addSavingsContribution
+  tags:
+    - Savings
   requestBody:
     required: true
     content:
@@ -34,6 +36,8 @@ get:
   summary: List contributions for a savings goal
   description: Returns a list of all contributions for a specific savings goal
   operationId: listSavingsContributions
+  tags:
+    - Savings
   parameters:
     - name: startDate
       in: query

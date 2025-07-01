@@ -9,6 +9,8 @@ get:
   summary: Get savings goal progress
   description: Returns detailed progress information for a savings goal
   operationId: getSavingsProgress
+  tags:
+    - Savings
   responses:
     '200':
       description: Savings goal progress

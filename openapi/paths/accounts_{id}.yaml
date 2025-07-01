@@ -9,6 +9,8 @@ get:
   summary: Get account by ID
   description: Returns a single account by ID
   operationId: getAccount
+  tags:
+    - Accounts
   responses:
     '200':
       description: Account found
@@ -26,6 +28,8 @@ put:
   summary: Update account
   description: Updates an existing account
   operationId: updateAccount
+  tags:
+    - Accounts
   requestBody:
     required: true
     content:
@@ -51,6 +55,8 @@ delete:
   summary: Delete account
   description: Deletes an account by ID
   operationId: deleteAccount
+  tags:
+    - Accounts
   responses:
     '204':
       description: Account deleted successfully

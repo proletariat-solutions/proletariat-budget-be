@@ -239,13 +239,11 @@ CREATE TABLE expenditures
 (
     id          BIGINT auto_increment PRIMARY KEY,
     category_id BIGINT    NOT NULL,
-    date        DATE      NOT NULL,
     declared    BOOLEAN   NOT NULL DEFAULT FALSE,
     planned     BOOLEAN   NOT NULL DEFAULT FALSE,
     created_at  TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
     updated_at  TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     INDEX idx_category (category_id),
-    INDEX idx_date (date),
     INDEX idx_declared (declared),
     INDEX idx_planned (planned),
     FOREIGN KEY (category_id) REFERENCES expenditures_categories (id)
@@ -297,13 +295,11 @@ CREATE TABLE ingresses
     id           BIGINT auto_increment PRIMARY KEY,
     category     bigint    NOT NULL,
     source       VARCHAR(255),
-    date         DATE      NOT NULL,
     is_recurring BOOLEAN            DEFAULT FALSE,
     created_at   TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
     updated_at   TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     INDEX idx_category (category),
     INDEX idx_source (source),
-    INDEX idx_date (date),
     foreign key (category) REFERENCES ingress_categories (id)
 );
 
@@ -343,7 +339,6 @@ CREATE TABLE ingress_recurrence_patterns
 );
 
 -- Create index for common query patterns
-CREATE INDEX idx_ingresses_date ON ingresses (date);
 CREATE INDEX idx_ingresses_category ON ingresses (category);
 CREATE INDEX idx_ingresses_is_recurring ON ingresses (is_recurring);
 
@@ -539,11 +534,8 @@ CREATE TABLE transfers
     id                       BIGINT PRIMARY KEY auto_increment,
     source_account_id        BIGINT                                     NOT NULL,
     destination_account_id   BIGINT                                     NOT NULL,
-    amount                   DECIMAL(15, 2)                             NOT NULL,
     destination_amount       DECIMAL(15, 2),
     exchange_rate_multiplier DECIMAL(15, 6),
-    date                     DATE                                       NOT NULL,
-    type                     ENUM ('deposit', 'withdrawal', 'transfer') NOT NULL,
     fees                     DECIMAL(15, 2),
     created_at               TIMESTAMP                                  NOT NULL DEFAULT CURRENT_TIMESTAMP,
     updated_at               TIMESTAMP                                  NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,

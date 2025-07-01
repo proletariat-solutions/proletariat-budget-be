@@ -9,6 +9,8 @@ post:
   summary: Add withdrawal from savings goal
   description: Records a withdrawal from an existing savings goal
   operationId: addSavingsWithdrawal
+  tags:
+    - Savings
   requestBody:
     required: true
     content:
@@ -34,6 +36,8 @@ get:
   summary: List withdrawals from a savings goal
   description: Returns a list of all withdrawals from a specific savings goal
   operationId: listSavingsWithdrawals
+  tags:
+    - Savings
   parameters:
     - name: startDate
       in: query

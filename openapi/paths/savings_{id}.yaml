@@ -9,6 +9,8 @@ get:
   summary: Get savings goal by ID
   description: Returns a single savings goal by ID
   operationId: getSavingsGoal
+  tags:
+    - Savings
   responses:
     '200':
       description: Savings goal found
@@ -26,6 +28,8 @@ put:
   summary: Update savings goal
   description: Updates an existing savings goal
   operationId: updateSavingsGoal
+  tags:
+    - Savings
   requestBody:
     required: true
     content:
@@ -51,6 +55,8 @@ delete:
   summary: Delete savings goal
   description: Deletes a savings goal by ID
   operationId: deleteSavingsGoal
+  tags:
+    - Savings
   responses:
     '204':
       description: Savings goal deleted successfully

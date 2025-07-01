@@ -2,6 +2,8 @@ post:
   summary: Create a new savings goal
   description: Creates a new savings goal with target amount and optional deadline
   operationId: createSavingsGoal
+  tags:
+    - Savings
   requestBody:
     required: true
     content:
@@ -25,6 +27,8 @@ get:
   summary: List all savings goals
   description: Returns a list of all savings goals with optional filtering
   operationId: listSavingsGoals
+  tags:
+    - Savings
   parameters:
     - name: category
       in: query

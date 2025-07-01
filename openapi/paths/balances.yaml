@@ -2,6 +2,8 @@ get:
   summary: Get current balances
   description: Returns current balances across all accounts
   operationId: getBalances
+  tags:
+    - Accounts
   parameters:
     - name: currency
       in: query

@@ -98,7 +98,7 @@ Transactions represent the movement of money within the system.
 
 **Relationships:**
 - Belongs to an Account
-- Can be linked to an Expenditure, Ingress, Transfer, Savings Contribution, or Savings Withdrawal
+- Must be linked to an Expenditure, Ingress, Transfer, Savings Contribution, or Savings Withdrawal
 
 ### Household Member
 
