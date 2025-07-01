@@ -2,6 +2,8 @@ delete:
   summary: Delete Ingress category
   operationId: deleteIngressCategory
   description: Delete an Ingress category by ID
+  tags:
+    - Ingresses
   parameters:
     - name: id
       in: path
@@ -22,6 +24,8 @@ put:
   summary: Update Ingress category
   operationId: updateIngressCategory
   description: Update an Ingress category by ID
+  tags:
+    - Ingresses
   parameters:
     - name: id
       in: path

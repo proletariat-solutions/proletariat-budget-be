@@ -2,6 +2,8 @@ delete:
   summary: Delete expenditure category
   operationId: deleteExpenditureCategory
   description: Delete an expenditure category by ID
+  tags:
+    - Expenditures
   parameters:
     - name: id
       in: path
@@ -22,6 +24,8 @@ put:
   summary: Update expenditure category
   operationId: updateExpenditureCategory
   description: Update an expenditure category by ID
+  tags:
+    - Expenditures
   parameters:
     - name: id
       in: path

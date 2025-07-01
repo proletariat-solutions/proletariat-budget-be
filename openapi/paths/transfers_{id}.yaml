@@ -9,6 +9,8 @@ get:
   summary: Get transfer by ID
   description: Returns a single transfer by ID
   operationId: getTransfer
+  tags:
+    - Transfers
   responses:
     '200':
       description: Transfer found
@@ -26,6 +28,8 @@ delete:
   summary: Delete transfer
   description: Deletes a transfer by ID (if possible)
   operationId: deleteTransfer
+  tags:
+    - Transfers
   responses:
     '204':
       description: Transfer deleted successfully

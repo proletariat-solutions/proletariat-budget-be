@@ -2,6 +2,8 @@ get:
   summary: List ingress categories
   operationId: listIngressCategories
   description: Retrieve a list of all ingress categories
+  tags:
+    - Ingresses
   responses:
     '200':
       description: Successfully retrieved ingress categories
@@ -25,6 +27,8 @@ post:
   summary: Create Ingress category
   operationId: createIngressCategory
   description: Create a new Ingress category
+  tags:
+    - Ingresses
   requestBody:
     required: true
     content:

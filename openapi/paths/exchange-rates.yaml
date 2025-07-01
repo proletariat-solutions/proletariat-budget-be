@@ -2,6 +2,8 @@ get:
   summary: Get current exchange rates
   description: Returns current exchange rates for currency conversion
   operationId: getExchangeRates
+  tags:
+    - Exchange Rates
   parameters:
     - name: baseCurrency
       in: query

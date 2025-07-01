@@ -2,6 +2,8 @@ post:
   summary: Create a new money transfer
   description: Creates a new transfer between accounts (including currency conversion)
   operationId: createTransfer
+  tags:
+    - Transfers
   requestBody:
     required: true
     content:
@@ -25,6 +27,8 @@ get:
   summary: List all transfers
   description: Returns a list of all transfers with optional filtering
   operationId: listTransfers
+  tags:
+    - Transfers
   parameters:
     - name: sourceAccountId
       in: query

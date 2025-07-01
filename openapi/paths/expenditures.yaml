@@ -2,6 +2,8 @@ post:
   summary: Create a new expenditure
   description: Creates a new expenditure record
   operationId: createExpenditure
+  tags:
+    - Expenditures
   requestBody:
     required: true
     content:
@@ -25,6 +27,8 @@ get:
   summary: List all expenditures
   description: Returns a list of all expenditures with optional filtering
   operationId: listExpenditures
+  tags:
+    - Expenditures
   parameters:
     - name: categoryId
       in: query

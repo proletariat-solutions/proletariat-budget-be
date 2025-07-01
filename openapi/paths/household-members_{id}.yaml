@@ -9,6 +9,8 @@ get:
   summary: Get household member by ID
   description: Returns a single household member by ID
   operationId: getHouseholdMember
+  tags:
+    - Household Members
   responses:
     '200':
       description: Household member found
@@ -26,6 +28,8 @@ put:
   summary: Update household member
   description: Updates an existing household member
   operationId: updateHouseholdMember
+  tags:
+    - Household Members
   requestBody:
     required: true
     content:
@@ -51,6 +55,8 @@ delete:
   summary: Delete household member
   description: Deletes a household member by ID
   operationId: deleteHouseholdMember
+  tags:
+    - Household Members
   responses:
     '204':
       description: Household member deleted successfully

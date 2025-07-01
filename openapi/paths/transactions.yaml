@@ -4,6 +4,8 @@ get:
     Retrieves a list of all financial transactions across the system, including expenditures, 
     ingresses, transfers, savings contributions, and savings withdrawals.
   operationId: listTransactions
+  tags:
+    - Transactions
   parameters:
     - name: startDate
       in: query

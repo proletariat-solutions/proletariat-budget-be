@@ -2,6 +2,8 @@ get:
   summary: List expenditure categories
   operationId: listExpenditureCategories
   description: Retrieve a list of all expenditure categories
+  tags:
+    - Expenditures
   responses:
     '200':
       description: Successfully retrieved expenditure categories
@@ -25,6 +27,8 @@ post:
   summary: Create expenditure category
   operationId: createExpenditureCategory
   description: Create a new expenditure category
+  tags:
+    - Expenditures
   requestBody:
     required: true
     content:

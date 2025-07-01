@@ -4,6 +4,8 @@ get:
   description: >-
     Retrieve a list of all the existing expenditure tags with no filters and no
     limits
+  tags:
+    - Expenditures
   responses:
     '200':
       description: Successfully retrieved expenditure tags
@@ -21,6 +23,8 @@ post:
   summary: Create expenditure tag
   operationId: createExpenditureTag
   description: Create a new expenditure tag
+  tags:
+    - Expenditures
   requestBody:
     required: true
     content:

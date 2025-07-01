@@ -4,6 +4,8 @@ get:
   description: >-
     Retrieve a list of all the existing ingress tags with no filters and no
     limits
+  tags:
+    - Ingresses
   responses:
     '200':
       description: Successfully retrieved expenditure tags
@@ -21,6 +23,8 @@ post:
   summary: Create ingress tag
   operationId: createIngressTag
   description: Create a new ingress tag
+  tags:
+    - Ingresses
   requestBody:
     required: true
     content:

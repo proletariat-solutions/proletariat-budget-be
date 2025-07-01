@@ -2,6 +2,8 @@ post:
   summary: Create a new household member
   description: Creates a new household member record for budget management
   operationId: createHouseholdMember
+  tags:
+    - Household Members
   requestBody:
     required: true
     content:
@@ -25,6 +27,8 @@ get:
   summary: List all household members
   description: Returns a list of all household members with optional filtering
   operationId: listHouseholdMembers
+  tags:
+    - Household Members
   parameters:
     - name: active
       in: query

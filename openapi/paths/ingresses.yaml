@@ -2,6 +2,8 @@ post:
   summary: Create a new ingress
   description: Creates a new money ingress record
   operationId: createIngress
+  tags:
+    - Ingresses
   requestBody:
     required: true
     content:
@@ -25,6 +27,8 @@ get:
   summary: List all ingresses
   description: Returns a list of all money ingresses with optional filtering
   operationId: listIngresses
+  tags:
+    - Ingresses
   parameters:
     - name: category
       in: query

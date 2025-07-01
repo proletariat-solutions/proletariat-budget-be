@@ -4,6 +4,8 @@ post:
     Creates a new account to track money (bank account, cash, investment
     platform, etc.)
   operationId: createAccount
+  tags:
+    - Accounts
   requestBody:
     required: true
     content:
@@ -27,6 +29,8 @@ get:
   summary: List all accounts
   description: Returns a list of all money accounts with optional filtering
   operationId: listAccounts
+  tags:
+    - Accounts
   parameters:
     - name: type
       in: query

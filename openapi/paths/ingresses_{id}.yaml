@@ -9,6 +9,8 @@ get:
   summary: Get ingress by ID
   description: Returns a single money ingress by ID
   operationId: getIngress
+  tags:
+    - Ingresses
   responses:
     '200':
       description: Ingress found
@@ -26,6 +28,8 @@ put:
   summary: Update ingress
   description: Updates an existing money ingress
   operationId: updateIngress
+  tags:
+    - Ingresses
   requestBody:
     required: true
     content:
@@ -51,6 +55,8 @@ delete:
   summary: Delete ingress
   description: Deletes a money ingress by ID
   operationId: deleteIngress
+  tags:
+    - Ingresses
   responses:
     '204':
       description: Ingress deleted successfully
