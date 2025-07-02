@@ -18,9 +18,5 @@ type TransactionRepo interface {
 	/*
 		Linking operations
 	*/
-	LinkWithExpenditure(ctx context.Context, expenditureID string, transactionID string) error
-	LinkWithIngress(ctx context.Context, ingressID string, transactionID string) error
-	LinkWithTransfer(ctx context.Context, transferID string, transactionID string) error
-	LinkWithSavingsContribution(ctx context.Context, contributionID string, transactionID string) error
-	LinkWithSavingsWithdrawal(ctx context.Context, withdrawalID string, transactionID string) error
+	LinkWithEntity(ctx context.Context, entityID, entityType, transactionID string) error
 }
