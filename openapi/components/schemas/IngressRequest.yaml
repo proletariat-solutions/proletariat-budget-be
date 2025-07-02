@@ -1,5 +1,9 @@
 type: object
 properties:
+  accountId:
+    type: string
+    description: The ID of the account this ingress belongs to
+    example: acct_1234567890
   amount:
     type: number
     format: float
@@ -9,6 +13,11 @@ properties:
     type: string
     description: The category of this ingress
     example: salary
+  createdAt:
+    type: string
+    format: date-time
+    description: The timestamp when the ingress was created
+    example: '2023-04-15T12:34:56Z'
   source:
     type: string
     description: The source of the income
@@ -41,6 +50,7 @@ properties:
   recurrencePattern:
     $ref: './RecurrencePattern.yaml'
 required:
+  - accountId
   - amount
   - category
   - date
