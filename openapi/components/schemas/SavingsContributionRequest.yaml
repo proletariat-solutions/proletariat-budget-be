@@ -21,11 +21,14 @@ properties:
   tags:
     type: array
     items:
-      type: string
+      $ref: './Tag.yaml'
     description: List of tag IDs associated with this contribution
     example:
-      - monthly
-      - automatic
+      - id: tag_1234567890
+        name: "EOM Surplus"
+        color: "#FF0000"
+        description: "End of month surplus"
+        backgroundColor: "#00FF00"
 required:
   - amount
   - date

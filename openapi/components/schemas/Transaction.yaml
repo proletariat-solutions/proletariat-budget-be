@@ -60,8 +60,14 @@ properties:
   tags:
     type: array
     items:
-      type: string
-    description: Tag IDs associated with the transaction
+      $ref: './Tag.yaml'
+    description: List of tag IDs associated with this transaction
+    example:
+      - id: tag_1234567890
+        name: "Groceries"
+        color: "#FF0000"
+        description: "Groceries for the week"
+        backgroundColor: "#00FF00"
 required:
   - id
   - transactionType

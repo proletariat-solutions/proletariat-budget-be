@@ -48,11 +48,14 @@ properties:
   tags:
     type: array
     items:
-      type: string
+      $ref: './Tag.yaml'
     description: List of tag IDs associated with this transfer
     example:
-      - savings
-      - monthly
+      - id: tag_1234567890
+        name: "Currency Conversion"
+        color: "#FF0000"
+        description: "Currency conversion between accounts"
+        backgroundColor: "#00FF00"
 required:
   - sourceAccountId
   - destinationAccountId

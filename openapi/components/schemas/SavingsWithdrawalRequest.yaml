@@ -25,11 +25,14 @@ properties:
   tags:
     type: array
     items:
-      type: string
-    description: List of tag IDs associated with this withdrawal
+      $ref: './Tag.yaml'
+    description: List of tags associated with this withdrawal
     example:
-      - emergency
-      - unplanned
+      - id: tag_1234567890
+        name: "Emergency"
+        color: "#FF0000"
+        description: "Emergency expense"
+        backgroundColor: "#00FF00"
 required:
   - amount
   - date

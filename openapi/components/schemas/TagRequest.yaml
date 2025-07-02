@@ -18,5 +18,9 @@ properties:
     type: string
     description: Description of the tag
     example: Regular monthly expenses
+  tagType:
+    type: string
+    description: Type of the tag (e.g., expenditure, transaction, etc.)
 required:
   - name
+  - tagType

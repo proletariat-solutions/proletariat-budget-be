@@ -29,11 +29,14 @@ properties:
   tags:
     type: array
     items:
-      type: string
+      $ref: './Tag.yaml'
     description: List of tag IDs associated with this ingress
     example:
-      - regular
-      - work
+      - id: tag_1234567890
+        name: "Salary"
+        color: "#FF0000"
+        description: "Salary payment"
+        backgroundColor: "#00FF00"
   date:
     type: string
     format: date
