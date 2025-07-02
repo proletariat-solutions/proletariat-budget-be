@@ -10,9 +10,7 @@ properties:
     description: The ingress amount
     example: 2500
   category:
-    type: string
-    description: The category of this ingress
-    example: salary
+    $ref: './Category.yaml'
   createdAt:
     type: string
     format: date-time

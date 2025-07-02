@@ -29,38 +29,3 @@ func (c *Controller) UpdateIngress(ctx context.Context, request openapi.UpdateIn
 	//TODO implement me
 	panic("implement me")
 }
-
-func (c *Controller) ListIngressCategories(ctx context.Context, request openapi.ListIngressCategoriesRequestObject) (openapi.ListIngressCategoriesResponseObject, error) {
-	//TODO implement me
-	panic("implement me")
-}
-
-func (c *Controller) CreateIngressCategory(ctx context.Context, request openapi.CreateIngressCategoryRequestObject) (openapi.CreateIngressCategoryResponseObject, error) {
-	//TODO implement me
-	panic("implement me")
-}
-
-func (c *Controller) DeleteIngressCategory(ctx context.Context, request openapi.DeleteIngressCategoryRequestObject) (openapi.DeleteIngressCategoryResponseObject, error) {
-	//TODO implement me
-	panic("implement me")
-}
-
-func (c *Controller) UpdateIngressCategory(ctx context.Context, request openapi.UpdateIngressCategoryRequestObject) (openapi.UpdateIngressCategoryResponseObject, error) {
-	//TODO implement me
-	panic("implement me")
-}
-
-func (c *Controller) ListIngressTags(ctx context.Context, request openapi.ListIngressTagsRequestObject) (openapi.ListIngressTagsResponseObject, error) {
-	//TODO implement me
-	panic("implement me")
-}
-
-func (c *Controller) CreateIngressTag(ctx context.Context, request openapi.CreateIngressTagRequestObject) (openapi.CreateIngressTagResponseObject, error) {
-	//TODO implement me
-	panic("implement me")
-}
-
-func (c *Controller) DeleteIngressTag(ctx context.Context, request openapi.DeleteIngressTagRequestObject) (openapi.DeleteIngressTagResponseObject, error) {
-	//TODO implement me
-	panic("implement me")
-}

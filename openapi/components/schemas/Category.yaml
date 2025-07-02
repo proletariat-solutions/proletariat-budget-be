@@ -1,5 +1,5 @@
 allOf:
-  - $ref: ./ExpenditureCategoryRequest.yaml
+  - $ref: ./CategoryRequest.yaml
   - type: object
     properties:
       id:

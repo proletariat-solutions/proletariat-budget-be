@@ -5,9 +5,7 @@ properties:
     description: Name of the savings goal
     example: New Car
   category:
-    type: string
-    description: Category of the savings goal
-    example: vehicle
+    $ref: './Category.yaml'
   description:
     type: string
     description: Detailed description of the savings goal

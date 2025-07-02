@@ -5,10 +5,8 @@ properties:
     format: float
     description: The expenditure amount
     example: 50
-  categoryId:
-    type: string
-    description: The category ID this expenditure belongs to
-    example: groceries
+  category:
+    $ref: './Category.yaml'
   description:
     type: string
     description: The description of the expenditure

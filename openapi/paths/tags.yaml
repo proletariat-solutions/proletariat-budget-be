@@ -1,14 +1,14 @@
 get:
-  summary: List expenditure tags
-  operationId: listExpenditureTags
+  summary: List tags
+  operationId: listTags
   description: >-
-    Retrieve a list of all the existing expenditure tags with no filters and no
+    Retrieve a list of all the existing tags with no filters and no
     limits
   tags:
-    - Expenditures
+    - Tags
   responses:
     '200':
-      description: Successfully retrieved expenditure tags
+      description: Successfully retrieved tags
       content:
         application/json:
           schema:
@@ -20,11 +20,11 @@ get:
     '500':
       $ref: ../components/responses/500.yaml
 post:
-  summary: Create expenditure tag
-  operationId: createExpenditureTag
-  description: Create a new expenditure tag
+  summary: Create tag
+  operationId: createTag
+  description: Create a new tag
   tags:
-    - Expenditures
+    - Tags
   requestBody:
     required: true
     content:

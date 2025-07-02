@@ -1,18 +1,24 @@
-delete:
-  summary: Delete ingress tag
-  operationId: deleteIngressTag
-  description: Delete an ingress tag by ID
+get:
+  summary: List tags by type
+  operationId: listTagsByType
+  description: List tags by type
   tags:
-    - Ingresses
+    - Tags
   parameters:
-    - name: id
+    - name: type
       in: path
       required: true
       schema:
         type: string
   responses:
-    '204':
-      description: Tag deleted successfully
+    '200':
+      description: OK
+      content:
+        application/json:
+          schema:
+            type: array
+            items:
+              $ref: "../components/schemas/Tag.yaml"
     '400':
       $ref: ../components/responses/400.yaml
     '401':
