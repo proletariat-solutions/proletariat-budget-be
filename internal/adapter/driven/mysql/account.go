@@ -30,9 +30,9 @@ func (r *AccountRepo) Create(ctx context.Context, account openapi.Account) (stri
 	query := `
         INSERT INTO accounts (
             name, type, institution, currency, initial_balance, 
-            current_balance, active, description, account_number, 
+            current_balance, active, description, account_number,  owner,
             account_information, created_at, updated_at
-        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NOW(), now())
     `
 
 	result, err := r.db.ExecContext(
@@ -47,6 +47,7 @@ func (r *AccountRepo) Create(ctx context.Context, account openapi.Account) (stri
 		account.Active,
 		account.Description,
 		account.AccountNumber,
+		account.Owner.Id,
 		account.AccountInformation,
 		account.CreatedAt,
 		account.UpdatedAt,
@@ -71,38 +72,45 @@ func (r *AccountRepo) Create(ctx context.Context, account openapi.Account) (stri
 
 func (r *AccountRepo) GetByID(ctx context.Context, id string) (*openapi.Account, error) {
 	query := `SELECT 
-				id, name, type, institution, currency, initial_balance, current_balance, active, 
-				description, account_number, account_information, created_at, updated_at 
-				FROM accounts WHERE id =?`
+				a.id, a.name, type, institution, currency, 
+				initial_balance, current_balance, a.active, 
+				description, account_number, account_information, 
+				a.created_at, a.updated_at, hm.id, hm.name, 
+				hm.surname, hm.nickname, hm.role, hm.active, 
+				hm.created_at, hm.updated_at 
+				FROM accounts a left join household_members hm on a.owner = hm.id WHERE a.active = true AND a.id =?`
 
 	var account openapi.Account
-	rows, err := r.db.QueryContext(ctx, query, id)
+	householdMember := openapi.HouseholdMember{}
+	err := r.db.QueryRowContext(ctx, query, id).Scan(
+		&account.Id,
+		&account.Name,
+		&account.Type,
+		&account.Institution,
+		&account.Currency,
+		&account.InitialBalance,
+		&account.CurrentBalance,
+		&account.Active,
+		&account.Description,
+		&account.AccountNumber,
+		&account.AccountInformation,
+		&account.CreatedAt,
+		&account.UpdatedAt,
+		&householdMember.Id,
+		&householdMember.FirstName,
+		&householdMember.LastName,
+		&householdMember.Nickname,
+		&householdMember.Role,
+		&householdMember.Active,
+		&householdMember.CreatedAt,
+		&householdMember.UpdatedAt,
+	)
 	if errors.Is(err, sql.ErrNoRows) {
 		return nil, domain.ErrEntityNotFound
 	} else if err != nil {
 		return nil, fmt.Errorf("failed to select account: %w", err)
 	}
-	defer rows.Close()
-	for rows.Next() {
-		err := rows.Scan(
-			&account.Id,
-			&account.Name,
-			&account.Type,
-			&account.Institution,
-			&account.Currency,
-			&account.InitialBalance,
-			&account.CurrentBalance,
-			&account.Active,
-			&account.Description,
-			&account.AccountNumber,
-			&account.AccountInformation,
-			&account.CreatedAt,
-			&account.UpdatedAt,
-		)
-		if err != nil {
-			return nil, fmt.Errorf("failed to scan row: %w", err)
-		}
-	}
+
 	return &account, nil
 
 }
@@ -112,7 +120,7 @@ func (r *AccountRepo) Update(ctx context.Context, account openapi.Account) error
         UPDATE accounts SET 
             name =?, type =?, institution =?, currency =?, initial_balance =?, 
             current_balance =?, active =?, description =?, account_number =?, 
-            account_information =?, updated_at =?
+            account_information =?, updated_at =?, owner =? 
         WHERE id =?
     `
 
@@ -134,6 +142,7 @@ func (r *AccountRepo) Update(ctx context.Context, account openapi.Account) error
 		account.AccountInformation,
 		account.UpdatedAt,
 		account.Id,
+		account.Owner.Id,
 	)
 
 	if err != nil {
@@ -171,9 +180,9 @@ func (r *AccountRepo) Delete(ctx context.Context, id string) error {
 
 func (r *AccountRepo) List(ctx context.Context) ([]openapi.Account, error) {
 	query := `SELECT 
-                id, name, type, institution, currency, initial_balance, current_balance, active, 
-                description, account_number, account_information, created_at, updated_at 
-                FROM accounts`
+                a.id, a.name, type, institution, currency, initial_balance, current_balance, a.active, 
+                description, account_number, account_information, a.created_at, a.updated_at,  hm.id, hm.name, hm.surname, hm.nickname, hm.role, hm.active, hm.created_at, hm.updated_at
+                FROM accounts a left join household_members hm on a.owner = hm.id WHERE a.active = true`
 
 	rows, err := r.db.QueryContext(ctx, query)
 	if err != nil {
@@ -183,6 +192,7 @@ func (r *AccountRepo) List(ctx context.Context) ([]openapi.Account, error) {
 
 	var accounts []openapi.Account
 	for rows.Next() {
+		householdMember := openapi.HouseholdMember{}
 		var account openapi.Account
 		err := rows.Scan(
 			&account.Id,
@@ -198,6 +208,14 @@ func (r *AccountRepo) List(ctx context.Context) ([]openapi.Account, error) {
 			&account.AccountInformation,
 			&account.CreatedAt,
 			&account.UpdatedAt,
+			&householdMember.Id,
+			&householdMember.FirstName,
+			&householdMember.LastName,
+			&householdMember.Nickname,
+			&householdMember.Role,
+			&householdMember.Active,
+			&householdMember.CreatedAt,
+			&householdMember.UpdatedAt,
 		)
 		if err != nil {
 			return nil, fmt.Errorf("failed to scan row: %w", err)
