@@ -497,7 +497,128 @@ func (s SavingGoalRepoImpl) GetContributionByID(ctx context.Context, id string) 
 	return &contribution, nil
 }
 
-func (s SavingGoalRepoImpl) ListSavingsTransactions(ctx context.Context, params openapi.ListSavingsTransactionsParams) (*openapi.SavingsTransactionList, error) {
-	//TODO implement me
-	panic("implement me")
+func (s SavingGoalRepoImpl) ListSavingsTransactions(
+	ctx context.Context,
+	params openapi.ListSavingsTransactionsParams,
+	savingGoalID string,
+) (*openapi.SavingsTransactionList, error) {
+	querySelect := `select IF(sc.id is not null, tr.source_account_id, tr.destination_account_id) as account_id,
+					   tr.destination_amount,
+					   tr.created_at,
+					   t.description,
+					   IF(sc.id is not null, GROUP_CONCAT(sct.tag_id ORDER BY sct.tag_id SEPARATOR ','),
+						  GROUP_CONCAT(swt.tag_id ORDER BY swt.tag_id SEPARATOR ','))         as tags,
+					   IF(sc.id is not null, 'contribution', 'withdrawal')                    as transaction_type,
+					   t.id as transaction_id
+				from transfers tr
+						 inner join transactions t on t.id = tr.transaction_id
+						 left join proletariat_budget.savings_contributions sc on tr.id = sc.transfer_id
+						 left join proletariat_budget.savings_withdrawals sw on tr.id = sw.transfer_id
+						 left join proletariat_budget.savings_contribution_tags sct on sc.id = sct.contribution_id
+						 left join proletariat_budget.savings_withdrawal_tags swt on sw.id = swt.withdrawal_id
+				where (sc.savings_goal_id = ? or sw.savings_goal_id = ?)
+				`
+	queryCount := `select COUNT(*) from transfers tr
+						 inner join transactions t on t.id = tr.transaction_id
+						 left join proletariat_budget.savings_contributions sc on tr.id = sc.transfer_id
+						 left join proletariat_budget.savings_withdrawals sw on tr.id = sw.transfer_id
+						 left join proletariat_budget.savings_contribution_tags sct on sc.id = sct.contribution_id
+						 left join proletariat_budget.savings_withdrawal_tags swt on sw.id = swt.withdrawal_id
+					where (sc.savings_goal_id = ? or sw.savings_goal_id = ?)`
+
+	groupBy := ` group by tr.id, sc.id, sw.id `
+	orderBy := ` order by tr.created_at DESC `
+
+	limit := fmt.Sprintf(" LIMIT %d OFFSET %d", *params.Limit, *params.Offset)
+
+	whereClause := make([]string, 0)
+	args := make([]any, 0)
+	args = append(args, savingGoalID, savingGoalID)
+
+	if params.StartDate != nil && params.EndDate != nil {
+		whereClause = append(whereClause, "tr.created_at BETWEEN? AND?")
+		args = append(args, *params.StartDate, *params.EndDate)
+	} else if params.StartDate != nil {
+		whereClause = append(whereClause, "tr.created_at >=?")
+		args = append(args, *params.StartDate)
+	} else if params.EndDate != nil {
+		whereClause = append(whereClause, "tr.created_at <=?")
+		args = append(args, *params.EndDate)
+	}
+
+	if params.MinAmount != nil && params.MaxAmount != nil {
+		whereClause = append(whereClause, "tr.destination_amount BETWEEN? AND?")
+		args = append(args, *params.MinAmount, *params.MaxAmount)
+	} else if params.MinAmount != nil {
+		whereClause = append(whereClause, "tr.destination_amount >=?")
+		args = append(args, *params.MinAmount)
+	} else if params.MaxAmount != nil {
+		whereClause = append(whereClause, "tr.destination_amount <=?")
+		args = append(args, *params.MaxAmount)
+	}
+
+	if params.Type != nil {
+		whereClause = append(whereClause, "IF(sc.id is not null, 'contribution', 'withdrawal') =?")
+		args = append(args, *params.Type)
+	}
+
+	for i, clause := range whereClause {
+		if i > 0 {
+			querySelect += " AND "
+			queryCount += " AND "
+		}
+		querySelect += clause
+		queryCount += clause
+	}
+
+	querySelect += groupBy + orderBy + limit
+
+	rows, err := s.db.QueryContext(ctx, querySelect, args...)
+	if err != nil {
+		return nil, fmt.Errorf("failed to select savings transactions: %w", err)
+	}
+	defer rows.Close()
+	var transactions []openapi.SavingsTransaction
+	for rows.Next() {
+		var transaction openapi.SavingsTransaction
+		var tags string
+		err := rows.Scan(
+			&transaction.AccountId,
+			&transaction.Amount,
+			&transaction.Date,
+			&transaction.Description,
+			&transaction.Id,
+			&tags,
+			&transaction.Type,
+			&transaction.TransactionId,
+		)
+		if err != nil {
+			return nil, fmt.Errorf("failed to scan row: %w", err)
+		}
+		transaction.SavingsGoalId = savingGoalID
+		transaction.Tags, err = (*s.tagsRepo).GetByIDs(ctx, strings.Split(tags, ","))
+		if err != nil {
+			return nil, fmt.Errorf("failed to get tags: %w", err)
+		}
+		transactions = append(transactions, transaction)
+	}
+	err = rows.Err()
+	if err != nil {
+		return nil, fmt.Errorf("failed to iterate over rows: %w", err)
+	}
+
+	var totalCount int
+	err = s.db.QueryRowContext(ctx, queryCount, args...).Scan(&totalCount)
+	if err != nil {
+		return nil, fmt.Errorf("failed to count rows: %w", err)
+	}
+
+	return &openapi.SavingsTransactionList{
+		Metadata: &openapi.ListMetadata{
+			Total:  totalCount,
+			Limit:  *params.Limit,
+			Offset: *params.Offset,
+		},
+		Transactions: transactions,
+	}, nil
 }

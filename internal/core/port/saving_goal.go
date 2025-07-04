@@ -26,5 +26,5 @@ type SavingsGoalRepo interface {
 	GetContributionByID(ctx context.Context, id string) (*openapi.SavingsContribution, error)
 
 	// Transaction operations
-	ListSavingsTransactions(ctx context.Context, params openapi.ListSavingsTransactionsParams) (*openapi.SavingsTransactionList, error)
+	ListSavingsTransactions(ctx context.Context, params openapi.ListSavingsTransactionsParams, savingGoalID string) (*openapi.SavingsTransactionList, error)
 }
