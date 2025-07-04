@@ -368,7 +368,7 @@ CREATE TABLE savings_goals
     auto_contribute           BOOLEAN                                            DEFAULT FALSE,
     auto_contribute_amount    DECIMAL(15, 2),
     auto_contribute_frequency ENUM ('daily', 'weekly', 'monthly', 'yearly'),
-    status                    ENUM ('active', 'completed', 'abandoned') NOT NULL DEFAULT 'active',
+    status                    ENUM ('active', 'completed', 'abandoned', 'inactive') NOT NULL DEFAULT 'active',
     projected_completion_date DATE,
     created_at                TIMESTAMP                                 NOT NULL DEFAULT CURRENT_TIMESTAMP,
     updated_at                TIMESTAMP                                 NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,

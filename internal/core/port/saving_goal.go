@@ -12,6 +12,8 @@ type SavingsGoalRepo interface {
 	Delete(ctx context.Context, id string) error
 	GetByID(ctx context.Context, id string) (*openapi.SavingsGoal, error)
 	List(ctx context.Context) ([]openapi.SavingsGoal, error)
+	MarkAsCompleted(ctx context.Context, id string) error
+	MarkAsAbandoned(ctx context.Context, id string) error
 
 	// Withdrawal operations
 	CreateWithdrawal(ctx context.Context, withdrawal openapi.SavingsWithdrawalRequest) (string, error)
@@ -25,11 +27,4 @@ type SavingsGoalRepo interface {
 
 	// Transaction operations
 	ListSavingsTransactions(ctx context.Context, params openapi.ListSavingsTransactionsParams) (*openapi.SavingsTransactionList, error)
-
-	// Tags operations
-	FindOrCreateTags(ctx context.Context, tags []string) ([]string, error)
-	LinkTagsToSavingsGoal(ctx context.Context, tags []string, savingsGoalId string) error
-	LinkTagsToWithdrawal(ctx context.Context, tags []string, withdrawalId string) error
-	LinkTagsToContribution(ctx context.Context, tags []string, contributionId string) error
-	CreateTag(ctx context.Context, tag openapi.TagRequest) (string, error)
 }

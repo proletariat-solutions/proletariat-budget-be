@@ -6,28 +6,37 @@ import (
 	"errors"
 	"fmt"
 	"ghorkov32/proletariat-budget-be/internal/core/domain"
+	"ghorkov32/proletariat-budget-be/internal/core/port"
 	"ghorkov32/proletariat-budget-be/openapi"
+	"sort"
 	"strconv"
 	"strings"
 )
 
 type ExpenditureRepo struct {
-	db *sql.DB
+	db       *sql.DB
+	tagsRepo *port.TagsRepo
 }
 
-func NewExpenditureRepo(db *sql.DB) *ExpenditureRepo {
-	return &ExpenditureRepo{db: db}
+func NewExpenditureRepo(db *sql.DB, tagsRepo *port.TagsRepo) *ExpenditureRepo {
+	return &ExpenditureRepo{
+		db:       db,
+		tagsRepo: tagsRepo,
+	}
 }
 
-func (r *ExpenditureRepo) Create(ctx context.Context, expenditure openapi.Expenditure) (string, error) {
-	queryInsert := `INSERT INTO expenditures (category_id, declared, planned, created_at, updated_at) VALUES (?,?,?,NOW(),NOW())`
+func (r *ExpenditureRepo) Create(ctx context.Context, expenditure openapi.Expenditure, transactionID string) (string, error) {
+	queryInsert := `insert into expenditures
+						(category_id, declared, planned, transaction_id, created_at, updated_at)
+					VALUES (?, ?, ?, ?, ?, NOW())`
 	result, errInsert := r.db.ExecContext(
 		ctx,
 		queryInsert,
 		expenditure.Category.Id,
-		expenditure.Date,
 		expenditure.Declared,
 		expenditure.Planned,
+		transactionID,
+		expenditure.Date,
 	)
 	if errInsert != nil {
 		return "", fmt.Errorf("failed to insert expenditure: %w", errInsert)
@@ -72,45 +81,59 @@ func (r *ExpenditureRepo) Delete(ctx context.Context, id string) error {
 }
 
 func (r *ExpenditureRepo) GetByID(ctx context.Context, id string) (*openapi.Expenditure, error) {
-	querySelect := `select t.account_id,
-						   t.amount,
-						   e.category_id,
-						   t.created_at as createdAt,
-						   t.transaction_date as date,
+	querySelect := `select e.id,
 						   e.declared,
-						   t.description,
 						   e.planned,
-						   GROUP_CONCAT(et.tag_id ORDER BY et.tag_id SEPARATOR ',') as tags,
-						   t.updated_at
+						   e.created_at,
+						   t.account_id,
+						   t.amount,
+						   t.currency,
+						   t.transaction_date,
+						   t.description,
+						   c.id,
+						   c.name,
+						   c.description,
+						   c.color,
+						   c.background_color,
+						   c.active,
+						   GROUP_CONCAT(et.tag_id ORDER BY et.tag_id SEPARATOR ',') as tags
 					from expenditures e
-							 inner join
-						 transactions t
-						 on e.transaction_id = t.id
-							 left join
-						 expenditure_tags et
-						 on e.id = et.expenditure_id WHERE id =?
-						 group by t.account_id, t.amount, e.category_id, t.created_at, t.transaction_date, e.declared, t.description, e.planned, t.updated_at `
+							 inner join categories c ON e.category_id = c.id
+							 inner join transactions t ON e.transaction_id = t.id
+							 left join expenditure_tags et on e.id = et.expenditure_id
+					group by e.id, e.declared, e.planned, e.transaction_id, e.created_at, t.account_id, t.amount, t.currency,
+							 t.transaction_date, t.description, c.id, c.name, c.description, c.color, c.background_color, c.active,
+							 c.category_type`
 
 	var expenditure openapi.Expenditure
-	var categoryId int64
-	var tags string
+	var tagsList string
 	err := r.db.QueryRowContext(ctx, querySelect, id).Scan(
-		&expenditure.AccountId,
-		&expenditure.Amount,
-		&categoryId,
-		&expenditure.CreatedAt,
-		&expenditure.Date,
+		&expenditure.Id,
 		&expenditure.Declared,
-		&expenditure.Description,
 		&expenditure.Planned,
 		&expenditure.CreatedAt,
-		&tags,
-		&expenditure.UpdatedAt,
+		&expenditure.AccountId,
+		&expenditure.Amount,
+		&expenditure.Currency,
+		&expenditure.Date,
+		&expenditure.Description,
+		&expenditure.Category.Id,
+		&expenditure.Category.Name,
+		&expenditure.Category.Description,
+		&expenditure.Category.Color,
+		&expenditure.Category.BackgroundColor,
+		&expenditure.Category.Active,
+		&tagsList,
 	)
 	if errors.Is(err, sql.ErrNoRows) {
 		return nil, domain.ErrEntityNotFound
 	} else if err != nil {
 		return nil, fmt.Errorf("failed to select expenditure: %w", err)
+	}
+
+	expenditure.Tags, err = (*r.tagsRepo).GetByIDs(ctx, strings.Split(tagsList, ","))
+	if err != nil {
+		return nil, fmt.Errorf("failed to fetch tags: %w", err)
 	}
 
 	return &expenditure, nil
@@ -130,32 +153,32 @@ func (r *ExpenditureRepo) GetByID(ctx context.Context, id string) (*openapi.Expe
     - query is built concatenating conditions with AND.
 */
 func (r *ExpenditureRepo) FindExpenditures(ctx context.Context, queryParams openapi.ListExpendituresParams) (*openapi.ExpenditureList, error) {
-	querySelect := `select t.account_id,
-						   t.amount,
-						   e.category_id,
-						   t.created_at as createdAt,
-						   t.transaction_date as date,
+	querySelect := `select e.id,
 						   e.declared,
-						   t.description,
 						   e.planned,
-						   GROUP_CONCAT(et.tag_id ORDER BY et.tag_id SEPARATOR ',') as tags,
-						   t.updated_at
+						   e.created_at,
+						   t.account_id,
+						   t.amount,
+						   t.currency,
+						   t.transaction_date,
+						   t.description,
+						   c.id,
+						   c.name,
+						   c.description,
+						   c.color,
+						   c.background_color,
+						   c.active,
+						   GROUP_CONCAT(et.tag_id ORDER BY et.tag_id SEPARATOR ',') as tags
 					from expenditures e
-							 inner join
-						 transactions t
-						 on e.transaction_id = t.id
-							 left join
-						 expenditure_tags et
-						 on e.id = et.expenditure_id`
+							 inner join categories c ON e.category_id = c.id
+							 inner join transactions t ON e.transaction_id = t.id
+							 left join expenditure_tags et on e.id = et.expenditure_id`
 	queryCount := `select COUNT(*)
-					from expenditures e
-							 inner join
-						 transactions t
-						 on e.transaction_id = t.id
-							 left join
-						 expenditure_tags et
-						 on e.id = et.expenditure_id
-`
+						from expenditures e
+							 inner join categories c ON e.category_id = c.id
+							 inner join transactions t ON e.transaction_id = t.id
+							 left join expenditure_tags et on e.id = et.expenditure_id`
+
 	var args []interface{}
 	var whereClause []string
 
@@ -212,7 +235,9 @@ func (r *ExpenditureRepo) FindExpenditures(ctx context.Context, queryParams open
 		querySelect += clause
 		queryCount += clause
 	}
-	querySelect += " group by t.account_id, t.amount, e.category_id, t.created_at, t.transaction_date, e.declared, t.description, e.id, e.planned, t.updated_at "
+	querySelect += ` group by e.id, e.declared, e.planned, e.transaction_id, e.created_at, t.account_id, t.amount, t.currency,
+							 t.transaction_date, t.description, c.id, c.name, c.description, c.color, c.background_color, c.active,
+							 c.category_type`
 	querySelect += " ORDER BY created_at DESC"
 	querySelect += fmt.Sprintf(" LIMIT %d OFFSET %d", queryParams.Limit, queryParams.Offset)
 	stmtCount, errQueryCountStmt := r.db.PrepareContext(ctx, queryCount)
@@ -245,27 +270,51 @@ func (r *ExpenditureRepo) FindExpenditures(ctx context.Context, queryParams open
 
 	defer rows.Close()
 	var expenditures []openapi.Expenditure
+	tagsByID := make(map[string][]string)
+	var ids []string
 	for rows.Next() {
 		var expenditure openapi.Expenditure
-		var categoryId int64
 		var tags string
 		err := rows.Scan(
-			&expenditure.AccountId,
-			&expenditure.Amount,
-			&categoryId,
-			&expenditure.CreatedAt,
-			&expenditure.Date,
+			&expenditure.Id,
 			&expenditure.Declared,
-			&expenditure.Description,
 			&expenditure.Planned,
 			&expenditure.CreatedAt,
+			&expenditure.AccountId,
+			&expenditure.Amount,
+			&expenditure.Currency,
+			&expenditure.Date,
+			&expenditure.Description,
+			&expenditure.Category.Id,
+			&expenditure.Category.Name,
+			&expenditure.Category.Description,
+			&expenditure.Category.Color,
+			&expenditure.Category.BackgroundColor,
+			&expenditure.Category.Active,
 			&tags,
-			&expenditure.UpdatedAt,
 		)
 		if err != nil {
 			return nil, fmt.Errorf("failed to scan row: %w", err)
 		}
 		expenditures = append(expenditures, expenditure)
+		tagsByID[expenditure.Id] = strings.Split(tags, ",")
+		ids = append(ids, expenditure.Id)
+	}
+
+	tags, err := (*r.tagsRepo).ListByType(ctx, "expenditure", &ids)
+	if err != nil {
+		return nil, fmt.Errorf("failed to get tags: %w", err)
+	}
+
+	for _, expenditure := range expenditures {
+		expenditureTags := make([]openapi.Tag, 0, len(tagsByID[expenditure.Id]))
+		for _, tagID := range tagsByID[expenditure.Id] {
+			idx := sort.Search(len(tags), func(i int) bool { return tags[i].Id == tagID })
+			if idx >= 0 {
+				expenditureTags = append(expenditureTags, tags[idx])
+			}
+		}
+		expenditure.Tags = &expenditureTags
 	}
 
 	expendituresList := &openapi.ExpenditureList{

@@ -10,8 +10,9 @@ type TagsRepo interface {
 	Update(ctx context.Context, id string, tag openapi.Tag, tagType string) error
 	Delete(ctx context.Context, id string) error
 	GetByID(ctx context.Context, id string) (*openapi.Tag, error)
+	GetByIDs(ctx context.Context, ids []string) (*[]openapi.Tag, error)
 
 	ListByType(ctx context.Context, tagType string, ids *[]string) ([]openapi.Tag, error)
 
-	LinkTagsToType(ctx context.Context, tagType string, tags []openapi.Tag) error
+	LinkTagsToType(ctx context.Context, tagType, foreignID string, tags []openapi.Tag) error
 }

@@ -8,11 +8,11 @@ import (
 
 type IngressRepo interface {
 	// Ingress operations
-	Create(ctx context.Context, ingress openapi.IngressRequest) (string, error)
+	Create(ctx context.Context, ingress openapi.IngressRequest, transactionID string) (string, error)
 	Update(ctx context.Context, id string, ingress openapi.IngressRequest) error
 	Delete(ctx context.Context, id string) error
 	GetByID(ctx context.Context, id string) (*openapi.Ingress, error)
-	List(ctx context.Context, params openapi.ListIngressesParams) ([]openapi.Ingress, error)
+	List(ctx context.Context, params openapi.ListIngressesParams) (*openapi.IngressList, error)
 
 	// Recurrence Patterns
 	CreateRecurrencePattern(ctx context.Context, recurrencePattern domain.RecurrencePattern) (string, error)

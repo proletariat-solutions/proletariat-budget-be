@@ -1,7 +1,7 @@
 type: object
 properties:
   total:
-    type: number
+    type: integer
     description: Total amount of incomes in result
   incomes:
     type: array

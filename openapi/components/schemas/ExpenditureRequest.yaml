@@ -5,6 +5,10 @@ properties:
     format: float
     description: The expenditure amount
     example: 50
+  currency:
+    type: string
+    description: ID of the currency used for the expenditure
+    example: currency_USD
   category:
     $ref: './Category.yaml'
   description:

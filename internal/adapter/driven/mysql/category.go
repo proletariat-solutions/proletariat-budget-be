@@ -9,11 +9,11 @@ import (
 	"ghorkov32/proletariat-budget-be/openapi"
 )
 
-type CategoryRepo struct {
+type CategoryRepoImpl struct {
 	db *sql.DB
 }
 
-func (c CategoryRepo) Create(ctx context.Context, category openapi.Category, categoryType string) (string, error) {
+func (c CategoryRepoImpl) Create(ctx context.Context, category openapi.Category, categoryType string) (string, error) {
 	queryInsert := `INSERT INTO categories  (name, description, color, background_color, active, category_type) 
 						VALUES (?,?,?,?,?,?)`
 	result, errInsert := c.db.ExecContext(
@@ -37,7 +37,7 @@ func (c CategoryRepo) Create(ctx context.Context, category openapi.Category, cat
 	return lastIDStr, nil
 }
 
-func (c CategoryRepo) Update(ctx context.Context, id string, category openapi.Category, categoryType string) error {
+func (c CategoryRepoImpl) Update(ctx context.Context, id string, category openapi.Category, categoryType string) error {
 	queryUpdate := `UPDATE categories SET name=?, description=?, color=?, background_color=?, active=?, category_type=? WHERE id=?`
 
 	result, err := c.db.ExecContext(
@@ -63,7 +63,7 @@ func (c CategoryRepo) Update(ctx context.Context, id string, category openapi.Ca
 	return nil
 }
 
-func (c CategoryRepo) Delete(ctx context.Context, id string) error {
+func (c CategoryRepoImpl) Delete(ctx context.Context, id string) error {
 	// Only updating "active" field to false, not deleting the record
 	queryUpdate := `UPDATE categories SET active = false WHERE id =?`
 
@@ -83,7 +83,7 @@ func (c CategoryRepo) Delete(ctx context.Context, id string) error {
 	return nil
 }
 
-func (c CategoryRepo) GetByID(ctx context.Context, id string) (*openapi.Category, error) {
+func (c CategoryRepoImpl) GetByID(ctx context.Context, id string) (*openapi.Category, error) {
 	query := `SELECT id, name, description, color, background_color, active FROM categories WHERE id=? AND active=true`
 
 	var category openapi.Category
@@ -103,7 +103,7 @@ func (c CategoryRepo) GetByID(ctx context.Context, id string) (*openapi.Category
 	return &category, nil
 }
 
-func (c CategoryRepo) List(ctx context.Context) ([]openapi.Category, error) {
+func (c CategoryRepoImpl) List(ctx context.Context) ([]openapi.Category, error) {
 	query := `SELECT id, name, description, color, background_color, active FROM categories WHERE active=true`
 
 	rows, err := c.db.QueryContext(ctx, query)
@@ -131,7 +131,7 @@ func (c CategoryRepo) List(ctx context.Context) ([]openapi.Category, error) {
 	return categories, nil
 }
 
-func (c CategoryRepo) FindByType(ctx context.Context, categoryType string) ([]openapi.Category, error) {
+func (c CategoryRepoImpl) FindByType(ctx context.Context, categoryType string) ([]openapi.Category, error) {
 	query := `SELECT id, name, description, color, background_color, active FROM categories WHERE category_type=? AND active=true`
 
 	rows, err := c.db.QueryContext(ctx, query, categoryType)
@@ -158,7 +158,7 @@ func (c CategoryRepo) FindByType(ctx context.Context, categoryType string) ([]op
 	return categories, nil
 }
 
-func (c CategoryRepo) FindByIDs(ctx context.Context, ids []string) ([]openapi.Category, error) {
+func (c CategoryRepoImpl) FindByIDs(ctx context.Context, ids []string) ([]openapi.Category, error) {
 	query := `SELECT id, name, description, color, background_color, active FROM categories WHERE id IN (?) AND active=true`
 	rows, err := c.db.QueryContext(ctx, query, ids)
 	if err != nil {

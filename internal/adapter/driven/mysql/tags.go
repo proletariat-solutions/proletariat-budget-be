@@ -13,7 +13,7 @@ type TagsRepoImpl struct {
 }
 
 func (t TagsRepoImpl) Create(ctx context.Context, tag openapi.Tag, tagType string) (string, error) {
-	queryInsert := `INSERT INTO tags (name, description, color, background_color, type) VALUES (?,?,?,?,?)`
+	queryInsert := `INSERT INTO tags (name, description, color, background_color, type, created_at) VALUES (?,?,?,?,?, now())`
 	result, errInsert := t.db.ExecContext(
 		ctx,
 		queryInsert,
@@ -97,6 +97,32 @@ func (t TagsRepoImpl) GetByID(ctx context.Context, id string) (*openapi.Tag, err
 	return &tag, nil
 }
 
+func (t TagsRepoImpl) GetByIDs(ctx context.Context, ids []string) (*[]openapi.Tag, error) {
+	query := `SELECT id, name, description, color, background_color FROM tags WHERE id IN (?)`
+	strIDs := strings.Join(ids, ",")
+	rows, err := t.db.QueryContext(ctx, query, strIDs)
+	if err != nil {
+		return nil, fmt.Errorf("failed to select tags: %w", err)
+	}
+	defer rows.Close()
+	var tags []openapi.Tag
+	for rows.Next() {
+		var tag openapi.Tag
+		err := rows.Scan(
+			&tag.Id,
+			&tag.Name,
+			&tag.Description,
+			&tag.Color,
+			&tag.BackgroundColor,
+		)
+		if err != nil {
+			return nil, fmt.Errorf("failed to scan row: %w", err)
+		}
+		tags = append(tags, tag)
+	}
+	return &tags, nil
+}
+
 func (t TagsRepoImpl) ListByType(ctx context.Context, tagType string, ids *[]string) ([]openapi.Tag, error) {
 	var junctionTable string
 	var junctionForeignKey string
@@ -124,23 +150,27 @@ func (t TagsRepoImpl) ListByType(ctx context.Context, tagType string, ids *[]str
 	default:
 		return nil, fmt.Errorf("unknown tag type: %s", tagType)
 	}
-	query := fmt.Sprintf(`select t.id,
-					   t.name,
-					   t.description,
-					   t.color,
-					   t.background_color,
-					   t.created_at,
-					   t.updated_at
-				from tags t
-				where exists (
-					select 1
-					from %s jt
-					where jt.tag_id = t.id
-				)`, junctionTable)
+	query := fmt.Sprintf(
+		`select 
+				t.id,
+				t.name,
+				t.description,
+				t.color,
+				t.background_color,
+				t.created_at,
+				t.updated_at
+			from tags t
+			where exists (
+				select 1
+				from %s jt
+				where jt.tag_id = t.id
+				)`,
+		junctionTable)
 
 	if ids != nil {
 		query += fmt.Sprintf(` and jt.%s IN (%s)`, junctionForeignKey, strings.Join(*ids, ","))
 	}
+	query += " order by t.id"
 	rows, err := t.db.QueryContext(ctx, query)
 	if err != nil {
 		return nil, fmt.Errorf("failed to select tags: %w", err)
@@ -166,7 +196,7 @@ func (t TagsRepoImpl) ListByType(ctx context.Context, tagType string, ids *[]str
 	return tags, nil
 }
 
-func (t TagsRepoImpl) LinkTagsToType(ctx context.Context, tagType string, tags []openapi.Tag) error {
+func (t TagsRepoImpl) LinkTagsToType(ctx context.Context, tagType, foreignID string, tags []openapi.Tag) error {
 	var junctionTable string
 	var junctionForeignKey string
 	switch tagType {
@@ -194,13 +224,25 @@ func (t TagsRepoImpl) LinkTagsToType(ctx context.Context, tagType string, tags [
 		return fmt.Errorf("unknown tag type: %s", tagType)
 	}
 
-	queryInsert := fmt.Sprintf(`INSERT INTO %s (tag_id, %s) VALUES (?,?)`, junctionTable)
+	// Clearing records first
+	queryDelete := fmt.Sprintf("DELETE FROM %s WHERE %s=?", junctionTable, junctionForeignKey)
+	_, err := t.db.ExecContext(
+		ctx,
+		queryDelete,
+		foreignID,
+	)
+	if err != nil {
+		return fmt.Errorf("failed to delete linked records: %w", err)
+	}
+
+	// Recreating the relationships
+	queryInsert := fmt.Sprintf("INSERT INTO %s (tag_id, %s) VALUES (?,?)", junctionTable, junctionForeignKey)
 	for _, tag := range tags {
 		_, err := t.db.ExecContext(
 			ctx,
 			queryInsert,
 			tag.Id,
-			junctionForeignKey,
+			foreignID,
 		)
 		if err != nil {
 			return fmt.Errorf("failed to link tag to %s: %w", tagType, err)
