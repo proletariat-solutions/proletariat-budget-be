@@ -78,18 +78,29 @@ INSERT INTO transactions (account_id, amount, currency, transaction_date, descri
 (1, 750.00, 168, '2024-01-10 16:30:00', 'Freelance project payment', 'ingress', 7250.00, 'completed'),
 (2, 125.50, 168, '2024-01-05 10:00:00', 'Investment dividend', 'ingress', 12125.50, 'completed'),
 -- Savings contributions
-(2, 500.00, 168, '2024-01-02 09:00:00', 'Monthly emergency fund contribution', 'savings_contribution', 12625.50, 'completed'),
-(2, 300.00, 168, '2024-01-02 09:05:00', 'Monthly vacation fund contribution', 'savings_contribution', 12925.50, 'completed'),
+(2, 0.00, 168, '2024-01-02 09:00:00', 'Monthly emergency fund contribution', 'transfer', 12625.50, 'completed'),
+(2, 0.00, 168, '2024-01-02 09:05:00', 'Monthly vacation fund contribution', 'transfer', 12925.50, 'completed'),
 -- Transfers
-(1, 200.00, 168, '2024-01-20 11:00:00', 'Transfer to savings account', 'transfer', 6644.56, 'completed');
+(1, 200.00, 168, '2024-01-20 11:00:00', 'Transfer to savings account', 'transfer', 6644.56, 'completed'),-- Emergency withdrawal to use on medical services
+(2, 0.00, 168, '2024-01-25 15:00:00', 'Emergency withdrawal to use on medical services', 'transfer', 12500.7, 'completed'),
+(2, 100.00, 168, '2024-01-25 15:00:00', 'Emergency withdrawal to use on medical services', 'expenditure', 12400.7, 'completed');
 
+
+-- Insert transfers
+INSERT INTO transfers (source_account_id, destination_account_id, destination_amount, exchange_rate_multiplier, fees, transaction_id) VALUES
+    (1, 2, 200.00, 1.000000, 0.00, 11), -- Transfer from checking to savings
+    (2, 2, 200.00, 0, 0, 12), -- Transfer from savings to
+    (2, 2, 200.00, 0, 0, 9),
+    (2, 2, 200.00, 0, 0, 10);
 -- Insert expenditures
 INSERT INTO expenditures (category_id, declared, planned, transaction_id) VALUES
 (1, TRUE, TRUE, 1),   -- Groceries
 (2, TRUE, FALSE, 2),  -- Transportation (gas)
 (3, FALSE, FALSE, 3), -- Entertainment (dinner)
 (3, FALSE, FALSE, 4), -- Entertainment (coffee/lunch)
-(4, TRUE, TRUE, 5);   -- Utilities (internet)
+(4, TRUE, TRUE, 5),   -- Utilities (internet)
+(1, true, false, 13);
+
 
 -- Insert expenditure tags
 INSERT INTO expenditure_tags (expenditure_id, tag_id) VALUES
@@ -117,18 +128,18 @@ INSERT INTO ingress_recurrence_patterns (ingress_id, frequency, interval_value, 
 (3, 'monthly', 1, 125.50);  -- Monthly dividends
 
 -- Insert savings contributions
-INSERT INTO savings_contributions (savings_goal_id, date, source_account_id, notes) VALUES
-(1, '2024-01-02', 1, 'Monthly automatic contribution to emergency fund'),
-(2, '2024-01-02', 1, 'Monthly automatic contribution to vacation fund');
+INSERT INTO savings_contributions (savings_goal_id, transfer_id, date) VALUES
+(1, 3, '2024-01-02'),
+(2, 4, '2024-01-02');
+
+insert into savings_withdrawals (savings_goal_id, date, reason, transfer_id) VALUES
+(1, '2024-01-25', 'Emergency withdrawal', 11);
+
 
 -- Insert savings contribution tags
 INSERT INTO savings_contribution_tags (contribution_id, tag_id) VALUES
 (1, 13), -- Emergency fund contribution: Automatic
 (2, 13); -- Vacation fund contribution: Automatic
-
--- Insert transfers
-INSERT INTO transfers (source_account_id, destination_account_id, destination_amount, exchange_rate_multiplier, fees, transaction_id) VALUES
-(1, 2, 200.00, 1.000000, 0.00, 11); -- Transfer from checking to savings
 
 -- Update account balances and savings goal amounts based on transactions
 UPDATE accounts SET current_balance = 6644.56 WHERE id = 1; -- Main Checking after all transactions

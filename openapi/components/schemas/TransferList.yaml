@@ -1,8 +1,7 @@
 type: object
 properties:
-  total:
-    type: number
-    description: Total number of transfers in result
+  metadata:
+    $ref: "./ListMetadata.yaml"
   transfers:
     type: array
     items:

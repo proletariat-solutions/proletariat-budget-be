@@ -1,8 +1,7 @@
 type: object
 properties:
-  total:
-    type: number
-    description: Total number of savings goals in result
+  metadata:
+    $ref: "./ListMetadata.yaml"
   savingsGoals:
     type: array
     items:

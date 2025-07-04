@@ -1,8 +1,7 @@
 type: object
 properties:
-  total:
-    type: integer
-    description: Total amount of incomes in result
+  metadata:
+    $ref: "./ListMetadata.yaml"
   incomes:
     type: array
     items:

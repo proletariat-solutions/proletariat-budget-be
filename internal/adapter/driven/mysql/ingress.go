@@ -395,6 +395,13 @@ func (i IngressRepo) List(ctx context.Context, params openapi.ListIngressesParam
 		}
 		ingress.Tags = &ingressTags
 	}
-	return &openapi.IngressList{Total: &count, Incomes: &ingresses}, nil
+	return &openapi.IngressList{
+		Metadata: &openapi.ListMetadata{
+			Total:  count,
+			Offset: *params.Offset,
+			Limit:  *params.Limit,
+		},
+		Incomes: &ingresses,
+	}, nil
 
 }

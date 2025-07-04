@@ -250,7 +250,7 @@ func (r *ExpenditureRepo) FindExpenditures(ctx context.Context, queryParams open
 		return nil, fmt.Errorf("failed to count expenditures: %w", errQueryCount)
 	}
 	defer result.Close()
-	var count float32
+	var count int
 	result.Next()
 	errScan := result.Scan(&count)
 	if errScan != nil {
@@ -318,7 +318,7 @@ func (r *ExpenditureRepo) FindExpenditures(ctx context.Context, queryParams open
 	}
 
 	expendituresList := &openapi.ExpenditureList{
-		Total:        &count,
+		Metadata:     &openapi.ListMetadata{Total: count, Limit: *queryParams.Limit, Offset: *queryParams.Offset},
 		Expenditures: &expenditures,
 	}
 
