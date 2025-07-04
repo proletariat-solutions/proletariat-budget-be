@@ -27,6 +27,7 @@ rectangle "Expenditure Management System" {
   usecase "Manage Expenditure Tags" as UC9
   usecase "Create Emergency Withdrawal" as UC10
   usecase "Update Savings Goal Balance" as UC11
+  usecase "Create Transfer to Account" as UC12
 }
 
 user --> UC1
@@ -34,8 +35,10 @@ UC1 ..> UC2 : <<include>>
 UC1 ..> UC3 : <<include>>
 UC3 ..> UC4 : <<include>>
 UC4 ..> UC5 : <<extend>> <<if savings goal conflict>>
-UC5 ..> UC6 : <<extend>> <<if user confirms>>
-UC5 ..> UC10 : <<extend>> <<if user confirms>>
+UC5 ..> UC6 : <<extend>> <<if user confirms and selects goal>>
+UC5 ..> UC10 : <<extend>> <<if user confirms and selects goal>>
+UC10 ..> UC12 : <<include>>
+UC12 ..> UC7 : <<include>>
 UC6 ..> UC7 : <<include>>
 UC7 ..> UC8 : <<include>>
 UC6 ..> UC9 : <<include>>
@@ -51,6 +54,7 @@ system --> UC8
 system --> UC9
 system --> UC10
 system --> UC11
+system --> UC12
 
 note right of UC1
   User provides:
@@ -90,9 +94,10 @@ end note
 note right of UC5
   System:
   - Displays warning about savings goal conflict
-  - Shows affected savings goals
+  - Shows affected savings goals for user selection
   - Asks user to confirm or cancel
-  - Proceeds only if user confirms
+  - User selects which savings goal to withdraw from
+  - Proceeds only if user confirms and selects goal
 end note
 
 note right of UC6
@@ -138,6 +143,14 @@ note right of UC11
   - Updates savings goal progress
   - Recalculates completion percentage
   - Updates projected completion date
+end note
+
+note right of UC12
+  System:
+  - Creates transfer from savings goal to expenditure account
+  - Records transfer amount equal to withdrawal
+  - Links transfer to both savings withdrawal and expenditure
+  - Updates both account balances accordingly
 end note
 
 @enduml

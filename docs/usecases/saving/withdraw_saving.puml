@@ -5,11 +5,11 @@
     - A savings goal exists and has funds available.
     - The goal is in "active" or "completed" status.
     Postcondition:
-    - Funds are transferred from the goal's account to the destination account.
+    - A transfer is created from the goal's account to the destination account.
+    - The transfer generates appropriate transaction records.
     - The current amount of the savings goal is decreased.
     - The progress percentage is updated.
     - The soft lock on the account is reduced.
-    - Transaction records are created.
     - Goal status may change if fully withdrawn.
     Trigger: User initiates a withdrawal from a savings goal.
 '/
@@ -27,10 +27,10 @@ rectangle "Savings Goal Withdrawal System" {
   usecase "Verify Available Funds in Goal" as UC5
   usecase "Provide Withdrawal Reason" as UC6
   usecase "Confirm Withdrawal" as UC7
-  usecase "Process Transfer" as UC8
+  usecase "Create Transfer Record" as UC8
   usecase "Update Savings Goal Progress" as UC9
   usecase "Reduce Soft Lock" as UC10
-  usecase "Create Transaction Records" as UC11
+  usecase "Generate Transaction from Transfer" as UC11
   usecase "Check Goal Status" as UC12
   usecase "Generate Withdrawal Receipt" as UC13
 }
@@ -88,6 +88,7 @@ note right of UC4
   - Selects destination account for funds
   - System validates account is active
   - System checks account can receive funds
+  - System determines transfer type based on accounts
 end note
 
 note right of UC5
@@ -114,10 +115,11 @@ end note
 
 note right of UC8
   System:
-  - Transfers funds from goal account
-  - Updates goal account balance
-  - Updates destination account balance
-  - Records transfer timestamp
+  - Creates transfer record with withdrawal details
+  - Sets source account (goal's account)
+  - Sets destination account (user selected)
+  - Records transfer type (withdrawal)
+  - Links transfer to savings withdrawal record
 end note
 
 note right of UC9
@@ -137,10 +139,11 @@ end note
 
 note right of UC11
   System:
-  - Creates goal withdrawal record
-  - Creates destination account transaction
-  - Links transactions together
-  - Records transaction metadata
+  - Transfer system generates transaction(s)
+  - If same account: creates zero-value transaction
+  - If different accounts: creates debit/credit transactions
+  - Links transactions to transfer record
+  - Updates account balances accordingly
 end note
 
 note right of UC12
@@ -155,7 +158,7 @@ note right of UC13
   System:
   - Generates withdrawal confirmation
   - Shows updated goal progress
-  - Provides transaction reference
+  - Provides transfer and transaction references
   - Offers options for next actions
 end note
 
