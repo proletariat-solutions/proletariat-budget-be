@@ -1,8 +1,7 @@
 type: object
 properties:
-  total:
-    type: number
-    description: Total amount of expenditures in result
+  metadata:
+    $ref: "./ListMetadata.yaml"
   expenditures:
     type: array
     items:

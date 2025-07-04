@@ -1,8 +1,5 @@
 type: object
 properties:
-  total:
-    type: integer
-    description: Total number of household members in the list
   members:
     type: array
     items:

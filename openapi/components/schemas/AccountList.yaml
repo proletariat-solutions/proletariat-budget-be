@@ -1,8 +1,5 @@
 type: object
 properties:
-  total:
-    type: number
-    description: Total number of accounts in result
   accounts:
     type: array
     items:
