@@ -5,9 +5,7 @@ properties:
     description: Name of the savings goal
     example: New Car
   category:
-    type: string
-    description: Category of the savings goal
-    example: vehicle
+    $ref: './Category.yaml'
   description:
     type: string
     description: Detailed description of the savings goal
@@ -60,11 +58,14 @@ properties:
   tags:
     type: array
     items:
-      type: string
-    description: Tag IDs associated with this savings goal
+      $ref: './Tag.yaml'
+    description: List of tag IDs associated with this goal
     example:
-      - car
-      - major purchase
+      - id: tag_1234567890
+        name: "Car"
+        color: "#FF0000"
+        description: "Saving for a car"
+        backgroundColor: "#00FF00"
 required:
   - name
   - category

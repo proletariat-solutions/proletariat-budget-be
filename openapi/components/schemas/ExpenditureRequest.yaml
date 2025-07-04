@@ -5,10 +5,12 @@ properties:
     format: float
     description: The expenditure amount
     example: 50
-  categoryId:
+  currency:
     type: string
-    description: The category ID this expenditure belongs to
-    example: groceries
+    description: ID of the currency used for the expenditure
+    example: currency_USD
+  category:
+    $ref: './Category.yaml'
   description:
     type: string
     description: The description of the expenditure
@@ -33,11 +35,14 @@ properties:
   tags:
     type: array
     items:
-      type: string
+      $ref: './Tag.yaml'
     description: List of tag IDs associated with this expenditure
     example:
-      - groceries
-      - weekly
+      - id: tag_1234567890
+        name: "Groceries"
+        color: "#FF0000"
+        description: "Groceries for the week"
+        backgroundColor: "#00FF00"
 required:
   - amount
   - categoryId

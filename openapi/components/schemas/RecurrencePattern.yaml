@@ -1,5 +1,9 @@
 type: object
 properties:
+  id:
+    type: string
+    description: Unique identifier for the recurring income
+    example: 'income_123'
   frequency:
     type: string
     enum:
@@ -18,3 +22,7 @@ properties:
     format: date
     description: When the recurring income ends (if applicable)
     example: '2024-12-31'
+  amount:
+    type: number
+    description: The amount of the recurring income
+    example: 100.00

@@ -208,7 +208,8 @@ type Account struct {
 	Institution *string `json:"institution,omitempty"`
 
 	// Name Name of the account
-	Name string `json:"name"`
+	Name  string           `json:"name"`
+	Owner *HouseholdMember `json:"owner,omitempty"`
 
 	// Type Type of account
 	Type AccountType `json:"type"`
@@ -252,7 +253,8 @@ type AccountRequest struct {
 	Institution *string `json:"institution,omitempty"`
 
 	// Name Name of the account
-	Name string `json:"name"`
+	Name  string           `json:"name"`
+	Owner *HouseholdMember `json:"owner,omitempty"`
 
 	// Type Type of account
 	Type AccountRequestType `json:"type"`
@@ -300,6 +302,45 @@ type BalanceSummary struct {
 	TotalBalance float32 `json:"totalBalance"`
 }
 
+// Category defines model for Category.
+type Category struct {
+	// Active Whether the category is active
+	Active *bool `json:"active,omitempty"`
+
+	// BackgroundColor Background color code for UI representation (hex format)
+	BackgroundColor *string `json:"backgroundColor,omitempty"`
+
+	// Color Color code for UI representation (hex format)
+	Color *string `json:"color,omitempty"`
+
+	// Description Description of the category
+	Description string `json:"description"`
+
+	// Id Unique identifier for the category
+	Id string `json:"id"`
+
+	// Name Name of the category
+	Name string `json:"name"`
+}
+
+// CategoryRequest defines model for CategoryRequest.
+type CategoryRequest struct {
+	// Active Whether the category is active
+	Active *bool `json:"active,omitempty"`
+
+	// BackgroundColor Background color code for UI representation (hex format)
+	BackgroundColor *string `json:"backgroundColor,omitempty"`
+
+	// Color Color code for UI representation (hex format)
+	Color *string `json:"color,omitempty"`
+
+	// Description Description of the category
+	Description string `json:"description"`
+
+	// Name Name of the category
+	Name string `json:"name"`
+}
+
 // Error defines model for Error.
 type Error struct {
 	Code    ErrorCode `json:"code"`
@@ -327,13 +368,14 @@ type Expenditure struct {
 	AccountId string `json:"accountId"`
 
 	// Amount The expenditure amount
-	Amount float32 `json:"amount"`
-
-	// CategoryId The category ID this expenditure belongs to
-	CategoryId string `json:"categoryId"`
+	Amount   float32   `json:"amount"`
+	Category *Category `json:"category,omitempty"`
 
 	// CreatedAt Timestamp when the expenditure was created
 	CreatedAt time.Time `json:"createdAt"`
+
+	// Currency ID of the currency used for the expenditure
+	Currency *string `json:"currency,omitempty"`
 
 	// Date The date of the expenditure
 	Date openapi_types.Date `json:"date"`
@@ -351,49 +393,10 @@ type Expenditure struct {
 	Planned *bool `json:"planned,omitempty"`
 
 	// Tags List of tag IDs associated with this expenditure
-	Tags *[]string `json:"tags,omitempty"`
+	Tags *[]Tag `json:"tags,omitempty"`
 
 	// UpdatedAt Timestamp when the expenditure was last updated
 	UpdatedAt time.Time `json:"updatedAt"`
-}
-
-// ExpenditureCategory defines model for ExpenditureCategory.
-type ExpenditureCategory struct {
-	// Active Whether the category is active
-	Active *bool `json:"active,omitempty"`
-
-	// BackgroundColor Background color code for UI representation (hex format)
-	BackgroundColor *string `json:"backgroundColor,omitempty"`
-
-	// Color Color code for UI representation (hex format)
-	Color *string `json:"color,omitempty"`
-
-	// Description Description of the category
-	Description *string `json:"description,omitempty"`
-
-	// Id Unique identifier for the category
-	Id string `json:"id"`
-
-	// Name Name of the category
-	Name string `json:"name"`
-}
-
-// ExpenditureCategoryRequest defines model for ExpenditureCategoryRequest.
-type ExpenditureCategoryRequest struct {
-	// Active Whether the category is active
-	Active *bool `json:"active,omitempty"`
-
-	// BackgroundColor Background color code for UI representation (hex format)
-	BackgroundColor *string `json:"backgroundColor,omitempty"`
-
-	// Color Color code for UI representation (hex format)
-	Color *string `json:"color,omitempty"`
-
-	// Description Description of the category
-	Description *string `json:"description,omitempty"`
-
-	// Name Name of the category
-	Name string `json:"name"`
 }
 
 // ExpenditureList defines model for ExpenditureList.
@@ -410,10 +413,11 @@ type ExpenditureRequest struct {
 	AccountId string `json:"accountId"`
 
 	// Amount The expenditure amount
-	Amount float32 `json:"amount"`
+	Amount   float32   `json:"amount"`
+	Category *Category `json:"category,omitempty"`
 
-	// CategoryId The category ID this expenditure belongs to
-	CategoryId string `json:"categoryId"`
+	// Currency ID of the currency used for the expenditure
+	Currency *string `json:"currency,omitempty"`
 
 	// Date The date of the expenditure
 	Date openapi_types.Date `json:"date"`
@@ -428,7 +432,7 @@ type ExpenditureRequest struct {
 	Planned *bool `json:"planned,omitempty"`
 
 	// Tags List of tag IDs associated with this expenditure
-	Tags *[]string `json:"tags,omitempty"`
+	Tags *[]Tag `json:"tags,omitempty"`
 }
 
 // HouseholdMember defines model for HouseholdMember.
@@ -487,11 +491,15 @@ type HouseholdMemberRequest struct {
 
 // Ingress defines model for Ingress.
 type Ingress struct {
-	// Amount The ingress amount
-	Amount float32 `json:"amount"`
+	// AccountId The ID of the account this ingress belongs to
+	AccountId string `json:"accountId"`
 
-	// Category The category of this ingress
-	Category string `json:"category"`
+	// Amount The ingress amount
+	Amount   float32  `json:"amount"`
+	Category Category `json:"category"`
+
+	// CreatedAt The timestamp when the ingress was created
+	CreatedAt *time.Time `json:"createdAt,omitempty"`
 
 	// Currency The currency of the ingress
 	Currency string `json:"currency"`
@@ -513,46 +521,7 @@ type Ingress struct {
 	Source *string `json:"source,omitempty"`
 
 	// Tags List of tag IDs associated with this ingress
-	Tags *[]string `json:"tags,omitempty"`
-}
-
-// IngressCategory defines model for IngressCategory.
-type IngressCategory struct {
-	// Active Whether the category is active
-	Active *bool `json:"active,omitempty"`
-
-	// BackgroundColor Background color code for UI representation (hex format)
-	BackgroundColor *string `json:"backgroundColor,omitempty"`
-
-	// Color Color code for UI representation (hex format)
-	Color *string `json:"color,omitempty"`
-
-	// Description Description of the category
-	Description string `json:"description"`
-
-	// Id Unique identifier for the ingress
-	Id string `json:"id"`
-
-	// Name Name of the category
-	Name string `json:"name"`
-}
-
-// IngressCategoryRequest defines model for IngressCategoryRequest.
-type IngressCategoryRequest struct {
-	// Active Whether the category is active
-	Active *bool `json:"active,omitempty"`
-
-	// BackgroundColor Background color code for UI representation (hex format)
-	BackgroundColor *string `json:"backgroundColor,omitempty"`
-
-	// Color Color code for UI representation (hex format)
-	Color *string `json:"color,omitempty"`
-
-	// Description Description of the category
-	Description string `json:"description"`
-
-	// Name Name of the category
-	Name string `json:"name"`
+	Tags *[]Tag `json:"tags,omitempty"`
 }
 
 // IngressList defines model for IngressList.
@@ -560,16 +529,20 @@ type IngressList struct {
 	Incomes *[]Ingress `json:"incomes,omitempty"`
 
 	// Total Total amount of incomes in result
-	Total *float32 `json:"total,omitempty"`
+	Total *int `json:"total,omitempty"`
 }
 
 // IngressRequest defines model for IngressRequest.
 type IngressRequest struct {
-	// Amount The ingress amount
-	Amount float32 `json:"amount"`
+	// AccountId The ID of the account this ingress belongs to
+	AccountId string `json:"accountId"`
 
-	// Category The category of this ingress
-	Category string `json:"category"`
+	// Amount The ingress amount
+	Amount   float32  `json:"amount"`
+	Category Category `json:"category"`
+
+	// CreatedAt The timestamp when the ingress was created
+	CreatedAt *time.Time `json:"createdAt,omitempty"`
 
 	// Currency The currency of the ingress
 	Currency string `json:"currency"`
@@ -588,7 +561,7 @@ type IngressRequest struct {
 	Source *string `json:"source,omitempty"`
 
 	// Tags List of tag IDs associated with this ingress
-	Tags *[]string `json:"tags,omitempty"`
+	Tags *[]Tag `json:"tags,omitempty"`
 }
 
 // LoginRequest defines model for LoginRequest.
@@ -606,11 +579,17 @@ type LoginResponse struct {
 
 // RecurrencePattern defines model for RecurrencePattern.
 type RecurrencePattern struct {
+	// Amount The amount of the recurring income
+	Amount *float32 `json:"amount,omitempty"`
+
 	// EndDate When the recurring income ends (if applicable)
 	EndDate *openapi_types.Date `json:"endDate,omitempty"`
 
 	// Frequency How often the income recurs
 	Frequency *RecurrencePatternFrequency `json:"frequency,omitempty"`
+
+	// Id Unique identifier for the recurring income
+	Id *string `json:"id,omitempty"`
 
 	// Interval How many frequency units between occurrences
 	Interval *int `json:"interval,omitempty"`
@@ -618,30 +597,6 @@ type RecurrencePattern struct {
 
 // RecurrencePatternFrequency How often the income recurs
 type RecurrencePatternFrequency string
-
-// SavingsCategory defines model for SavingsCategory.
-type SavingsCategory struct {
-	// Description Optional description of the savings category
-	Description *string `json:"description"`
-
-	// GoalsCount Number of savings goals using this category
-	GoalsCount *int `json:"goalsCount"`
-
-	// Id Unique identifier for the savings category
-	Id string `json:"id"`
-
-	// Name Name of the savings category
-	Name string `json:"name"`
-}
-
-// SavingsCategoryRequest defines model for SavingsCategoryRequest.
-type SavingsCategoryRequest struct {
-	// Description Optional description of the savings category
-	Description *string `json:"description"`
-
-	// Name Name of the savings category
-	Name string `json:"name"`
-}
 
 // SavingsContribution defines model for SavingsContribution.
 type SavingsContribution struct {
@@ -667,7 +622,7 @@ type SavingsContribution struct {
 	SourceAccountId string `json:"sourceAccountId"`
 
 	// Tags List of tag IDs associated with this contribution
-	Tags *[]string `json:"tags,omitempty"`
+	Tags *[]Tag `json:"tags,omitempty"`
 
 	// UpdatedAt Timestamp when the contribution was last updated
 	UpdatedAt time.Time `json:"updatedAt"`
@@ -688,7 +643,7 @@ type SavingsContributionRequest struct {
 	SourceAccountId string `json:"sourceAccountId"`
 
 	// Tags List of tag IDs associated with this contribution
-	Tags *[]string `json:"tags,omitempty"`
+	Tags *[]Tag `json:"tags,omitempty"`
 }
 
 // SavingsGoal defines model for SavingsGoal.
@@ -704,9 +659,7 @@ type SavingsGoal struct {
 
 	// AutoContributeFrequency Frequency of auto-contributions
 	AutoContributeFrequency *SavingsGoalAutoContributeFrequency `json:"autoContributeFrequency,omitempty"`
-
-	// Category Category of the savings goal
-	Category string `json:"category"`
+	Category                Category                            `json:"category"`
 
 	// CreatedAt Timestamp when the savings goal was created
 	CreatedAt *time.Time `json:"createdAt,omitempty"`
@@ -741,8 +694,8 @@ type SavingsGoal struct {
 	// Status Current status of the savings goal
 	Status *SavingsGoalStatus `json:"status,omitempty"`
 
-	// Tags Tag IDs associated with this savings goal
-	Tags *[]string `json:"tags,omitempty"`
+	// Tags List of tag IDs associated with this goal
+	Tags *[]Tag `json:"tags,omitempty"`
 
 	// TargetAmount Target amount to save
 	TargetAmount float32 `json:"targetAmount"`
@@ -779,9 +732,7 @@ type SavingsGoalRequest struct {
 
 	// AutoContributeFrequency Frequency of auto-contributions
 	AutoContributeFrequency *SavingsGoalRequestAutoContributeFrequency `json:"autoContributeFrequency,omitempty"`
-
-	// Category Category of the savings goal
-	Category string `json:"category"`
+	Category                Category                                   `json:"category"`
 
 	// Currency Currency of the savings goal
 	Currency string `json:"currency"`
@@ -798,8 +749,8 @@ type SavingsGoalRequest struct {
 	// Priority Priority level (1-5, where 1 is highest)
 	Priority *int `json:"priority,omitempty"`
 
-	// Tags Tag IDs associated with this savings goal
-	Tags *[]string `json:"tags,omitempty"`
+	// Tags List of tag IDs associated with this goal
+	Tags *[]Tag `json:"tags,omitempty"`
 
 	// TargetAmount Target amount to save
 	TargetAmount float32 `json:"targetAmount"`
@@ -891,8 +842,8 @@ type SavingsTransaction struct {
 	// SavingsGoalId ID of the savings goal this transaction belongs to
 	SavingsGoalId string `json:"savingsGoalId"`
 
-	// Tags Optional tag IDs associated with this transaction
-	Tags *[]string `json:"tags,omitempty"`
+	// Tags List of tag IDs associated with this transaction
+	Tags *[]Tag `json:"tags,omitempty"`
 
 	// TransactionId ID of the related financial transaction (if applicable)
 	TransactionId *string `json:"transactionId,omitempty"`
@@ -943,8 +894,8 @@ type SavingsWithdrawal struct {
 	// SavingsGoalId ID of the savings goal this withdrawal belongs to
 	SavingsGoalId string `json:"savingsGoalId"`
 
-	// Tags List of tag IDs associated with this withdrawal
-	Tags *[]string `json:"tags,omitempty"`
+	// Tags List of tags associated with this withdrawal
+	Tags *[]Tag `json:"tags,omitempty"`
 
 	// UpdatedAt Timestamp when the withdrawal was last updated
 	UpdatedAt time.Time `json:"updatedAt"`
@@ -967,8 +918,8 @@ type SavingsWithdrawalRequest struct {
 	// Reason Reason for the withdrawal
 	Reason string `json:"reason"`
 
-	// Tags List of tag IDs associated with this withdrawal
-	Tags *[]string `json:"tags,omitempty"`
+	// Tags List of tags associated with this withdrawal
+	Tags *[]Tag `json:"tags,omitempty"`
 }
 
 // Tag defines model for Tag.
@@ -991,6 +942,9 @@ type Tag struct {
 	// Name Name of the tag
 	Name string `json:"name"`
 
+	// TagType Type of the tag (e.g., expenditure, transaction, etc.)
+	TagType string `json:"tagType"`
+
 	// UpdatedAt Timestamp when the tag was last updated
 	UpdatedAt time.Time `json:"updatedAt"`
 }
@@ -1008,6 +962,9 @@ type TagRequest struct {
 
 	// Name Name of the tag
 	Name string `json:"name"`
+
+	// TagType Type of the tag (e.g., expenditure, transaction, etc.)
+	TagType string `json:"tagType"`
 }
 
 // Transaction defines model for Transaction.
@@ -1048,8 +1005,8 @@ type Transaction struct {
 	// Status Status of the transaction
 	Status TransactionStatus `json:"status"`
 
-	// Tags Tag IDs associated with the transaction
-	Tags *[]string `json:"tags,omitempty"`
+	// Tags List of tag IDs associated with this transaction
+	Tags *[]Tag `json:"tags,omitempty"`
 
 	// ToAccountId Destination account ID (for transfers, ingresses, savings contributions)
 	ToAccountId *string `json:"toAccountId"`
@@ -1116,7 +1073,7 @@ type Transfer struct {
 	Status TransferStatus `json:"status"`
 
 	// Tags List of tag IDs associated with this transfer
-	Tags *[]string `json:"tags,omitempty"`
+	Tags *[]Tag `json:"tags,omitempty"`
 
 	// Type Type of transfer
 	Type TransferType `json:"type"`
@@ -1165,7 +1122,7 @@ type TransferRequest struct {
 	SourceAccountId string `json:"sourceAccountId"`
 
 	// Tags List of tag IDs associated with this transfer
-	Tags *[]string `json:"tags,omitempty"`
+	Tags *[]Tag `json:"tags,omitempty"`
 
 	// Type Type of transfer
 	Type TransferRequestType `json:"type"`
@@ -1492,14 +1449,11 @@ type LoginJSONRequestBody = LoginRequest
 // RegisterUserJSONRequestBody defines body for RegisterUser for application/json ContentType.
 type RegisterUserJSONRequestBody RegisterUserJSONBody
 
-// CreateExpenditureCategoryJSONRequestBody defines body for CreateExpenditureCategory for application/json ContentType.
-type CreateExpenditureCategoryJSONRequestBody = ExpenditureCategoryRequest
+// CreateCategoryJSONRequestBody defines body for CreateCategory for application/json ContentType.
+type CreateCategoryJSONRequestBody = CategoryRequest
 
-// UpdateExpenditureCategoryJSONRequestBody defines body for UpdateExpenditureCategory for application/json ContentType.
-type UpdateExpenditureCategoryJSONRequestBody = ExpenditureCategoryRequest
-
-// CreateExpenditureTagJSONRequestBody defines body for CreateExpenditureTag for application/json ContentType.
-type CreateExpenditureTagJSONRequestBody = TagRequest
+// UpdateCategoryJSONRequestBody defines body for UpdateCategory for application/json ContentType.
+type UpdateCategoryJSONRequestBody = CategoryRequest
 
 // CreateExpenditureJSONRequestBody defines body for CreateExpenditure for application/json ContentType.
 type CreateExpenditureJSONRequestBody = ExpenditureRequest
@@ -1513,15 +1467,6 @@ type CreateHouseholdMemberJSONRequestBody = HouseholdMemberRequest
 // UpdateHouseholdMemberJSONRequestBody defines body for UpdateHouseholdMember for application/json ContentType.
 type UpdateHouseholdMemberJSONRequestBody = HouseholdMemberRequest
 
-// CreateIngressCategoryJSONRequestBody defines body for CreateIngressCategory for application/json ContentType.
-type CreateIngressCategoryJSONRequestBody = IngressCategoryRequest
-
-// UpdateIngressCategoryJSONRequestBody defines body for UpdateIngressCategory for application/json ContentType.
-type UpdateIngressCategoryJSONRequestBody = IngressCategoryRequest
-
-// CreateIngressTagJSONRequestBody defines body for CreateIngressTag for application/json ContentType.
-type CreateIngressTagJSONRequestBody = TagRequest
-
 // CreateIngressJSONRequestBody defines body for CreateIngress for application/json ContentType.
 type CreateIngressJSONRequestBody = IngressRequest
 
@@ -1531,18 +1476,6 @@ type UpdateIngressJSONRequestBody = IngressRequest
 // CreateSavingsGoalJSONRequestBody defines body for CreateSavingsGoal for application/json ContentType.
 type CreateSavingsGoalJSONRequestBody = SavingsGoalRequest
 
-// CreateSavingsCategoryJSONRequestBody defines body for CreateSavingsCategory for application/json ContentType.
-type CreateSavingsCategoryJSONRequestBody = SavingsCategoryRequest
-
-// UpdateSavingsCategoryJSONRequestBody defines body for UpdateSavingsCategory for application/json ContentType.
-type UpdateSavingsCategoryJSONRequestBody = SavingsCategoryRequest
-
-// CreateSavingsTagJSONRequestBody defines body for CreateSavingsTag for application/json ContentType.
-type CreateSavingsTagJSONRequestBody = TagRequest
-
-// UpdateSavingsTagJSONRequestBody defines body for UpdateSavingsTag for application/json ContentType.
-type UpdateSavingsTagJSONRequestBody = TagRequest
-
 // UpdateSavingsGoalJSONRequestBody defines body for UpdateSavingsGoal for application/json ContentType.
 type UpdateSavingsGoalJSONRequestBody = SavingsGoalRequest
 
@@ -1551,6 +1484,9 @@ type AddSavingsContributionJSONRequestBody = SavingsContributionRequest
 
 // AddSavingsWithdrawalJSONRequestBody defines body for AddSavingsWithdrawal for application/json ContentType.
 type AddSavingsWithdrawalJSONRequestBody = SavingsWithdrawalRequest
+
+// CreateTagJSONRequestBody defines body for CreateTag for application/json ContentType.
+type CreateTagJSONRequestBody = TagRequest
 
 // CreateTransferJSONRequestBody defines body for CreateTransfer for application/json ContentType.
 type CreateTransferJSONRequestBody = TransferRequest
@@ -1584,30 +1520,21 @@ type ServerInterface interface {
 	// Get current balances
 	// (GET /balances)
 	GetBalances(w http.ResponseWriter, r *http.Request, params GetBalancesParams)
+	// List categories
+	// (GET /categories)
+	ListCategories(w http.ResponseWriter, r *http.Request)
+	// Create category
+	// (POST /categories)
+	CreateCategory(w http.ResponseWriter, r *http.Request)
+	// Delete category
+	// (DELETE /categories/{id})
+	DeleteCategory(w http.ResponseWriter, r *http.Request, id string)
+	// Update category
+	// (PUT /categories/{id})
+	UpdateCategory(w http.ResponseWriter, r *http.Request, id string)
 	// Get current exchange rates
 	// (GET /exchange-rates)
 	GetExchangeRates(w http.ResponseWriter, r *http.Request, params GetExchangeRatesParams)
-	// List expenditure categories
-	// (GET /expenditure-categories)
-	ListExpenditureCategories(w http.ResponseWriter, r *http.Request)
-	// Create expenditure category
-	// (POST /expenditure-categories)
-	CreateExpenditureCategory(w http.ResponseWriter, r *http.Request)
-	// Delete expenditure category
-	// (DELETE /expenditure-categories/{id})
-	DeleteExpenditureCategory(w http.ResponseWriter, r *http.Request, id string)
-	// Update expenditure category
-	// (PUT /expenditure-categories/{id})
-	UpdateExpenditureCategory(w http.ResponseWriter, r *http.Request, id string)
-	// List expenditure tags
-	// (GET /expenditure-tags)
-	ListExpenditureTags(w http.ResponseWriter, r *http.Request)
-	// Create expenditure tag
-	// (POST /expenditure-tags)
-	CreateExpenditureTag(w http.ResponseWriter, r *http.Request)
-	// Delete expenditure tag
-	// (DELETE /expenditure-tags/{id})
-	DeleteExpenditureTag(w http.ResponseWriter, r *http.Request, id string)
 	// List all expenditures
 	// (GET /expenditures)
 	ListExpenditures(w http.ResponseWriter, r *http.Request, params ListExpendituresParams)
@@ -1638,27 +1565,6 @@ type ServerInterface interface {
 	// Update household member
 	// (PUT /household-members/{id})
 	UpdateHouseholdMember(w http.ResponseWriter, r *http.Request, id string)
-	// List ingress categories
-	// (GET /ingress-categories)
-	ListIngressCategories(w http.ResponseWriter, r *http.Request)
-	// Create Ingress category
-	// (POST /ingress-categories)
-	CreateIngressCategory(w http.ResponseWriter, r *http.Request)
-	// Delete Ingress category
-	// (DELETE /ingress-categories/{id})
-	DeleteIngressCategory(w http.ResponseWriter, r *http.Request, id string)
-	// Update Ingress category
-	// (PUT /ingress-categories/{id})
-	UpdateIngressCategory(w http.ResponseWriter, r *http.Request, id string)
-	// List ingress tags
-	// (GET /ingress-tags)
-	ListIngressTags(w http.ResponseWriter, r *http.Request)
-	// Create ingress tag
-	// (POST /ingress-tags)
-	CreateIngressTag(w http.ResponseWriter, r *http.Request)
-	// Delete ingress tag
-	// (DELETE /ingress-tags/{id})
-	DeleteIngressTag(w http.ResponseWriter, r *http.Request, id string)
 	// List all ingresses
 	// (GET /ingresses)
 	ListIngresses(w http.ResponseWriter, r *http.Request, params ListIngressesParams)
@@ -1680,36 +1586,6 @@ type ServerInterface interface {
 	// Create a new savings goal
 	// (POST /savings)
 	CreateSavingsGoal(w http.ResponseWriter, r *http.Request)
-	// List all savings categories
-	// (GET /savings/category)
-	ListSavingsCategories(w http.ResponseWriter, r *http.Request)
-	// Create a new savings category
-	// (POST /savings/category)
-	CreateSavingsCategory(w http.ResponseWriter, r *http.Request)
-	// Delete a savings category
-	// (DELETE /savings/category/{id})
-	DeleteSavingsCategory(w http.ResponseWriter, r *http.Request, id string)
-	// Get a savings category by ID
-	// (GET /savings/category/{id})
-	GetSavingsCategory(w http.ResponseWriter, r *http.Request, id string)
-	// Update a savings category
-	// (PUT /savings/category/{id})
-	UpdateSavingsCategory(w http.ResponseWriter, r *http.Request, id string)
-	// List all savings tags
-	// (GET /savings/tag)
-	ListSavingsTags(w http.ResponseWriter, r *http.Request)
-	// Create a new savings tag
-	// (POST /savings/tag)
-	CreateSavingsTag(w http.ResponseWriter, r *http.Request)
-	// Delete a savings tag
-	// (DELETE /savings/tag/{id})
-	DeleteSavingsTag(w http.ResponseWriter, r *http.Request, id string)
-	// Get a savings tag by ID
-	// (GET /savings/tag/{id})
-	GetSavingsTag(w http.ResponseWriter, r *http.Request, id string)
-	// Update a savings tag
-	// (PUT /savings/tag/{id})
-	UpdateSavingsTag(w http.ResponseWriter, r *http.Request, id string)
 	// Delete savings goal
 	// (DELETE /savings/{id})
 	DeleteSavingsGoal(w http.ResponseWriter, r *http.Request, id string)
@@ -1737,6 +1613,18 @@ type ServerInterface interface {
 	// Add withdrawal from savings goal
 	// (POST /savings/{id}/withdrawals)
 	AddSavingsWithdrawal(w http.ResponseWriter, r *http.Request, id string)
+	// List tags
+	// (GET /tags)
+	ListTags(w http.ResponseWriter, r *http.Request)
+	// Create tag
+	// (POST /tags)
+	CreateTag(w http.ResponseWriter, r *http.Request)
+	// Delete tag
+	// (DELETE /tags/{id})
+	DeleteTag(w http.ResponseWriter, r *http.Request, id string)
+	// List tags by type
+	// (GET /tags/{type})
+	ListTagsByType(w http.ResponseWriter, r *http.Request, pType string)
 	// List all transactions
 	// (GET /transactions)
 	ListTransactions(w http.ResponseWriter, r *http.Request, params ListTransactionsParams)
@@ -2036,6 +1924,108 @@ func (siw *ServerInterfaceWrapper) GetBalances(w http.ResponseWriter, r *http.Re
 	handler.ServeHTTP(w, r)
 }
 
+// ListCategories operation middleware
+func (siw *ServerInterfaceWrapper) ListCategories(w http.ResponseWriter, r *http.Request) {
+
+	ctx := r.Context()
+
+	ctx = context.WithValue(ctx, BearerAuthScopes, []string{})
+
+	r = r.WithContext(ctx)
+
+	handler := http.Handler(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		siw.Handler.ListCategories(w, r)
+	}))
+
+	for _, middleware := range siw.HandlerMiddlewares {
+		handler = middleware(handler)
+	}
+
+	handler.ServeHTTP(w, r)
+}
+
+// CreateCategory operation middleware
+func (siw *ServerInterfaceWrapper) CreateCategory(w http.ResponseWriter, r *http.Request) {
+
+	ctx := r.Context()
+
+	ctx = context.WithValue(ctx, BearerAuthScopes, []string{})
+
+	r = r.WithContext(ctx)
+
+	handler := http.Handler(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		siw.Handler.CreateCategory(w, r)
+	}))
+
+	for _, middleware := range siw.HandlerMiddlewares {
+		handler = middleware(handler)
+	}
+
+	handler.ServeHTTP(w, r)
+}
+
+// DeleteCategory operation middleware
+func (siw *ServerInterfaceWrapper) DeleteCategory(w http.ResponseWriter, r *http.Request) {
+
+	var err error
+
+	// ------------- Path parameter "id" -------------
+	var id string
+
+	err = runtime.BindStyledParameterWithOptions("simple", "id", r.PathValue("id"), &id, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true})
+	if err != nil {
+		siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "id", Err: err})
+		return
+	}
+
+	ctx := r.Context()
+
+	ctx = context.WithValue(ctx, BearerAuthScopes, []string{})
+
+	r = r.WithContext(ctx)
+
+	handler := http.Handler(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		siw.Handler.DeleteCategory(w, r, id)
+	}))
+
+	for _, middleware := range siw.HandlerMiddlewares {
+		handler = middleware(handler)
+	}
+
+	handler.ServeHTTP(w, r)
+}
+
+// UpdateCategory operation middleware
+func (siw *ServerInterfaceWrapper) UpdateCategory(w http.ResponseWriter, r *http.Request) {
+
+	var err error
+
+	// ------------- Path parameter "id" -------------
+	var id string
+
+	err = runtime.BindStyledParameterWithOptions("simple", "id", r.PathValue("id"), &id, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true})
+	if err != nil {
+		siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "id", Err: err})
+		return
+	}
+
+	ctx := r.Context()
+
+	ctx = context.WithValue(ctx, BearerAuthScopes, []string{})
+
+	r = r.WithContext(ctx)
+
+	handler := http.Handler(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		siw.Handler.UpdateCategory(w, r, id)
+	}))
+
+	for _, middleware := range siw.HandlerMiddlewares {
+		handler = middleware(handler)
+	}
+
+	handler.ServeHTTP(w, r)
+}
+
 // GetExchangeRates operation middleware
 func (siw *ServerInterfaceWrapper) GetExchangeRates(w http.ResponseWriter, r *http.Request) {
 
@@ -2075,179 +2065,6 @@ func (siw *ServerInterfaceWrapper) GetExchangeRates(w http.ResponseWriter, r *ht
 
 	handler := http.Handler(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		siw.Handler.GetExchangeRates(w, r, params)
-	}))
-
-	for _, middleware := range siw.HandlerMiddlewares {
-		handler = middleware(handler)
-	}
-
-	handler.ServeHTTP(w, r)
-}
-
-// ListExpenditureCategories operation middleware
-func (siw *ServerInterfaceWrapper) ListExpenditureCategories(w http.ResponseWriter, r *http.Request) {
-
-	ctx := r.Context()
-
-	ctx = context.WithValue(ctx, BearerAuthScopes, []string{})
-
-	r = r.WithContext(ctx)
-
-	handler := http.Handler(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		siw.Handler.ListExpenditureCategories(w, r)
-	}))
-
-	for _, middleware := range siw.HandlerMiddlewares {
-		handler = middleware(handler)
-	}
-
-	handler.ServeHTTP(w, r)
-}
-
-// CreateExpenditureCategory operation middleware
-func (siw *ServerInterfaceWrapper) CreateExpenditureCategory(w http.ResponseWriter, r *http.Request) {
-
-	ctx := r.Context()
-
-	ctx = context.WithValue(ctx, BearerAuthScopes, []string{})
-
-	r = r.WithContext(ctx)
-
-	handler := http.Handler(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		siw.Handler.CreateExpenditureCategory(w, r)
-	}))
-
-	for _, middleware := range siw.HandlerMiddlewares {
-		handler = middleware(handler)
-	}
-
-	handler.ServeHTTP(w, r)
-}
-
-// DeleteExpenditureCategory operation middleware
-func (siw *ServerInterfaceWrapper) DeleteExpenditureCategory(w http.ResponseWriter, r *http.Request) {
-
-	var err error
-
-	// ------------- Path parameter "id" -------------
-	var id string
-
-	err = runtime.BindStyledParameterWithOptions("simple", "id", r.PathValue("id"), &id, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true})
-	if err != nil {
-		siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "id", Err: err})
-		return
-	}
-
-	ctx := r.Context()
-
-	ctx = context.WithValue(ctx, BearerAuthScopes, []string{})
-
-	r = r.WithContext(ctx)
-
-	handler := http.Handler(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		siw.Handler.DeleteExpenditureCategory(w, r, id)
-	}))
-
-	for _, middleware := range siw.HandlerMiddlewares {
-		handler = middleware(handler)
-	}
-
-	handler.ServeHTTP(w, r)
-}
-
-// UpdateExpenditureCategory operation middleware
-func (siw *ServerInterfaceWrapper) UpdateExpenditureCategory(w http.ResponseWriter, r *http.Request) {
-
-	var err error
-
-	// ------------- Path parameter "id" -------------
-	var id string
-
-	err = runtime.BindStyledParameterWithOptions("simple", "id", r.PathValue("id"), &id, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true})
-	if err != nil {
-		siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "id", Err: err})
-		return
-	}
-
-	ctx := r.Context()
-
-	ctx = context.WithValue(ctx, BearerAuthScopes, []string{})
-
-	r = r.WithContext(ctx)
-
-	handler := http.Handler(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		siw.Handler.UpdateExpenditureCategory(w, r, id)
-	}))
-
-	for _, middleware := range siw.HandlerMiddlewares {
-		handler = middleware(handler)
-	}
-
-	handler.ServeHTTP(w, r)
-}
-
-// ListExpenditureTags operation middleware
-func (siw *ServerInterfaceWrapper) ListExpenditureTags(w http.ResponseWriter, r *http.Request) {
-
-	ctx := r.Context()
-
-	ctx = context.WithValue(ctx, BearerAuthScopes, []string{})
-
-	r = r.WithContext(ctx)
-
-	handler := http.Handler(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		siw.Handler.ListExpenditureTags(w, r)
-	}))
-
-	for _, middleware := range siw.HandlerMiddlewares {
-		handler = middleware(handler)
-	}
-
-	handler.ServeHTTP(w, r)
-}
-
-// CreateExpenditureTag operation middleware
-func (siw *ServerInterfaceWrapper) CreateExpenditureTag(w http.ResponseWriter, r *http.Request) {
-
-	ctx := r.Context()
-
-	ctx = context.WithValue(ctx, BearerAuthScopes, []string{})
-
-	r = r.WithContext(ctx)
-
-	handler := http.Handler(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		siw.Handler.CreateExpenditureTag(w, r)
-	}))
-
-	for _, middleware := range siw.HandlerMiddlewares {
-		handler = middleware(handler)
-	}
-
-	handler.ServeHTTP(w, r)
-}
-
-// DeleteExpenditureTag operation middleware
-func (siw *ServerInterfaceWrapper) DeleteExpenditureTag(w http.ResponseWriter, r *http.Request) {
-
-	var err error
-
-	// ------------- Path parameter "id" -------------
-	var id string
-
-	err = runtime.BindStyledParameterWithOptions("simple", "id", r.PathValue("id"), &id, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true})
-	if err != nil {
-		siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "id", Err: err})
-		return
-	}
-
-	ctx := r.Context()
-
-	ctx = context.WithValue(ctx, BearerAuthScopes, []string{})
-
-	r = r.WithContext(ctx)
-
-	handler := http.Handler(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		siw.Handler.DeleteExpenditureTag(w, r, id)
 	}))
 
 	for _, middleware := range siw.HandlerMiddlewares {
@@ -2661,179 +2478,6 @@ func (siw *ServerInterfaceWrapper) UpdateHouseholdMember(w http.ResponseWriter, 
 	handler.ServeHTTP(w, r)
 }
 
-// ListIngressCategories operation middleware
-func (siw *ServerInterfaceWrapper) ListIngressCategories(w http.ResponseWriter, r *http.Request) {
-
-	ctx := r.Context()
-
-	ctx = context.WithValue(ctx, BearerAuthScopes, []string{})
-
-	r = r.WithContext(ctx)
-
-	handler := http.Handler(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		siw.Handler.ListIngressCategories(w, r)
-	}))
-
-	for _, middleware := range siw.HandlerMiddlewares {
-		handler = middleware(handler)
-	}
-
-	handler.ServeHTTP(w, r)
-}
-
-// CreateIngressCategory operation middleware
-func (siw *ServerInterfaceWrapper) CreateIngressCategory(w http.ResponseWriter, r *http.Request) {
-
-	ctx := r.Context()
-
-	ctx = context.WithValue(ctx, BearerAuthScopes, []string{})
-
-	r = r.WithContext(ctx)
-
-	handler := http.Handler(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		siw.Handler.CreateIngressCategory(w, r)
-	}))
-
-	for _, middleware := range siw.HandlerMiddlewares {
-		handler = middleware(handler)
-	}
-
-	handler.ServeHTTP(w, r)
-}
-
-// DeleteIngressCategory operation middleware
-func (siw *ServerInterfaceWrapper) DeleteIngressCategory(w http.ResponseWriter, r *http.Request) {
-
-	var err error
-
-	// ------------- Path parameter "id" -------------
-	var id string
-
-	err = runtime.BindStyledParameterWithOptions("simple", "id", r.PathValue("id"), &id, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true})
-	if err != nil {
-		siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "id", Err: err})
-		return
-	}
-
-	ctx := r.Context()
-
-	ctx = context.WithValue(ctx, BearerAuthScopes, []string{})
-
-	r = r.WithContext(ctx)
-
-	handler := http.Handler(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		siw.Handler.DeleteIngressCategory(w, r, id)
-	}))
-
-	for _, middleware := range siw.HandlerMiddlewares {
-		handler = middleware(handler)
-	}
-
-	handler.ServeHTTP(w, r)
-}
-
-// UpdateIngressCategory operation middleware
-func (siw *ServerInterfaceWrapper) UpdateIngressCategory(w http.ResponseWriter, r *http.Request) {
-
-	var err error
-
-	// ------------- Path parameter "id" -------------
-	var id string
-
-	err = runtime.BindStyledParameterWithOptions("simple", "id", r.PathValue("id"), &id, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true})
-	if err != nil {
-		siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "id", Err: err})
-		return
-	}
-
-	ctx := r.Context()
-
-	ctx = context.WithValue(ctx, BearerAuthScopes, []string{})
-
-	r = r.WithContext(ctx)
-
-	handler := http.Handler(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		siw.Handler.UpdateIngressCategory(w, r, id)
-	}))
-
-	for _, middleware := range siw.HandlerMiddlewares {
-		handler = middleware(handler)
-	}
-
-	handler.ServeHTTP(w, r)
-}
-
-// ListIngressTags operation middleware
-func (siw *ServerInterfaceWrapper) ListIngressTags(w http.ResponseWriter, r *http.Request) {
-
-	ctx := r.Context()
-
-	ctx = context.WithValue(ctx, BearerAuthScopes, []string{})
-
-	r = r.WithContext(ctx)
-
-	handler := http.Handler(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		siw.Handler.ListIngressTags(w, r)
-	}))
-
-	for _, middleware := range siw.HandlerMiddlewares {
-		handler = middleware(handler)
-	}
-
-	handler.ServeHTTP(w, r)
-}
-
-// CreateIngressTag operation middleware
-func (siw *ServerInterfaceWrapper) CreateIngressTag(w http.ResponseWriter, r *http.Request) {
-
-	ctx := r.Context()
-
-	ctx = context.WithValue(ctx, BearerAuthScopes, []string{})
-
-	r = r.WithContext(ctx)
-
-	handler := http.Handler(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		siw.Handler.CreateIngressTag(w, r)
-	}))
-
-	for _, middleware := range siw.HandlerMiddlewares {
-		handler = middleware(handler)
-	}
-
-	handler.ServeHTTP(w, r)
-}
-
-// DeleteIngressTag operation middleware
-func (siw *ServerInterfaceWrapper) DeleteIngressTag(w http.ResponseWriter, r *http.Request) {
-
-	var err error
-
-	// ------------- Path parameter "id" -------------
-	var id string
-
-	err = runtime.BindStyledParameterWithOptions("simple", "id", r.PathValue("id"), &id, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true})
-	if err != nil {
-		siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "id", Err: err})
-		return
-	}
-
-	ctx := r.Context()
-
-	ctx = context.WithValue(ctx, BearerAuthScopes, []string{})
-
-	r = r.WithContext(ctx)
-
-	handler := http.Handler(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		siw.Handler.DeleteIngressTag(w, r, id)
-	}))
-
-	for _, middleware := range siw.HandlerMiddlewares {
-		handler = middleware(handler)
-	}
-
-	handler.ServeHTTP(w, r)
-}
-
 // ListIngresses operation middleware
 func (siw *ServerInterfaceWrapper) ListIngresses(w http.ResponseWriter, r *http.Request) {
 
@@ -3144,272 +2788,6 @@ func (siw *ServerInterfaceWrapper) CreateSavingsGoal(w http.ResponseWriter, r *h
 
 	handler := http.Handler(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		siw.Handler.CreateSavingsGoal(w, r)
-	}))
-
-	for _, middleware := range siw.HandlerMiddlewares {
-		handler = middleware(handler)
-	}
-
-	handler.ServeHTTP(w, r)
-}
-
-// ListSavingsCategories operation middleware
-func (siw *ServerInterfaceWrapper) ListSavingsCategories(w http.ResponseWriter, r *http.Request) {
-
-	ctx := r.Context()
-
-	ctx = context.WithValue(ctx, BearerAuthScopes, []string{})
-
-	r = r.WithContext(ctx)
-
-	handler := http.Handler(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		siw.Handler.ListSavingsCategories(w, r)
-	}))
-
-	for _, middleware := range siw.HandlerMiddlewares {
-		handler = middleware(handler)
-	}
-
-	handler.ServeHTTP(w, r)
-}
-
-// CreateSavingsCategory operation middleware
-func (siw *ServerInterfaceWrapper) CreateSavingsCategory(w http.ResponseWriter, r *http.Request) {
-
-	ctx := r.Context()
-
-	ctx = context.WithValue(ctx, BearerAuthScopes, []string{})
-
-	r = r.WithContext(ctx)
-
-	handler := http.Handler(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		siw.Handler.CreateSavingsCategory(w, r)
-	}))
-
-	for _, middleware := range siw.HandlerMiddlewares {
-		handler = middleware(handler)
-	}
-
-	handler.ServeHTTP(w, r)
-}
-
-// DeleteSavingsCategory operation middleware
-func (siw *ServerInterfaceWrapper) DeleteSavingsCategory(w http.ResponseWriter, r *http.Request) {
-
-	var err error
-
-	// ------------- Path parameter "id" -------------
-	var id string
-
-	err = runtime.BindStyledParameterWithOptions("simple", "id", r.PathValue("id"), &id, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true})
-	if err != nil {
-		siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "id", Err: err})
-		return
-	}
-
-	ctx := r.Context()
-
-	ctx = context.WithValue(ctx, BearerAuthScopes, []string{})
-
-	r = r.WithContext(ctx)
-
-	handler := http.Handler(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		siw.Handler.DeleteSavingsCategory(w, r, id)
-	}))
-
-	for _, middleware := range siw.HandlerMiddlewares {
-		handler = middleware(handler)
-	}
-
-	handler.ServeHTTP(w, r)
-}
-
-// GetSavingsCategory operation middleware
-func (siw *ServerInterfaceWrapper) GetSavingsCategory(w http.ResponseWriter, r *http.Request) {
-
-	var err error
-
-	// ------------- Path parameter "id" -------------
-	var id string
-
-	err = runtime.BindStyledParameterWithOptions("simple", "id", r.PathValue("id"), &id, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true})
-	if err != nil {
-		siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "id", Err: err})
-		return
-	}
-
-	ctx := r.Context()
-
-	ctx = context.WithValue(ctx, BearerAuthScopes, []string{})
-
-	r = r.WithContext(ctx)
-
-	handler := http.Handler(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		siw.Handler.GetSavingsCategory(w, r, id)
-	}))
-
-	for _, middleware := range siw.HandlerMiddlewares {
-		handler = middleware(handler)
-	}
-
-	handler.ServeHTTP(w, r)
-}
-
-// UpdateSavingsCategory operation middleware
-func (siw *ServerInterfaceWrapper) UpdateSavingsCategory(w http.ResponseWriter, r *http.Request) {
-
-	var err error
-
-	// ------------- Path parameter "id" -------------
-	var id string
-
-	err = runtime.BindStyledParameterWithOptions("simple", "id", r.PathValue("id"), &id, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true})
-	if err != nil {
-		siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "id", Err: err})
-		return
-	}
-
-	ctx := r.Context()
-
-	ctx = context.WithValue(ctx, BearerAuthScopes, []string{})
-
-	r = r.WithContext(ctx)
-
-	handler := http.Handler(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		siw.Handler.UpdateSavingsCategory(w, r, id)
-	}))
-
-	for _, middleware := range siw.HandlerMiddlewares {
-		handler = middleware(handler)
-	}
-
-	handler.ServeHTTP(w, r)
-}
-
-// ListSavingsTags operation middleware
-func (siw *ServerInterfaceWrapper) ListSavingsTags(w http.ResponseWriter, r *http.Request) {
-
-	ctx := r.Context()
-
-	ctx = context.WithValue(ctx, BearerAuthScopes, []string{})
-
-	r = r.WithContext(ctx)
-
-	handler := http.Handler(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		siw.Handler.ListSavingsTags(w, r)
-	}))
-
-	for _, middleware := range siw.HandlerMiddlewares {
-		handler = middleware(handler)
-	}
-
-	handler.ServeHTTP(w, r)
-}
-
-// CreateSavingsTag operation middleware
-func (siw *ServerInterfaceWrapper) CreateSavingsTag(w http.ResponseWriter, r *http.Request) {
-
-	ctx := r.Context()
-
-	ctx = context.WithValue(ctx, BearerAuthScopes, []string{})
-
-	r = r.WithContext(ctx)
-
-	handler := http.Handler(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		siw.Handler.CreateSavingsTag(w, r)
-	}))
-
-	for _, middleware := range siw.HandlerMiddlewares {
-		handler = middleware(handler)
-	}
-
-	handler.ServeHTTP(w, r)
-}
-
-// DeleteSavingsTag operation middleware
-func (siw *ServerInterfaceWrapper) DeleteSavingsTag(w http.ResponseWriter, r *http.Request) {
-
-	var err error
-
-	// ------------- Path parameter "id" -------------
-	var id string
-
-	err = runtime.BindStyledParameterWithOptions("simple", "id", r.PathValue("id"), &id, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true})
-	if err != nil {
-		siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "id", Err: err})
-		return
-	}
-
-	ctx := r.Context()
-
-	ctx = context.WithValue(ctx, BearerAuthScopes, []string{})
-
-	r = r.WithContext(ctx)
-
-	handler := http.Handler(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		siw.Handler.DeleteSavingsTag(w, r, id)
-	}))
-
-	for _, middleware := range siw.HandlerMiddlewares {
-		handler = middleware(handler)
-	}
-
-	handler.ServeHTTP(w, r)
-}
-
-// GetSavingsTag operation middleware
-func (siw *ServerInterfaceWrapper) GetSavingsTag(w http.ResponseWriter, r *http.Request) {
-
-	var err error
-
-	// ------------- Path parameter "id" -------------
-	var id string
-
-	err = runtime.BindStyledParameterWithOptions("simple", "id", r.PathValue("id"), &id, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true})
-	if err != nil {
-		siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "id", Err: err})
-		return
-	}
-
-	ctx := r.Context()
-
-	ctx = context.WithValue(ctx, BearerAuthScopes, []string{})
-
-	r = r.WithContext(ctx)
-
-	handler := http.Handler(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		siw.Handler.GetSavingsTag(w, r, id)
-	}))
-
-	for _, middleware := range siw.HandlerMiddlewares {
-		handler = middleware(handler)
-	}
-
-	handler.ServeHTTP(w, r)
-}
-
-// UpdateSavingsTag operation middleware
-func (siw *ServerInterfaceWrapper) UpdateSavingsTag(w http.ResponseWriter, r *http.Request) {
-
-	var err error
-
-	// ------------- Path parameter "id" -------------
-	var id string
-
-	err = runtime.BindStyledParameterWithOptions("simple", "id", r.PathValue("id"), &id, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true})
-	if err != nil {
-		siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "id", Err: err})
-		return
-	}
-
-	ctx := r.Context()
-
-	ctx = context.WithValue(ctx, BearerAuthScopes, []string{})
-
-	r = r.WithContext(ctx)
-
-	handler := http.Handler(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		siw.Handler.UpdateSavingsTag(w, r, id)
 	}))
 
 	for _, middleware := range siw.HandlerMiddlewares {
@@ -3802,6 +3180,108 @@ func (siw *ServerInterfaceWrapper) AddSavingsWithdrawal(w http.ResponseWriter, r
 
 	handler := http.Handler(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		siw.Handler.AddSavingsWithdrawal(w, r, id)
+	}))
+
+	for _, middleware := range siw.HandlerMiddlewares {
+		handler = middleware(handler)
+	}
+
+	handler.ServeHTTP(w, r)
+}
+
+// ListTags operation middleware
+func (siw *ServerInterfaceWrapper) ListTags(w http.ResponseWriter, r *http.Request) {
+
+	ctx := r.Context()
+
+	ctx = context.WithValue(ctx, BearerAuthScopes, []string{})
+
+	r = r.WithContext(ctx)
+
+	handler := http.Handler(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		siw.Handler.ListTags(w, r)
+	}))
+
+	for _, middleware := range siw.HandlerMiddlewares {
+		handler = middleware(handler)
+	}
+
+	handler.ServeHTTP(w, r)
+}
+
+// CreateTag operation middleware
+func (siw *ServerInterfaceWrapper) CreateTag(w http.ResponseWriter, r *http.Request) {
+
+	ctx := r.Context()
+
+	ctx = context.WithValue(ctx, BearerAuthScopes, []string{})
+
+	r = r.WithContext(ctx)
+
+	handler := http.Handler(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		siw.Handler.CreateTag(w, r)
+	}))
+
+	for _, middleware := range siw.HandlerMiddlewares {
+		handler = middleware(handler)
+	}
+
+	handler.ServeHTTP(w, r)
+}
+
+// DeleteTag operation middleware
+func (siw *ServerInterfaceWrapper) DeleteTag(w http.ResponseWriter, r *http.Request) {
+
+	var err error
+
+	// ------------- Path parameter "id" -------------
+	var id string
+
+	err = runtime.BindStyledParameterWithOptions("simple", "id", r.PathValue("id"), &id, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true})
+	if err != nil {
+		siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "id", Err: err})
+		return
+	}
+
+	ctx := r.Context()
+
+	ctx = context.WithValue(ctx, BearerAuthScopes, []string{})
+
+	r = r.WithContext(ctx)
+
+	handler := http.Handler(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		siw.Handler.DeleteTag(w, r, id)
+	}))
+
+	for _, middleware := range siw.HandlerMiddlewares {
+		handler = middleware(handler)
+	}
+
+	handler.ServeHTTP(w, r)
+}
+
+// ListTagsByType operation middleware
+func (siw *ServerInterfaceWrapper) ListTagsByType(w http.ResponseWriter, r *http.Request) {
+
+	var err error
+
+	// ------------- Path parameter "type" -------------
+	var pType string
+
+	err = runtime.BindStyledParameterWithOptions("simple", "type", r.PathValue("type"), &pType, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true})
+	if err != nil {
+		siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "type", Err: err})
+		return
+	}
+
+	ctx := r.Context()
+
+	ctx = context.WithValue(ctx, BearerAuthScopes, []string{})
+
+	r = r.WithContext(ctx)
+
+	handler := http.Handler(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		siw.Handler.ListTagsByType(w, r, pType)
 	}))
 
 	for _, middleware := range siw.HandlerMiddlewares {
@@ -4214,14 +3694,11 @@ func HandlerWithOptions(si ServerInterface, options StdHTTPServerOptions) http.H
 	m.HandleFunc("POST "+options.BaseURL+"/auth/refresh", wrapper.RefreshToken)
 	m.HandleFunc("POST "+options.BaseURL+"/auth/register", wrapper.RegisterUser)
 	m.HandleFunc("GET "+options.BaseURL+"/balances", wrapper.GetBalances)
+	m.HandleFunc("GET "+options.BaseURL+"/categories", wrapper.ListCategories)
+	m.HandleFunc("POST "+options.BaseURL+"/categories", wrapper.CreateCategory)
+	m.HandleFunc("DELETE "+options.BaseURL+"/categories/{id}", wrapper.DeleteCategory)
+	m.HandleFunc("PUT "+options.BaseURL+"/categories/{id}", wrapper.UpdateCategory)
 	m.HandleFunc("GET "+options.BaseURL+"/exchange-rates", wrapper.GetExchangeRates)
-	m.HandleFunc("GET "+options.BaseURL+"/expenditure-categories", wrapper.ListExpenditureCategories)
-	m.HandleFunc("POST "+options.BaseURL+"/expenditure-categories", wrapper.CreateExpenditureCategory)
-	m.HandleFunc("DELETE "+options.BaseURL+"/expenditure-categories/{id}", wrapper.DeleteExpenditureCategory)
-	m.HandleFunc("PUT "+options.BaseURL+"/expenditure-categories/{id}", wrapper.UpdateExpenditureCategory)
-	m.HandleFunc("GET "+options.BaseURL+"/expenditure-tags", wrapper.ListExpenditureTags)
-	m.HandleFunc("POST "+options.BaseURL+"/expenditure-tags", wrapper.CreateExpenditureTag)
-	m.HandleFunc("DELETE "+options.BaseURL+"/expenditure-tags/{id}", wrapper.DeleteExpenditureTag)
 	m.HandleFunc("GET "+options.BaseURL+"/expenditures", wrapper.ListExpenditures)
 	m.HandleFunc("POST "+options.BaseURL+"/expenditures", wrapper.CreateExpenditure)
 	m.HandleFunc("DELETE "+options.BaseURL+"/expenditures/{id}", wrapper.DeleteExpenditure)
@@ -4232,13 +3709,6 @@ func HandlerWithOptions(si ServerInterface, options StdHTTPServerOptions) http.H
 	m.HandleFunc("DELETE "+options.BaseURL+"/household-members/{id}", wrapper.DeleteHouseholdMember)
 	m.HandleFunc("GET "+options.BaseURL+"/household-members/{id}", wrapper.GetHouseholdMember)
 	m.HandleFunc("PUT "+options.BaseURL+"/household-members/{id}", wrapper.UpdateHouseholdMember)
-	m.HandleFunc("GET "+options.BaseURL+"/ingress-categories", wrapper.ListIngressCategories)
-	m.HandleFunc("POST "+options.BaseURL+"/ingress-categories", wrapper.CreateIngressCategory)
-	m.HandleFunc("DELETE "+options.BaseURL+"/ingress-categories/{id}", wrapper.DeleteIngressCategory)
-	m.HandleFunc("PUT "+options.BaseURL+"/ingress-categories/{id}", wrapper.UpdateIngressCategory)
-	m.HandleFunc("GET "+options.BaseURL+"/ingress-tags", wrapper.ListIngressTags)
-	m.HandleFunc("POST "+options.BaseURL+"/ingress-tags", wrapper.CreateIngressTag)
-	m.HandleFunc("DELETE "+options.BaseURL+"/ingress-tags/{id}", wrapper.DeleteIngressTag)
 	m.HandleFunc("GET "+options.BaseURL+"/ingresses", wrapper.ListIngresses)
 	m.HandleFunc("POST "+options.BaseURL+"/ingresses", wrapper.CreateIngress)
 	m.HandleFunc("DELETE "+options.BaseURL+"/ingresses/{id}", wrapper.DeleteIngress)
@@ -4246,16 +3716,6 @@ func HandlerWithOptions(si ServerInterface, options StdHTTPServerOptions) http.H
 	m.HandleFunc("PUT "+options.BaseURL+"/ingresses/{id}", wrapper.UpdateIngress)
 	m.HandleFunc("GET "+options.BaseURL+"/savings", wrapper.ListSavingsGoals)
 	m.HandleFunc("POST "+options.BaseURL+"/savings", wrapper.CreateSavingsGoal)
-	m.HandleFunc("GET "+options.BaseURL+"/savings/category", wrapper.ListSavingsCategories)
-	m.HandleFunc("POST "+options.BaseURL+"/savings/category", wrapper.CreateSavingsCategory)
-	m.HandleFunc("DELETE "+options.BaseURL+"/savings/category/{id}", wrapper.DeleteSavingsCategory)
-	m.HandleFunc("GET "+options.BaseURL+"/savings/category/{id}", wrapper.GetSavingsCategory)
-	m.HandleFunc("PUT "+options.BaseURL+"/savings/category/{id}", wrapper.UpdateSavingsCategory)
-	m.HandleFunc("GET "+options.BaseURL+"/savings/tag", wrapper.ListSavingsTags)
-	m.HandleFunc("POST "+options.BaseURL+"/savings/tag", wrapper.CreateSavingsTag)
-	m.HandleFunc("DELETE "+options.BaseURL+"/savings/tag/{id}", wrapper.DeleteSavingsTag)
-	m.HandleFunc("GET "+options.BaseURL+"/savings/tag/{id}", wrapper.GetSavingsTag)
-	m.HandleFunc("PUT "+options.BaseURL+"/savings/tag/{id}", wrapper.UpdateSavingsTag)
 	m.HandleFunc("DELETE "+options.BaseURL+"/savings/{id}", wrapper.DeleteSavingsGoal)
 	m.HandleFunc("GET "+options.BaseURL+"/savings/{id}", wrapper.GetSavingsGoal)
 	m.HandleFunc("PUT "+options.BaseURL+"/savings/{id}", wrapper.UpdateSavingsGoal)
@@ -4265,6 +3725,10 @@ func HandlerWithOptions(si ServerInterface, options StdHTTPServerOptions) http.H
 	m.HandleFunc("GET "+options.BaseURL+"/savings/{id}/transactions", wrapper.ListSavingsTransactions)
 	m.HandleFunc("GET "+options.BaseURL+"/savings/{id}/withdrawals", wrapper.ListSavingsWithdrawals)
 	m.HandleFunc("POST "+options.BaseURL+"/savings/{id}/withdrawals", wrapper.AddSavingsWithdrawal)
+	m.HandleFunc("GET "+options.BaseURL+"/tags", wrapper.ListTags)
+	m.HandleFunc("POST "+options.BaseURL+"/tags", wrapper.CreateTag)
+	m.HandleFunc("DELETE "+options.BaseURL+"/tags/{id}", wrapper.DeleteTag)
+	m.HandleFunc("GET "+options.BaseURL+"/tags/{type}", wrapper.ListTagsByType)
 	m.HandleFunc("GET "+options.BaseURL+"/transactions", wrapper.ListTransactions)
 	m.HandleFunc("GET "+options.BaseURL+"/transfers", wrapper.ListTransfers)
 	m.HandleFunc("POST "+options.BaseURL+"/transfers", wrapper.CreateTransfer)
@@ -4619,6 +4083,171 @@ func (response GetBalances500JSONResponse) VisitGetBalancesResponse(w http.Respo
 	return json.NewEncoder(w).Encode(response)
 }
 
+type ListCategoriesRequestObject struct {
+}
+
+type ListCategoriesResponseObject interface {
+	VisitListCategoriesResponse(w http.ResponseWriter) error
+}
+
+type ListCategories200JSONResponse struct {
+	Categories *[]Category `json:"categories,omitempty"`
+
+	// Total Total number of categories
+	Total *int `json:"total,omitempty"`
+}
+
+func (response ListCategories200JSONResponse) VisitListCategoriesResponse(w http.ResponseWriter) error {
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(200)
+
+	return json.NewEncoder(w).Encode(response)
+}
+
+type ListCategories401Response = N401Response
+
+func (response ListCategories401Response) VisitListCategoriesResponse(w http.ResponseWriter) error {
+	w.WriteHeader(401)
+	return nil
+}
+
+type ListCategories500JSONResponse struct{ N500JSONResponse }
+
+func (response ListCategories500JSONResponse) VisitListCategoriesResponse(w http.ResponseWriter) error {
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(500)
+
+	return json.NewEncoder(w).Encode(response)
+}
+
+type CreateCategoryRequestObject struct {
+	Body *CreateCategoryJSONRequestBody
+}
+
+type CreateCategoryResponseObject interface {
+	VisitCreateCategoryResponse(w http.ResponseWriter) error
+}
+
+type CreateCategory201JSONResponse Category
+
+func (response CreateCategory201JSONResponse) VisitCreateCategoryResponse(w http.ResponseWriter) error {
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(201)
+
+	return json.NewEncoder(w).Encode(response)
+}
+
+type CreateCategory400JSONResponse struct{ N400JSONResponse }
+
+func (response CreateCategory400JSONResponse) VisitCreateCategoryResponse(w http.ResponseWriter) error {
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(400)
+
+	return json.NewEncoder(w).Encode(response)
+}
+
+type CreateCategory401Response = N401Response
+
+func (response CreateCategory401Response) VisitCreateCategoryResponse(w http.ResponseWriter) error {
+	w.WriteHeader(401)
+	return nil
+}
+
+type CreateCategory500JSONResponse struct{ N500JSONResponse }
+
+func (response CreateCategory500JSONResponse) VisitCreateCategoryResponse(w http.ResponseWriter) error {
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(500)
+
+	return json.NewEncoder(w).Encode(response)
+}
+
+type DeleteCategoryRequestObject struct {
+	Id string `json:"id"`
+}
+
+type DeleteCategoryResponseObject interface {
+	VisitDeleteCategoryResponse(w http.ResponseWriter) error
+}
+
+type DeleteCategory204Response struct {
+}
+
+func (response DeleteCategory204Response) VisitDeleteCategoryResponse(w http.ResponseWriter) error {
+	w.WriteHeader(204)
+	return nil
+}
+
+type DeleteCategory401Response = N401Response
+
+func (response DeleteCategory401Response) VisitDeleteCategoryResponse(w http.ResponseWriter) error {
+	w.WriteHeader(401)
+	return nil
+}
+
+type DeleteCategory404JSONResponse struct{ N404JSONResponse }
+
+func (response DeleteCategory404JSONResponse) VisitDeleteCategoryResponse(w http.ResponseWriter) error {
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(404)
+
+	return json.NewEncoder(w).Encode(response)
+}
+
+type DeleteCategory500JSONResponse struct{ N500JSONResponse }
+
+func (response DeleteCategory500JSONResponse) VisitDeleteCategoryResponse(w http.ResponseWriter) error {
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(500)
+
+	return json.NewEncoder(w).Encode(response)
+}
+
+type UpdateCategoryRequestObject struct {
+	Id   string `json:"id"`
+	Body *UpdateCategoryJSONRequestBody
+}
+
+type UpdateCategoryResponseObject interface {
+	VisitUpdateCategoryResponse(w http.ResponseWriter) error
+}
+
+type UpdateCategory200JSONResponse Category
+
+func (response UpdateCategory200JSONResponse) VisitUpdateCategoryResponse(w http.ResponseWriter) error {
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(200)
+
+	return json.NewEncoder(w).Encode(response)
+}
+
+type UpdateCategory400JSONResponse struct{ N400JSONResponse }
+
+func (response UpdateCategory400JSONResponse) VisitUpdateCategoryResponse(w http.ResponseWriter) error {
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(400)
+
+	return json.NewEncoder(w).Encode(response)
+}
+
+type UpdateCategory404JSONResponse struct{ N404JSONResponse }
+
+func (response UpdateCategory404JSONResponse) VisitUpdateCategoryResponse(w http.ResponseWriter) error {
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(404)
+
+	return json.NewEncoder(w).Encode(response)
+}
+
+type UpdateCategory500JSONResponse struct{ N500JSONResponse }
+
+func (response UpdateCategory500JSONResponse) VisitUpdateCategoryResponse(w http.ResponseWriter) error {
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(500)
+
+	return json.NewEncoder(w).Encode(response)
+}
+
 type GetExchangeRatesRequestObject struct {
 	Params GetExchangeRatesParams
 }
@@ -4655,290 +4284,6 @@ func (response GetExchangeRates401Response) VisitGetExchangeRatesResponse(w http
 type GetExchangeRates500JSONResponse struct{ N500JSONResponse }
 
 func (response GetExchangeRates500JSONResponse) VisitGetExchangeRatesResponse(w http.ResponseWriter) error {
-	w.Header().Set("Content-Type", "application/json")
-	w.WriteHeader(500)
-
-	return json.NewEncoder(w).Encode(response)
-}
-
-type ListExpenditureCategoriesRequestObject struct {
-}
-
-type ListExpenditureCategoriesResponseObject interface {
-	VisitListExpenditureCategoriesResponse(w http.ResponseWriter) error
-}
-
-type ListExpenditureCategories200JSONResponse struct {
-	Categories *[]ExpenditureCategory `json:"categories,omitempty"`
-
-	// Total Total number of categories
-	Total *int `json:"total,omitempty"`
-}
-
-func (response ListExpenditureCategories200JSONResponse) VisitListExpenditureCategoriesResponse(w http.ResponseWriter) error {
-	w.Header().Set("Content-Type", "application/json")
-	w.WriteHeader(200)
-
-	return json.NewEncoder(w).Encode(response)
-}
-
-type ListExpenditureCategories401Response = N401Response
-
-func (response ListExpenditureCategories401Response) VisitListExpenditureCategoriesResponse(w http.ResponseWriter) error {
-	w.WriteHeader(401)
-	return nil
-}
-
-type ListExpenditureCategories500JSONResponse struct{ N500JSONResponse }
-
-func (response ListExpenditureCategories500JSONResponse) VisitListExpenditureCategoriesResponse(w http.ResponseWriter) error {
-	w.Header().Set("Content-Type", "application/json")
-	w.WriteHeader(500)
-
-	return json.NewEncoder(w).Encode(response)
-}
-
-type CreateExpenditureCategoryRequestObject struct {
-	Body *CreateExpenditureCategoryJSONRequestBody
-}
-
-type CreateExpenditureCategoryResponseObject interface {
-	VisitCreateExpenditureCategoryResponse(w http.ResponseWriter) error
-}
-
-type CreateExpenditureCategory201JSONResponse ExpenditureCategory
-
-func (response CreateExpenditureCategory201JSONResponse) VisitCreateExpenditureCategoryResponse(w http.ResponseWriter) error {
-	w.Header().Set("Content-Type", "application/json")
-	w.WriteHeader(201)
-
-	return json.NewEncoder(w).Encode(response)
-}
-
-type CreateExpenditureCategory400JSONResponse struct{ N400JSONResponse }
-
-func (response CreateExpenditureCategory400JSONResponse) VisitCreateExpenditureCategoryResponse(w http.ResponseWriter) error {
-	w.Header().Set("Content-Type", "application/json")
-	w.WriteHeader(400)
-
-	return json.NewEncoder(w).Encode(response)
-}
-
-type CreateExpenditureCategory401Response = N401Response
-
-func (response CreateExpenditureCategory401Response) VisitCreateExpenditureCategoryResponse(w http.ResponseWriter) error {
-	w.WriteHeader(401)
-	return nil
-}
-
-type CreateExpenditureCategory500JSONResponse struct{ N500JSONResponse }
-
-func (response CreateExpenditureCategory500JSONResponse) VisitCreateExpenditureCategoryResponse(w http.ResponseWriter) error {
-	w.Header().Set("Content-Type", "application/json")
-	w.WriteHeader(500)
-
-	return json.NewEncoder(w).Encode(response)
-}
-
-type DeleteExpenditureCategoryRequestObject struct {
-	Id string `json:"id"`
-}
-
-type DeleteExpenditureCategoryResponseObject interface {
-	VisitDeleteExpenditureCategoryResponse(w http.ResponseWriter) error
-}
-
-type DeleteExpenditureCategory204Response struct {
-}
-
-func (response DeleteExpenditureCategory204Response) VisitDeleteExpenditureCategoryResponse(w http.ResponseWriter) error {
-	w.WriteHeader(204)
-	return nil
-}
-
-type DeleteExpenditureCategory401Response = N401Response
-
-func (response DeleteExpenditureCategory401Response) VisitDeleteExpenditureCategoryResponse(w http.ResponseWriter) error {
-	w.WriteHeader(401)
-	return nil
-}
-
-type DeleteExpenditureCategory404JSONResponse struct{ N404JSONResponse }
-
-func (response DeleteExpenditureCategory404JSONResponse) VisitDeleteExpenditureCategoryResponse(w http.ResponseWriter) error {
-	w.Header().Set("Content-Type", "application/json")
-	w.WriteHeader(404)
-
-	return json.NewEncoder(w).Encode(response)
-}
-
-type DeleteExpenditureCategory500JSONResponse struct{ N500JSONResponse }
-
-func (response DeleteExpenditureCategory500JSONResponse) VisitDeleteExpenditureCategoryResponse(w http.ResponseWriter) error {
-	w.Header().Set("Content-Type", "application/json")
-	w.WriteHeader(500)
-
-	return json.NewEncoder(w).Encode(response)
-}
-
-type UpdateExpenditureCategoryRequestObject struct {
-	Id   string `json:"id"`
-	Body *UpdateExpenditureCategoryJSONRequestBody
-}
-
-type UpdateExpenditureCategoryResponseObject interface {
-	VisitUpdateExpenditureCategoryResponse(w http.ResponseWriter) error
-}
-
-type UpdateExpenditureCategory200JSONResponse ExpenditureCategory
-
-func (response UpdateExpenditureCategory200JSONResponse) VisitUpdateExpenditureCategoryResponse(w http.ResponseWriter) error {
-	w.Header().Set("Content-Type", "application/json")
-	w.WriteHeader(200)
-
-	return json.NewEncoder(w).Encode(response)
-}
-
-type UpdateExpenditureCategory400JSONResponse struct{ N400JSONResponse }
-
-func (response UpdateExpenditureCategory400JSONResponse) VisitUpdateExpenditureCategoryResponse(w http.ResponseWriter) error {
-	w.Header().Set("Content-Type", "application/json")
-	w.WriteHeader(400)
-
-	return json.NewEncoder(w).Encode(response)
-}
-
-type UpdateExpenditureCategory404JSONResponse struct{ N404JSONResponse }
-
-func (response UpdateExpenditureCategory404JSONResponse) VisitUpdateExpenditureCategoryResponse(w http.ResponseWriter) error {
-	w.Header().Set("Content-Type", "application/json")
-	w.WriteHeader(404)
-
-	return json.NewEncoder(w).Encode(response)
-}
-
-type UpdateExpenditureCategory500JSONResponse struct{ N500JSONResponse }
-
-func (response UpdateExpenditureCategory500JSONResponse) VisitUpdateExpenditureCategoryResponse(w http.ResponseWriter) error {
-	w.Header().Set("Content-Type", "application/json")
-	w.WriteHeader(500)
-
-	return json.NewEncoder(w).Encode(response)
-}
-
-type ListExpenditureTagsRequestObject struct {
-}
-
-type ListExpenditureTagsResponseObject interface {
-	VisitListExpenditureTagsResponse(w http.ResponseWriter) error
-}
-
-type ListExpenditureTags200JSONResponse []Tag
-
-func (response ListExpenditureTags200JSONResponse) VisitListExpenditureTagsResponse(w http.ResponseWriter) error {
-	w.Header().Set("Content-Type", "application/json")
-	w.WriteHeader(200)
-
-	return json.NewEncoder(w).Encode(response)
-}
-
-type ListExpenditureTags400JSONResponse struct{ N400JSONResponse }
-
-func (response ListExpenditureTags400JSONResponse) VisitListExpenditureTagsResponse(w http.ResponseWriter) error {
-	w.Header().Set("Content-Type", "application/json")
-	w.WriteHeader(400)
-
-	return json.NewEncoder(w).Encode(response)
-}
-
-type ListExpenditureTags500JSONResponse struct{ N500JSONResponse }
-
-func (response ListExpenditureTags500JSONResponse) VisitListExpenditureTagsResponse(w http.ResponseWriter) error {
-	w.Header().Set("Content-Type", "application/json")
-	w.WriteHeader(500)
-
-	return json.NewEncoder(w).Encode(response)
-}
-
-type CreateExpenditureTagRequestObject struct {
-	Body *CreateExpenditureTagJSONRequestBody
-}
-
-type CreateExpenditureTagResponseObject interface {
-	VisitCreateExpenditureTagResponse(w http.ResponseWriter) error
-}
-
-type CreateExpenditureTag201JSONResponse Tag
-
-func (response CreateExpenditureTag201JSONResponse) VisitCreateExpenditureTagResponse(w http.ResponseWriter) error {
-	w.Header().Set("Content-Type", "application/json")
-	w.WriteHeader(201)
-
-	return json.NewEncoder(w).Encode(response)
-}
-
-type CreateExpenditureTag400JSONResponse struct{ N400JSONResponse }
-
-func (response CreateExpenditureTag400JSONResponse) VisitCreateExpenditureTagResponse(w http.ResponseWriter) error {
-	w.Header().Set("Content-Type", "application/json")
-	w.WriteHeader(400)
-
-	return json.NewEncoder(w).Encode(response)
-}
-
-type CreateExpenditureTag500JSONResponse struct{ N500JSONResponse }
-
-func (response CreateExpenditureTag500JSONResponse) VisitCreateExpenditureTagResponse(w http.ResponseWriter) error {
-	w.Header().Set("Content-Type", "application/json")
-	w.WriteHeader(500)
-
-	return json.NewEncoder(w).Encode(response)
-}
-
-type DeleteExpenditureTagRequestObject struct {
-	Id string `json:"id"`
-}
-
-type DeleteExpenditureTagResponseObject interface {
-	VisitDeleteExpenditureTagResponse(w http.ResponseWriter) error
-}
-
-type DeleteExpenditureTag204Response struct {
-}
-
-func (response DeleteExpenditureTag204Response) VisitDeleteExpenditureTagResponse(w http.ResponseWriter) error {
-	w.WriteHeader(204)
-	return nil
-}
-
-type DeleteExpenditureTag400JSONResponse struct{ N400JSONResponse }
-
-func (response DeleteExpenditureTag400JSONResponse) VisitDeleteExpenditureTagResponse(w http.ResponseWriter) error {
-	w.Header().Set("Content-Type", "application/json")
-	w.WriteHeader(400)
-
-	return json.NewEncoder(w).Encode(response)
-}
-
-type DeleteExpenditureTag401Response = N401Response
-
-func (response DeleteExpenditureTag401Response) VisitDeleteExpenditureTagResponse(w http.ResponseWriter) error {
-	w.WriteHeader(401)
-	return nil
-}
-
-type DeleteExpenditureTag404JSONResponse struct{ N404JSONResponse }
-
-func (response DeleteExpenditureTag404JSONResponse) VisitDeleteExpenditureTagResponse(w http.ResponseWriter) error {
-	w.Header().Set("Content-Type", "application/json")
-	w.WriteHeader(404)
-
-	return json.NewEncoder(w).Encode(response)
-}
-
-type DeleteExpenditureTag500JSONResponse struct{ N500JSONResponse }
-
-func (response DeleteExpenditureTag500JSONResponse) VisitDeleteExpenditureTagResponse(w http.ResponseWriter) error {
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(500)
 
@@ -5365,290 +4710,6 @@ func (response UpdateHouseholdMember500JSONResponse) VisitUpdateHouseholdMemberR
 	return json.NewEncoder(w).Encode(response)
 }
 
-type ListIngressCategoriesRequestObject struct {
-}
-
-type ListIngressCategoriesResponseObject interface {
-	VisitListIngressCategoriesResponse(w http.ResponseWriter) error
-}
-
-type ListIngressCategories200JSONResponse struct {
-	Categories *[]IngressCategory `json:"categories,omitempty"`
-
-	// Total Total number of categories
-	Total *int `json:"total,omitempty"`
-}
-
-func (response ListIngressCategories200JSONResponse) VisitListIngressCategoriesResponse(w http.ResponseWriter) error {
-	w.Header().Set("Content-Type", "application/json")
-	w.WriteHeader(200)
-
-	return json.NewEncoder(w).Encode(response)
-}
-
-type ListIngressCategories401Response = N401Response
-
-func (response ListIngressCategories401Response) VisitListIngressCategoriesResponse(w http.ResponseWriter) error {
-	w.WriteHeader(401)
-	return nil
-}
-
-type ListIngressCategories500JSONResponse struct{ N500JSONResponse }
-
-func (response ListIngressCategories500JSONResponse) VisitListIngressCategoriesResponse(w http.ResponseWriter) error {
-	w.Header().Set("Content-Type", "application/json")
-	w.WriteHeader(500)
-
-	return json.NewEncoder(w).Encode(response)
-}
-
-type CreateIngressCategoryRequestObject struct {
-	Body *CreateIngressCategoryJSONRequestBody
-}
-
-type CreateIngressCategoryResponseObject interface {
-	VisitCreateIngressCategoryResponse(w http.ResponseWriter) error
-}
-
-type CreateIngressCategory201JSONResponse IngressCategory
-
-func (response CreateIngressCategory201JSONResponse) VisitCreateIngressCategoryResponse(w http.ResponseWriter) error {
-	w.Header().Set("Content-Type", "application/json")
-	w.WriteHeader(201)
-
-	return json.NewEncoder(w).Encode(response)
-}
-
-type CreateIngressCategory400JSONResponse struct{ N400JSONResponse }
-
-func (response CreateIngressCategory400JSONResponse) VisitCreateIngressCategoryResponse(w http.ResponseWriter) error {
-	w.Header().Set("Content-Type", "application/json")
-	w.WriteHeader(400)
-
-	return json.NewEncoder(w).Encode(response)
-}
-
-type CreateIngressCategory401Response = N401Response
-
-func (response CreateIngressCategory401Response) VisitCreateIngressCategoryResponse(w http.ResponseWriter) error {
-	w.WriteHeader(401)
-	return nil
-}
-
-type CreateIngressCategory500JSONResponse struct{ N500JSONResponse }
-
-func (response CreateIngressCategory500JSONResponse) VisitCreateIngressCategoryResponse(w http.ResponseWriter) error {
-	w.Header().Set("Content-Type", "application/json")
-	w.WriteHeader(500)
-
-	return json.NewEncoder(w).Encode(response)
-}
-
-type DeleteIngressCategoryRequestObject struct {
-	Id string `json:"id"`
-}
-
-type DeleteIngressCategoryResponseObject interface {
-	VisitDeleteIngressCategoryResponse(w http.ResponseWriter) error
-}
-
-type DeleteIngressCategory204Response struct {
-}
-
-func (response DeleteIngressCategory204Response) VisitDeleteIngressCategoryResponse(w http.ResponseWriter) error {
-	w.WriteHeader(204)
-	return nil
-}
-
-type DeleteIngressCategory401Response = N401Response
-
-func (response DeleteIngressCategory401Response) VisitDeleteIngressCategoryResponse(w http.ResponseWriter) error {
-	w.WriteHeader(401)
-	return nil
-}
-
-type DeleteIngressCategory404JSONResponse struct{ N404JSONResponse }
-
-func (response DeleteIngressCategory404JSONResponse) VisitDeleteIngressCategoryResponse(w http.ResponseWriter) error {
-	w.Header().Set("Content-Type", "application/json")
-	w.WriteHeader(404)
-
-	return json.NewEncoder(w).Encode(response)
-}
-
-type DeleteIngressCategory500JSONResponse struct{ N500JSONResponse }
-
-func (response DeleteIngressCategory500JSONResponse) VisitDeleteIngressCategoryResponse(w http.ResponseWriter) error {
-	w.Header().Set("Content-Type", "application/json")
-	w.WriteHeader(500)
-
-	return json.NewEncoder(w).Encode(response)
-}
-
-type UpdateIngressCategoryRequestObject struct {
-	Id   string `json:"id"`
-	Body *UpdateIngressCategoryJSONRequestBody
-}
-
-type UpdateIngressCategoryResponseObject interface {
-	VisitUpdateIngressCategoryResponse(w http.ResponseWriter) error
-}
-
-type UpdateIngressCategory200JSONResponse IngressCategory
-
-func (response UpdateIngressCategory200JSONResponse) VisitUpdateIngressCategoryResponse(w http.ResponseWriter) error {
-	w.Header().Set("Content-Type", "application/json")
-	w.WriteHeader(200)
-
-	return json.NewEncoder(w).Encode(response)
-}
-
-type UpdateIngressCategory400JSONResponse struct{ N400JSONResponse }
-
-func (response UpdateIngressCategory400JSONResponse) VisitUpdateIngressCategoryResponse(w http.ResponseWriter) error {
-	w.Header().Set("Content-Type", "application/json")
-	w.WriteHeader(400)
-
-	return json.NewEncoder(w).Encode(response)
-}
-
-type UpdateIngressCategory404JSONResponse struct{ N404JSONResponse }
-
-func (response UpdateIngressCategory404JSONResponse) VisitUpdateIngressCategoryResponse(w http.ResponseWriter) error {
-	w.Header().Set("Content-Type", "application/json")
-	w.WriteHeader(404)
-
-	return json.NewEncoder(w).Encode(response)
-}
-
-type UpdateIngressCategory500JSONResponse struct{ N500JSONResponse }
-
-func (response UpdateIngressCategory500JSONResponse) VisitUpdateIngressCategoryResponse(w http.ResponseWriter) error {
-	w.Header().Set("Content-Type", "application/json")
-	w.WriteHeader(500)
-
-	return json.NewEncoder(w).Encode(response)
-}
-
-type ListIngressTagsRequestObject struct {
-}
-
-type ListIngressTagsResponseObject interface {
-	VisitListIngressTagsResponse(w http.ResponseWriter) error
-}
-
-type ListIngressTags200JSONResponse []Tag
-
-func (response ListIngressTags200JSONResponse) VisitListIngressTagsResponse(w http.ResponseWriter) error {
-	w.Header().Set("Content-Type", "application/json")
-	w.WriteHeader(200)
-
-	return json.NewEncoder(w).Encode(response)
-}
-
-type ListIngressTags400JSONResponse struct{ N400JSONResponse }
-
-func (response ListIngressTags400JSONResponse) VisitListIngressTagsResponse(w http.ResponseWriter) error {
-	w.Header().Set("Content-Type", "application/json")
-	w.WriteHeader(400)
-
-	return json.NewEncoder(w).Encode(response)
-}
-
-type ListIngressTags500JSONResponse struct{ N500JSONResponse }
-
-func (response ListIngressTags500JSONResponse) VisitListIngressTagsResponse(w http.ResponseWriter) error {
-	w.Header().Set("Content-Type", "application/json")
-	w.WriteHeader(500)
-
-	return json.NewEncoder(w).Encode(response)
-}
-
-type CreateIngressTagRequestObject struct {
-	Body *CreateIngressTagJSONRequestBody
-}
-
-type CreateIngressTagResponseObject interface {
-	VisitCreateIngressTagResponse(w http.ResponseWriter) error
-}
-
-type CreateIngressTag201JSONResponse Tag
-
-func (response CreateIngressTag201JSONResponse) VisitCreateIngressTagResponse(w http.ResponseWriter) error {
-	w.Header().Set("Content-Type", "application/json")
-	w.WriteHeader(201)
-
-	return json.NewEncoder(w).Encode(response)
-}
-
-type CreateIngressTag400JSONResponse struct{ N400JSONResponse }
-
-func (response CreateIngressTag400JSONResponse) VisitCreateIngressTagResponse(w http.ResponseWriter) error {
-	w.Header().Set("Content-Type", "application/json")
-	w.WriteHeader(400)
-
-	return json.NewEncoder(w).Encode(response)
-}
-
-type CreateIngressTag500JSONResponse struct{ N500JSONResponse }
-
-func (response CreateIngressTag500JSONResponse) VisitCreateIngressTagResponse(w http.ResponseWriter) error {
-	w.Header().Set("Content-Type", "application/json")
-	w.WriteHeader(500)
-
-	return json.NewEncoder(w).Encode(response)
-}
-
-type DeleteIngressTagRequestObject struct {
-	Id string `json:"id"`
-}
-
-type DeleteIngressTagResponseObject interface {
-	VisitDeleteIngressTagResponse(w http.ResponseWriter) error
-}
-
-type DeleteIngressTag204Response struct {
-}
-
-func (response DeleteIngressTag204Response) VisitDeleteIngressTagResponse(w http.ResponseWriter) error {
-	w.WriteHeader(204)
-	return nil
-}
-
-type DeleteIngressTag400JSONResponse struct{ N400JSONResponse }
-
-func (response DeleteIngressTag400JSONResponse) VisitDeleteIngressTagResponse(w http.ResponseWriter) error {
-	w.Header().Set("Content-Type", "application/json")
-	w.WriteHeader(400)
-
-	return json.NewEncoder(w).Encode(response)
-}
-
-type DeleteIngressTag401Response = N401Response
-
-func (response DeleteIngressTag401Response) VisitDeleteIngressTagResponse(w http.ResponseWriter) error {
-	w.WriteHeader(401)
-	return nil
-}
-
-type DeleteIngressTag404JSONResponse struct{ N404JSONResponse }
-
-func (response DeleteIngressTag404JSONResponse) VisitDeleteIngressTagResponse(w http.ResponseWriter) error {
-	w.Header().Set("Content-Type", "application/json")
-	w.WriteHeader(404)
-
-	return json.NewEncoder(w).Encode(response)
-}
-
-type DeleteIngressTag500JSONResponse struct{ N500JSONResponse }
-
-func (response DeleteIngressTag500JSONResponse) VisitDeleteIngressTagResponse(w http.ResponseWriter) error {
-	w.Header().Set("Content-Type", "application/json")
-	w.WriteHeader(500)
-
-	return json.NewEncoder(w).Encode(response)
-}
-
 type ListIngressesRequestObject struct {
 	Params ListIngressesParams
 }
@@ -5928,464 +4989,6 @@ func (response CreateSavingsGoal401Response) VisitCreateSavingsGoalResponse(w ht
 type CreateSavingsGoal500JSONResponse struct{ N500JSONResponse }
 
 func (response CreateSavingsGoal500JSONResponse) VisitCreateSavingsGoalResponse(w http.ResponseWriter) error {
-	w.Header().Set("Content-Type", "application/json")
-	w.WriteHeader(500)
-
-	return json.NewEncoder(w).Encode(response)
-}
-
-type ListSavingsCategoriesRequestObject struct {
-}
-
-type ListSavingsCategoriesResponseObject interface {
-	VisitListSavingsCategoriesResponse(w http.ResponseWriter) error
-}
-
-type ListSavingsCategories200JSONResponse []SavingsCategory
-
-func (response ListSavingsCategories200JSONResponse) VisitListSavingsCategoriesResponse(w http.ResponseWriter) error {
-	w.Header().Set("Content-Type", "application/json")
-	w.WriteHeader(200)
-
-	return json.NewEncoder(w).Encode(response)
-}
-
-type ListSavingsCategories401Response = N401Response
-
-func (response ListSavingsCategories401Response) VisitListSavingsCategoriesResponse(w http.ResponseWriter) error {
-	w.WriteHeader(401)
-	return nil
-}
-
-type ListSavingsCategories500JSONResponse struct{ N500JSONResponse }
-
-func (response ListSavingsCategories500JSONResponse) VisitListSavingsCategoriesResponse(w http.ResponseWriter) error {
-	w.Header().Set("Content-Type", "application/json")
-	w.WriteHeader(500)
-
-	return json.NewEncoder(w).Encode(response)
-}
-
-type CreateSavingsCategoryRequestObject struct {
-	Body *CreateSavingsCategoryJSONRequestBody
-}
-
-type CreateSavingsCategoryResponseObject interface {
-	VisitCreateSavingsCategoryResponse(w http.ResponseWriter) error
-}
-
-type CreateSavingsCategory201JSONResponse struct {
-	// Id ID of the created savings category
-	Id *string `json:"id,omitempty"`
-}
-
-func (response CreateSavingsCategory201JSONResponse) VisitCreateSavingsCategoryResponse(w http.ResponseWriter) error {
-	w.Header().Set("Content-Type", "application/json")
-	w.WriteHeader(201)
-
-	return json.NewEncoder(w).Encode(response)
-}
-
-type CreateSavingsCategory400JSONResponse struct{ N400JSONResponse }
-
-func (response CreateSavingsCategory400JSONResponse) VisitCreateSavingsCategoryResponse(w http.ResponseWriter) error {
-	w.Header().Set("Content-Type", "application/json")
-	w.WriteHeader(400)
-
-	return json.NewEncoder(w).Encode(response)
-}
-
-type CreateSavingsCategory401Response = N401Response
-
-func (response CreateSavingsCategory401Response) VisitCreateSavingsCategoryResponse(w http.ResponseWriter) error {
-	w.WriteHeader(401)
-	return nil
-}
-
-type CreateSavingsCategory500JSONResponse struct{ N500JSONResponse }
-
-func (response CreateSavingsCategory500JSONResponse) VisitCreateSavingsCategoryResponse(w http.ResponseWriter) error {
-	w.Header().Set("Content-Type", "application/json")
-	w.WriteHeader(500)
-
-	return json.NewEncoder(w).Encode(response)
-}
-
-type DeleteSavingsCategoryRequestObject struct {
-	Id string `json:"id"`
-}
-
-type DeleteSavingsCategoryResponseObject interface {
-	VisitDeleteSavingsCategoryResponse(w http.ResponseWriter) error
-}
-
-type DeleteSavingsCategory204Response struct {
-}
-
-func (response DeleteSavingsCategory204Response) VisitDeleteSavingsCategoryResponse(w http.ResponseWriter) error {
-	w.WriteHeader(204)
-	return nil
-}
-
-type DeleteSavingsCategory401Response = N401Response
-
-func (response DeleteSavingsCategory401Response) VisitDeleteSavingsCategoryResponse(w http.ResponseWriter) error {
-	w.WriteHeader(401)
-	return nil
-}
-
-type DeleteSavingsCategory404JSONResponse struct{ N404JSONResponse }
-
-func (response DeleteSavingsCategory404JSONResponse) VisitDeleteSavingsCategoryResponse(w http.ResponseWriter) error {
-	w.Header().Set("Content-Type", "application/json")
-	w.WriteHeader(404)
-
-	return json.NewEncoder(w).Encode(response)
-}
-
-type DeleteSavingsCategory409JSONResponse Error
-
-func (response DeleteSavingsCategory409JSONResponse) VisitDeleteSavingsCategoryResponse(w http.ResponseWriter) error {
-	w.Header().Set("Content-Type", "application/json")
-	w.WriteHeader(409)
-
-	return json.NewEncoder(w).Encode(response)
-}
-
-type DeleteSavingsCategory500JSONResponse struct{ N500JSONResponse }
-
-func (response DeleteSavingsCategory500JSONResponse) VisitDeleteSavingsCategoryResponse(w http.ResponseWriter) error {
-	w.Header().Set("Content-Type", "application/json")
-	w.WriteHeader(500)
-
-	return json.NewEncoder(w).Encode(response)
-}
-
-type GetSavingsCategoryRequestObject struct {
-	Id string `json:"id"`
-}
-
-type GetSavingsCategoryResponseObject interface {
-	VisitGetSavingsCategoryResponse(w http.ResponseWriter) error
-}
-
-type GetSavingsCategory200JSONResponse SavingsCategory
-
-func (response GetSavingsCategory200JSONResponse) VisitGetSavingsCategoryResponse(w http.ResponseWriter) error {
-	w.Header().Set("Content-Type", "application/json")
-	w.WriteHeader(200)
-
-	return json.NewEncoder(w).Encode(response)
-}
-
-type GetSavingsCategory401Response = N401Response
-
-func (response GetSavingsCategory401Response) VisitGetSavingsCategoryResponse(w http.ResponseWriter) error {
-	w.WriteHeader(401)
-	return nil
-}
-
-type GetSavingsCategory404JSONResponse struct{ N404JSONResponse }
-
-func (response GetSavingsCategory404JSONResponse) VisitGetSavingsCategoryResponse(w http.ResponseWriter) error {
-	w.Header().Set("Content-Type", "application/json")
-	w.WriteHeader(404)
-
-	return json.NewEncoder(w).Encode(response)
-}
-
-type GetSavingsCategory500JSONResponse struct{ N500JSONResponse }
-
-func (response GetSavingsCategory500JSONResponse) VisitGetSavingsCategoryResponse(w http.ResponseWriter) error {
-	w.Header().Set("Content-Type", "application/json")
-	w.WriteHeader(500)
-
-	return json.NewEncoder(w).Encode(response)
-}
-
-type UpdateSavingsCategoryRequestObject struct {
-	Id   string `json:"id"`
-	Body *UpdateSavingsCategoryJSONRequestBody
-}
-
-type UpdateSavingsCategoryResponseObject interface {
-	VisitUpdateSavingsCategoryResponse(w http.ResponseWriter) error
-}
-
-type UpdateSavingsCategory200Response struct {
-}
-
-func (response UpdateSavingsCategory200Response) VisitUpdateSavingsCategoryResponse(w http.ResponseWriter) error {
-	w.WriteHeader(200)
-	return nil
-}
-
-type UpdateSavingsCategory400JSONResponse struct{ N400JSONResponse }
-
-func (response UpdateSavingsCategory400JSONResponse) VisitUpdateSavingsCategoryResponse(w http.ResponseWriter) error {
-	w.Header().Set("Content-Type", "application/json")
-	w.WriteHeader(400)
-
-	return json.NewEncoder(w).Encode(response)
-}
-
-type UpdateSavingsCategory401Response = N401Response
-
-func (response UpdateSavingsCategory401Response) VisitUpdateSavingsCategoryResponse(w http.ResponseWriter) error {
-	w.WriteHeader(401)
-	return nil
-}
-
-type UpdateSavingsCategory404JSONResponse struct{ N404JSONResponse }
-
-func (response UpdateSavingsCategory404JSONResponse) VisitUpdateSavingsCategoryResponse(w http.ResponseWriter) error {
-	w.Header().Set("Content-Type", "application/json")
-	w.WriteHeader(404)
-
-	return json.NewEncoder(w).Encode(response)
-}
-
-type UpdateSavingsCategory500JSONResponse struct{ N500JSONResponse }
-
-func (response UpdateSavingsCategory500JSONResponse) VisitUpdateSavingsCategoryResponse(w http.ResponseWriter) error {
-	w.Header().Set("Content-Type", "application/json")
-	w.WriteHeader(500)
-
-	return json.NewEncoder(w).Encode(response)
-}
-
-type ListSavingsTagsRequestObject struct {
-}
-
-type ListSavingsTagsResponseObject interface {
-	VisitListSavingsTagsResponse(w http.ResponseWriter) error
-}
-
-type ListSavingsTags200JSONResponse []Tag
-
-func (response ListSavingsTags200JSONResponse) VisitListSavingsTagsResponse(w http.ResponseWriter) error {
-	w.Header().Set("Content-Type", "application/json")
-	w.WriteHeader(200)
-
-	return json.NewEncoder(w).Encode(response)
-}
-
-type ListSavingsTags401Response = N401Response
-
-func (response ListSavingsTags401Response) VisitListSavingsTagsResponse(w http.ResponseWriter) error {
-	w.WriteHeader(401)
-	return nil
-}
-
-type ListSavingsTags500JSONResponse struct{ N500JSONResponse }
-
-func (response ListSavingsTags500JSONResponse) VisitListSavingsTagsResponse(w http.ResponseWriter) error {
-	w.Header().Set("Content-Type", "application/json")
-	w.WriteHeader(500)
-
-	return json.NewEncoder(w).Encode(response)
-}
-
-type CreateSavingsTagRequestObject struct {
-	Body *CreateSavingsTagJSONRequestBody
-}
-
-type CreateSavingsTagResponseObject interface {
-	VisitCreateSavingsTagResponse(w http.ResponseWriter) error
-}
-
-type CreateSavingsTag201JSONResponse struct {
-	// Id ID of the created savings tag
-	Id *string `json:"id,omitempty"`
-}
-
-func (response CreateSavingsTag201JSONResponse) VisitCreateSavingsTagResponse(w http.ResponseWriter) error {
-	w.Header().Set("Content-Type", "application/json")
-	w.WriteHeader(201)
-
-	return json.NewEncoder(w).Encode(response)
-}
-
-type CreateSavingsTag400JSONResponse struct{ N400JSONResponse }
-
-func (response CreateSavingsTag400JSONResponse) VisitCreateSavingsTagResponse(w http.ResponseWriter) error {
-	w.Header().Set("Content-Type", "application/json")
-	w.WriteHeader(400)
-
-	return json.NewEncoder(w).Encode(response)
-}
-
-type CreateSavingsTag401Response = N401Response
-
-func (response CreateSavingsTag401Response) VisitCreateSavingsTagResponse(w http.ResponseWriter) error {
-	w.WriteHeader(401)
-	return nil
-}
-
-type CreateSavingsTag409JSONResponse Error
-
-func (response CreateSavingsTag409JSONResponse) VisitCreateSavingsTagResponse(w http.ResponseWriter) error {
-	w.Header().Set("Content-Type", "application/json")
-	w.WriteHeader(409)
-
-	return json.NewEncoder(w).Encode(response)
-}
-
-type CreateSavingsTag500JSONResponse struct{ N500JSONResponse }
-
-func (response CreateSavingsTag500JSONResponse) VisitCreateSavingsTagResponse(w http.ResponseWriter) error {
-	w.Header().Set("Content-Type", "application/json")
-	w.WriteHeader(500)
-
-	return json.NewEncoder(w).Encode(response)
-}
-
-type DeleteSavingsTagRequestObject struct {
-	Id string `json:"id"`
-}
-
-type DeleteSavingsTagResponseObject interface {
-	VisitDeleteSavingsTagResponse(w http.ResponseWriter) error
-}
-
-type DeleteSavingsTag204Response struct {
-}
-
-func (response DeleteSavingsTag204Response) VisitDeleteSavingsTagResponse(w http.ResponseWriter) error {
-	w.WriteHeader(204)
-	return nil
-}
-
-type DeleteSavingsTag401Response = N401Response
-
-func (response DeleteSavingsTag401Response) VisitDeleteSavingsTagResponse(w http.ResponseWriter) error {
-	w.WriteHeader(401)
-	return nil
-}
-
-type DeleteSavingsTag404JSONResponse struct{ N404JSONResponse }
-
-func (response DeleteSavingsTag404JSONResponse) VisitDeleteSavingsTagResponse(w http.ResponseWriter) error {
-	w.Header().Set("Content-Type", "application/json")
-	w.WriteHeader(404)
-
-	return json.NewEncoder(w).Encode(response)
-}
-
-type DeleteSavingsTag409JSONResponse Error
-
-func (response DeleteSavingsTag409JSONResponse) VisitDeleteSavingsTagResponse(w http.ResponseWriter) error {
-	w.Header().Set("Content-Type", "application/json")
-	w.WriteHeader(409)
-
-	return json.NewEncoder(w).Encode(response)
-}
-
-type DeleteSavingsTag500JSONResponse struct{ N500JSONResponse }
-
-func (response DeleteSavingsTag500JSONResponse) VisitDeleteSavingsTagResponse(w http.ResponseWriter) error {
-	w.Header().Set("Content-Type", "application/json")
-	w.WriteHeader(500)
-
-	return json.NewEncoder(w).Encode(response)
-}
-
-type GetSavingsTagRequestObject struct {
-	Id string `json:"id"`
-}
-
-type GetSavingsTagResponseObject interface {
-	VisitGetSavingsTagResponse(w http.ResponseWriter) error
-}
-
-type GetSavingsTag200JSONResponse Tag
-
-func (response GetSavingsTag200JSONResponse) VisitGetSavingsTagResponse(w http.ResponseWriter) error {
-	w.Header().Set("Content-Type", "application/json")
-	w.WriteHeader(200)
-
-	return json.NewEncoder(w).Encode(response)
-}
-
-type GetSavingsTag401Response = N401Response
-
-func (response GetSavingsTag401Response) VisitGetSavingsTagResponse(w http.ResponseWriter) error {
-	w.WriteHeader(401)
-	return nil
-}
-
-type GetSavingsTag404JSONResponse struct{ N404JSONResponse }
-
-func (response GetSavingsTag404JSONResponse) VisitGetSavingsTagResponse(w http.ResponseWriter) error {
-	w.Header().Set("Content-Type", "application/json")
-	w.WriteHeader(404)
-
-	return json.NewEncoder(w).Encode(response)
-}
-
-type GetSavingsTag500JSONResponse struct{ N500JSONResponse }
-
-func (response GetSavingsTag500JSONResponse) VisitGetSavingsTagResponse(w http.ResponseWriter) error {
-	w.Header().Set("Content-Type", "application/json")
-	w.WriteHeader(500)
-
-	return json.NewEncoder(w).Encode(response)
-}
-
-type UpdateSavingsTagRequestObject struct {
-	Id   string `json:"id"`
-	Body *UpdateSavingsTagJSONRequestBody
-}
-
-type UpdateSavingsTagResponseObject interface {
-	VisitUpdateSavingsTagResponse(w http.ResponseWriter) error
-}
-
-type UpdateSavingsTag200Response struct {
-}
-
-func (response UpdateSavingsTag200Response) VisitUpdateSavingsTagResponse(w http.ResponseWriter) error {
-	w.WriteHeader(200)
-	return nil
-}
-
-type UpdateSavingsTag400JSONResponse struct{ N400JSONResponse }
-
-func (response UpdateSavingsTag400JSONResponse) VisitUpdateSavingsTagResponse(w http.ResponseWriter) error {
-	w.Header().Set("Content-Type", "application/json")
-	w.WriteHeader(400)
-
-	return json.NewEncoder(w).Encode(response)
-}
-
-type UpdateSavingsTag401Response = N401Response
-
-func (response UpdateSavingsTag401Response) VisitUpdateSavingsTagResponse(w http.ResponseWriter) error {
-	w.WriteHeader(401)
-	return nil
-}
-
-type UpdateSavingsTag404JSONResponse struct{ N404JSONResponse }
-
-func (response UpdateSavingsTag404JSONResponse) VisitUpdateSavingsTagResponse(w http.ResponseWriter) error {
-	w.Header().Set("Content-Type", "application/json")
-	w.WriteHeader(404)
-
-	return json.NewEncoder(w).Encode(response)
-}
-
-type UpdateSavingsTag409JSONResponse Error
-
-func (response UpdateSavingsTag409JSONResponse) VisitUpdateSavingsTagResponse(w http.ResponseWriter) error {
-	w.Header().Set("Content-Type", "application/json")
-	w.WriteHeader(409)
-
-	return json.NewEncoder(w).Encode(response)
-}
-
-type UpdateSavingsTag500JSONResponse struct{ N500JSONResponse }
-
-func (response UpdateSavingsTag500JSONResponse) VisitUpdateSavingsTagResponse(w http.ResponseWriter) error {
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(500)
 
@@ -6811,6 +5414,176 @@ func (response AddSavingsWithdrawal500JSONResponse) VisitAddSavingsWithdrawalRes
 	return json.NewEncoder(w).Encode(response)
 }
 
+type ListTagsRequestObject struct {
+}
+
+type ListTagsResponseObject interface {
+	VisitListTagsResponse(w http.ResponseWriter) error
+}
+
+type ListTags200JSONResponse []Tag
+
+func (response ListTags200JSONResponse) VisitListTagsResponse(w http.ResponseWriter) error {
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(200)
+
+	return json.NewEncoder(w).Encode(response)
+}
+
+type ListTags400JSONResponse struct{ N400JSONResponse }
+
+func (response ListTags400JSONResponse) VisitListTagsResponse(w http.ResponseWriter) error {
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(400)
+
+	return json.NewEncoder(w).Encode(response)
+}
+
+type ListTags500JSONResponse struct{ N500JSONResponse }
+
+func (response ListTags500JSONResponse) VisitListTagsResponse(w http.ResponseWriter) error {
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(500)
+
+	return json.NewEncoder(w).Encode(response)
+}
+
+type CreateTagRequestObject struct {
+	Body *CreateTagJSONRequestBody
+}
+
+type CreateTagResponseObject interface {
+	VisitCreateTagResponse(w http.ResponseWriter) error
+}
+
+type CreateTag201JSONResponse Tag
+
+func (response CreateTag201JSONResponse) VisitCreateTagResponse(w http.ResponseWriter) error {
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(201)
+
+	return json.NewEncoder(w).Encode(response)
+}
+
+type CreateTag400JSONResponse struct{ N400JSONResponse }
+
+func (response CreateTag400JSONResponse) VisitCreateTagResponse(w http.ResponseWriter) error {
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(400)
+
+	return json.NewEncoder(w).Encode(response)
+}
+
+type CreateTag500JSONResponse struct{ N500JSONResponse }
+
+func (response CreateTag500JSONResponse) VisitCreateTagResponse(w http.ResponseWriter) error {
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(500)
+
+	return json.NewEncoder(w).Encode(response)
+}
+
+type DeleteTagRequestObject struct {
+	Id string `json:"id"`
+}
+
+type DeleteTagResponseObject interface {
+	VisitDeleteTagResponse(w http.ResponseWriter) error
+}
+
+type DeleteTag204Response struct {
+}
+
+func (response DeleteTag204Response) VisitDeleteTagResponse(w http.ResponseWriter) error {
+	w.WriteHeader(204)
+	return nil
+}
+
+type DeleteTag400JSONResponse struct{ N400JSONResponse }
+
+func (response DeleteTag400JSONResponse) VisitDeleteTagResponse(w http.ResponseWriter) error {
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(400)
+
+	return json.NewEncoder(w).Encode(response)
+}
+
+type DeleteTag401Response = N401Response
+
+func (response DeleteTag401Response) VisitDeleteTagResponse(w http.ResponseWriter) error {
+	w.WriteHeader(401)
+	return nil
+}
+
+type DeleteTag404JSONResponse struct{ N404JSONResponse }
+
+func (response DeleteTag404JSONResponse) VisitDeleteTagResponse(w http.ResponseWriter) error {
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(404)
+
+	return json.NewEncoder(w).Encode(response)
+}
+
+type DeleteTag500JSONResponse struct{ N500JSONResponse }
+
+func (response DeleteTag500JSONResponse) VisitDeleteTagResponse(w http.ResponseWriter) error {
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(500)
+
+	return json.NewEncoder(w).Encode(response)
+}
+
+type ListTagsByTypeRequestObject struct {
+	Type string `json:"type"`
+}
+
+type ListTagsByTypeResponseObject interface {
+	VisitListTagsByTypeResponse(w http.ResponseWriter) error
+}
+
+type ListTagsByType200JSONResponse []Tag
+
+func (response ListTagsByType200JSONResponse) VisitListTagsByTypeResponse(w http.ResponseWriter) error {
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(200)
+
+	return json.NewEncoder(w).Encode(response)
+}
+
+type ListTagsByType400JSONResponse struct{ N400JSONResponse }
+
+func (response ListTagsByType400JSONResponse) VisitListTagsByTypeResponse(w http.ResponseWriter) error {
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(400)
+
+	return json.NewEncoder(w).Encode(response)
+}
+
+type ListTagsByType401Response = N401Response
+
+func (response ListTagsByType401Response) VisitListTagsByTypeResponse(w http.ResponseWriter) error {
+	w.WriteHeader(401)
+	return nil
+}
+
+type ListTagsByType404JSONResponse struct{ N404JSONResponse }
+
+func (response ListTagsByType404JSONResponse) VisitListTagsByTypeResponse(w http.ResponseWriter) error {
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(404)
+
+	return json.NewEncoder(w).Encode(response)
+}
+
+type ListTagsByType500JSONResponse struct{ N500JSONResponse }
+
+func (response ListTagsByType500JSONResponse) VisitListTagsByTypeResponse(w http.ResponseWriter) error {
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(500)
+
+	return json.NewEncoder(w).Encode(response)
+}
+
 type ListTransactionsRequestObject struct {
 	Params ListTransactionsParams
 }
@@ -7033,30 +5806,21 @@ type StrictServerInterface interface {
 	// Get current balances
 	// (GET /balances)
 	GetBalances(ctx context.Context, request GetBalancesRequestObject) (GetBalancesResponseObject, error)
+	// List categories
+	// (GET /categories)
+	ListCategories(ctx context.Context, request ListCategoriesRequestObject) (ListCategoriesResponseObject, error)
+	// Create category
+	// (POST /categories)
+	CreateCategory(ctx context.Context, request CreateCategoryRequestObject) (CreateCategoryResponseObject, error)
+	// Delete category
+	// (DELETE /categories/{id})
+	DeleteCategory(ctx context.Context, request DeleteCategoryRequestObject) (DeleteCategoryResponseObject, error)
+	// Update category
+	// (PUT /categories/{id})
+	UpdateCategory(ctx context.Context, request UpdateCategoryRequestObject) (UpdateCategoryResponseObject, error)
 	// Get current exchange rates
 	// (GET /exchange-rates)
 	GetExchangeRates(ctx context.Context, request GetExchangeRatesRequestObject) (GetExchangeRatesResponseObject, error)
-	// List expenditure categories
-	// (GET /expenditure-categories)
-	ListExpenditureCategories(ctx context.Context, request ListExpenditureCategoriesRequestObject) (ListExpenditureCategoriesResponseObject, error)
-	// Create expenditure category
-	// (POST /expenditure-categories)
-	CreateExpenditureCategory(ctx context.Context, request CreateExpenditureCategoryRequestObject) (CreateExpenditureCategoryResponseObject, error)
-	// Delete expenditure category
-	// (DELETE /expenditure-categories/{id})
-	DeleteExpenditureCategory(ctx context.Context, request DeleteExpenditureCategoryRequestObject) (DeleteExpenditureCategoryResponseObject, error)
-	// Update expenditure category
-	// (PUT /expenditure-categories/{id})
-	UpdateExpenditureCategory(ctx context.Context, request UpdateExpenditureCategoryRequestObject) (UpdateExpenditureCategoryResponseObject, error)
-	// List expenditure tags
-	// (GET /expenditure-tags)
-	ListExpenditureTags(ctx context.Context, request ListExpenditureTagsRequestObject) (ListExpenditureTagsResponseObject, error)
-	// Create expenditure tag
-	// (POST /expenditure-tags)
-	CreateExpenditureTag(ctx context.Context, request CreateExpenditureTagRequestObject) (CreateExpenditureTagResponseObject, error)
-	// Delete expenditure tag
-	// (DELETE /expenditure-tags/{id})
-	DeleteExpenditureTag(ctx context.Context, request DeleteExpenditureTagRequestObject) (DeleteExpenditureTagResponseObject, error)
 	// List all expenditures
 	// (GET /expenditures)
 	ListExpenditures(ctx context.Context, request ListExpendituresRequestObject) (ListExpendituresResponseObject, error)
@@ -7087,27 +5851,6 @@ type StrictServerInterface interface {
 	// Update household member
 	// (PUT /household-members/{id})
 	UpdateHouseholdMember(ctx context.Context, request UpdateHouseholdMemberRequestObject) (UpdateHouseholdMemberResponseObject, error)
-	// List ingress categories
-	// (GET /ingress-categories)
-	ListIngressCategories(ctx context.Context, request ListIngressCategoriesRequestObject) (ListIngressCategoriesResponseObject, error)
-	// Create Ingress category
-	// (POST /ingress-categories)
-	CreateIngressCategory(ctx context.Context, request CreateIngressCategoryRequestObject) (CreateIngressCategoryResponseObject, error)
-	// Delete Ingress category
-	// (DELETE /ingress-categories/{id})
-	DeleteIngressCategory(ctx context.Context, request DeleteIngressCategoryRequestObject) (DeleteIngressCategoryResponseObject, error)
-	// Update Ingress category
-	// (PUT /ingress-categories/{id})
-	UpdateIngressCategory(ctx context.Context, request UpdateIngressCategoryRequestObject) (UpdateIngressCategoryResponseObject, error)
-	// List ingress tags
-	// (GET /ingress-tags)
-	ListIngressTags(ctx context.Context, request ListIngressTagsRequestObject) (ListIngressTagsResponseObject, error)
-	// Create ingress tag
-	// (POST /ingress-tags)
-	CreateIngressTag(ctx context.Context, request CreateIngressTagRequestObject) (CreateIngressTagResponseObject, error)
-	// Delete ingress tag
-	// (DELETE /ingress-tags/{id})
-	DeleteIngressTag(ctx context.Context, request DeleteIngressTagRequestObject) (DeleteIngressTagResponseObject, error)
 	// List all ingresses
 	// (GET /ingresses)
 	ListIngresses(ctx context.Context, request ListIngressesRequestObject) (ListIngressesResponseObject, error)
@@ -7129,36 +5872,6 @@ type StrictServerInterface interface {
 	// Create a new savings goal
 	// (POST /savings)
 	CreateSavingsGoal(ctx context.Context, request CreateSavingsGoalRequestObject) (CreateSavingsGoalResponseObject, error)
-	// List all savings categories
-	// (GET /savings/category)
-	ListSavingsCategories(ctx context.Context, request ListSavingsCategoriesRequestObject) (ListSavingsCategoriesResponseObject, error)
-	// Create a new savings category
-	// (POST /savings/category)
-	CreateSavingsCategory(ctx context.Context, request CreateSavingsCategoryRequestObject) (CreateSavingsCategoryResponseObject, error)
-	// Delete a savings category
-	// (DELETE /savings/category/{id})
-	DeleteSavingsCategory(ctx context.Context, request DeleteSavingsCategoryRequestObject) (DeleteSavingsCategoryResponseObject, error)
-	// Get a savings category by ID
-	// (GET /savings/category/{id})
-	GetSavingsCategory(ctx context.Context, request GetSavingsCategoryRequestObject) (GetSavingsCategoryResponseObject, error)
-	// Update a savings category
-	// (PUT /savings/category/{id})
-	UpdateSavingsCategory(ctx context.Context, request UpdateSavingsCategoryRequestObject) (UpdateSavingsCategoryResponseObject, error)
-	// List all savings tags
-	// (GET /savings/tag)
-	ListSavingsTags(ctx context.Context, request ListSavingsTagsRequestObject) (ListSavingsTagsResponseObject, error)
-	// Create a new savings tag
-	// (POST /savings/tag)
-	CreateSavingsTag(ctx context.Context, request CreateSavingsTagRequestObject) (CreateSavingsTagResponseObject, error)
-	// Delete a savings tag
-	// (DELETE /savings/tag/{id})
-	DeleteSavingsTag(ctx context.Context, request DeleteSavingsTagRequestObject) (DeleteSavingsTagResponseObject, error)
-	// Get a savings tag by ID
-	// (GET /savings/tag/{id})
-	GetSavingsTag(ctx context.Context, request GetSavingsTagRequestObject) (GetSavingsTagResponseObject, error)
-	// Update a savings tag
-	// (PUT /savings/tag/{id})
-	UpdateSavingsTag(ctx context.Context, request UpdateSavingsTagRequestObject) (UpdateSavingsTagResponseObject, error)
 	// Delete savings goal
 	// (DELETE /savings/{id})
 	DeleteSavingsGoal(ctx context.Context, request DeleteSavingsGoalRequestObject) (DeleteSavingsGoalResponseObject, error)
@@ -7186,6 +5899,18 @@ type StrictServerInterface interface {
 	// Add withdrawal from savings goal
 	// (POST /savings/{id}/withdrawals)
 	AddSavingsWithdrawal(ctx context.Context, request AddSavingsWithdrawalRequestObject) (AddSavingsWithdrawalResponseObject, error)
+	// List tags
+	// (GET /tags)
+	ListTags(ctx context.Context, request ListTagsRequestObject) (ListTagsResponseObject, error)
+	// Create tag
+	// (POST /tags)
+	CreateTag(ctx context.Context, request CreateTagRequestObject) (CreateTagResponseObject, error)
+	// Delete tag
+	// (DELETE /tags/{id})
+	DeleteTag(ctx context.Context, request DeleteTagRequestObject) (DeleteTagResponseObject, error)
+	// List tags by type
+	// (GET /tags/{type})
+	ListTagsByType(ctx context.Context, request ListTagsByTypeRequestObject) (ListTagsByTypeResponseObject, error)
 	// List all transactions
 	// (GET /transactions)
 	ListTransactions(ctx context.Context, request ListTransactionsRequestObject) (ListTransactionsResponseObject, error)
@@ -7486,6 +6211,120 @@ func (sh *strictHandler) GetBalances(w http.ResponseWriter, r *http.Request, par
 	}
 }
 
+// ListCategories operation middleware
+func (sh *strictHandler) ListCategories(w http.ResponseWriter, r *http.Request) {
+	var request ListCategoriesRequestObject
+
+	handler := func(ctx context.Context, w http.ResponseWriter, r *http.Request, request interface{}) (interface{}, error) {
+		return sh.ssi.ListCategories(ctx, request.(ListCategoriesRequestObject))
+	}
+	for _, middleware := range sh.middlewares {
+		handler = middleware(handler, "ListCategories")
+	}
+
+	response, err := handler(r.Context(), w, r, request)
+
+	if err != nil {
+		sh.options.ResponseErrorHandlerFunc(w, r, err)
+	} else if validResponse, ok := response.(ListCategoriesResponseObject); ok {
+		if err := validResponse.VisitListCategoriesResponse(w); err != nil {
+			sh.options.ResponseErrorHandlerFunc(w, r, err)
+		}
+	} else if response != nil {
+		sh.options.ResponseErrorHandlerFunc(w, r, fmt.Errorf("unexpected response type: %T", response))
+	}
+}
+
+// CreateCategory operation middleware
+func (sh *strictHandler) CreateCategory(w http.ResponseWriter, r *http.Request) {
+	var request CreateCategoryRequestObject
+
+	var body CreateCategoryJSONRequestBody
+	if err := json.NewDecoder(r.Body).Decode(&body); err != nil {
+		sh.options.RequestErrorHandlerFunc(w, r, fmt.Errorf("can't decode JSON body: %w", err))
+		return
+	}
+	request.Body = &body
+
+	handler := func(ctx context.Context, w http.ResponseWriter, r *http.Request, request interface{}) (interface{}, error) {
+		return sh.ssi.CreateCategory(ctx, request.(CreateCategoryRequestObject))
+	}
+	for _, middleware := range sh.middlewares {
+		handler = middleware(handler, "CreateCategory")
+	}
+
+	response, err := handler(r.Context(), w, r, request)
+
+	if err != nil {
+		sh.options.ResponseErrorHandlerFunc(w, r, err)
+	} else if validResponse, ok := response.(CreateCategoryResponseObject); ok {
+		if err := validResponse.VisitCreateCategoryResponse(w); err != nil {
+			sh.options.ResponseErrorHandlerFunc(w, r, err)
+		}
+	} else if response != nil {
+		sh.options.ResponseErrorHandlerFunc(w, r, fmt.Errorf("unexpected response type: %T", response))
+	}
+}
+
+// DeleteCategory operation middleware
+func (sh *strictHandler) DeleteCategory(w http.ResponseWriter, r *http.Request, id string) {
+	var request DeleteCategoryRequestObject
+
+	request.Id = id
+
+	handler := func(ctx context.Context, w http.ResponseWriter, r *http.Request, request interface{}) (interface{}, error) {
+		return sh.ssi.DeleteCategory(ctx, request.(DeleteCategoryRequestObject))
+	}
+	for _, middleware := range sh.middlewares {
+		handler = middleware(handler, "DeleteCategory")
+	}
+
+	response, err := handler(r.Context(), w, r, request)
+
+	if err != nil {
+		sh.options.ResponseErrorHandlerFunc(w, r, err)
+	} else if validResponse, ok := response.(DeleteCategoryResponseObject); ok {
+		if err := validResponse.VisitDeleteCategoryResponse(w); err != nil {
+			sh.options.ResponseErrorHandlerFunc(w, r, err)
+		}
+	} else if response != nil {
+		sh.options.ResponseErrorHandlerFunc(w, r, fmt.Errorf("unexpected response type: %T", response))
+	}
+}
+
+// UpdateCategory operation middleware
+func (sh *strictHandler) UpdateCategory(w http.ResponseWriter, r *http.Request, id string) {
+	var request UpdateCategoryRequestObject
+
+	request.Id = id
+
+	var body UpdateCategoryJSONRequestBody
+	if err := json.NewDecoder(r.Body).Decode(&body); err != nil {
+		sh.options.RequestErrorHandlerFunc(w, r, fmt.Errorf("can't decode JSON body: %w", err))
+		return
+	}
+	request.Body = &body
+
+	handler := func(ctx context.Context, w http.ResponseWriter, r *http.Request, request interface{}) (interface{}, error) {
+		return sh.ssi.UpdateCategory(ctx, request.(UpdateCategoryRequestObject))
+	}
+	for _, middleware := range sh.middlewares {
+		handler = middleware(handler, "UpdateCategory")
+	}
+
+	response, err := handler(r.Context(), w, r, request)
+
+	if err != nil {
+		sh.options.ResponseErrorHandlerFunc(w, r, err)
+	} else if validResponse, ok := response.(UpdateCategoryResponseObject); ok {
+		if err := validResponse.VisitUpdateCategoryResponse(w); err != nil {
+			sh.options.ResponseErrorHandlerFunc(w, r, err)
+		}
+	} else if response != nil {
+		sh.options.ResponseErrorHandlerFunc(w, r, fmt.Errorf("unexpected response type: %T", response))
+	}
+}
+
 // GetExchangeRates operation middleware
 func (sh *strictHandler) GetExchangeRates(w http.ResponseWriter, r *http.Request, params GetExchangeRatesParams) {
 	var request GetExchangeRatesRequestObject
@@ -7505,201 +6344,6 @@ func (sh *strictHandler) GetExchangeRates(w http.ResponseWriter, r *http.Request
 		sh.options.ResponseErrorHandlerFunc(w, r, err)
 	} else if validResponse, ok := response.(GetExchangeRatesResponseObject); ok {
 		if err := validResponse.VisitGetExchangeRatesResponse(w); err != nil {
-			sh.options.ResponseErrorHandlerFunc(w, r, err)
-		}
-	} else if response != nil {
-		sh.options.ResponseErrorHandlerFunc(w, r, fmt.Errorf("unexpected response type: %T", response))
-	}
-}
-
-// ListExpenditureCategories operation middleware
-func (sh *strictHandler) ListExpenditureCategories(w http.ResponseWriter, r *http.Request) {
-	var request ListExpenditureCategoriesRequestObject
-
-	handler := func(ctx context.Context, w http.ResponseWriter, r *http.Request, request interface{}) (interface{}, error) {
-		return sh.ssi.ListExpenditureCategories(ctx, request.(ListExpenditureCategoriesRequestObject))
-	}
-	for _, middleware := range sh.middlewares {
-		handler = middleware(handler, "ListExpenditureCategories")
-	}
-
-	response, err := handler(r.Context(), w, r, request)
-
-	if err != nil {
-		sh.options.ResponseErrorHandlerFunc(w, r, err)
-	} else if validResponse, ok := response.(ListExpenditureCategoriesResponseObject); ok {
-		if err := validResponse.VisitListExpenditureCategoriesResponse(w); err != nil {
-			sh.options.ResponseErrorHandlerFunc(w, r, err)
-		}
-	} else if response != nil {
-		sh.options.ResponseErrorHandlerFunc(w, r, fmt.Errorf("unexpected response type: %T", response))
-	}
-}
-
-// CreateExpenditureCategory operation middleware
-func (sh *strictHandler) CreateExpenditureCategory(w http.ResponseWriter, r *http.Request) {
-	var request CreateExpenditureCategoryRequestObject
-
-	var body CreateExpenditureCategoryJSONRequestBody
-	if err := json.NewDecoder(r.Body).Decode(&body); err != nil {
-		sh.options.RequestErrorHandlerFunc(w, r, fmt.Errorf("can't decode JSON body: %w", err))
-		return
-	}
-	request.Body = &body
-
-	handler := func(ctx context.Context, w http.ResponseWriter, r *http.Request, request interface{}) (interface{}, error) {
-		return sh.ssi.CreateExpenditureCategory(ctx, request.(CreateExpenditureCategoryRequestObject))
-	}
-	for _, middleware := range sh.middlewares {
-		handler = middleware(handler, "CreateExpenditureCategory")
-	}
-
-	response, err := handler(r.Context(), w, r, request)
-
-	if err != nil {
-		sh.options.ResponseErrorHandlerFunc(w, r, err)
-	} else if validResponse, ok := response.(CreateExpenditureCategoryResponseObject); ok {
-		if err := validResponse.VisitCreateExpenditureCategoryResponse(w); err != nil {
-			sh.options.ResponseErrorHandlerFunc(w, r, err)
-		}
-	} else if response != nil {
-		sh.options.ResponseErrorHandlerFunc(w, r, fmt.Errorf("unexpected response type: %T", response))
-	}
-}
-
-// DeleteExpenditureCategory operation middleware
-func (sh *strictHandler) DeleteExpenditureCategory(w http.ResponseWriter, r *http.Request, id string) {
-	var request DeleteExpenditureCategoryRequestObject
-
-	request.Id = id
-
-	handler := func(ctx context.Context, w http.ResponseWriter, r *http.Request, request interface{}) (interface{}, error) {
-		return sh.ssi.DeleteExpenditureCategory(ctx, request.(DeleteExpenditureCategoryRequestObject))
-	}
-	for _, middleware := range sh.middlewares {
-		handler = middleware(handler, "DeleteExpenditureCategory")
-	}
-
-	response, err := handler(r.Context(), w, r, request)
-
-	if err != nil {
-		sh.options.ResponseErrorHandlerFunc(w, r, err)
-	} else if validResponse, ok := response.(DeleteExpenditureCategoryResponseObject); ok {
-		if err := validResponse.VisitDeleteExpenditureCategoryResponse(w); err != nil {
-			sh.options.ResponseErrorHandlerFunc(w, r, err)
-		}
-	} else if response != nil {
-		sh.options.ResponseErrorHandlerFunc(w, r, fmt.Errorf("unexpected response type: %T", response))
-	}
-}
-
-// UpdateExpenditureCategory operation middleware
-func (sh *strictHandler) UpdateExpenditureCategory(w http.ResponseWriter, r *http.Request, id string) {
-	var request UpdateExpenditureCategoryRequestObject
-
-	request.Id = id
-
-	var body UpdateExpenditureCategoryJSONRequestBody
-	if err := json.NewDecoder(r.Body).Decode(&body); err != nil {
-		sh.options.RequestErrorHandlerFunc(w, r, fmt.Errorf("can't decode JSON body: %w", err))
-		return
-	}
-	request.Body = &body
-
-	handler := func(ctx context.Context, w http.ResponseWriter, r *http.Request, request interface{}) (interface{}, error) {
-		return sh.ssi.UpdateExpenditureCategory(ctx, request.(UpdateExpenditureCategoryRequestObject))
-	}
-	for _, middleware := range sh.middlewares {
-		handler = middleware(handler, "UpdateExpenditureCategory")
-	}
-
-	response, err := handler(r.Context(), w, r, request)
-
-	if err != nil {
-		sh.options.ResponseErrorHandlerFunc(w, r, err)
-	} else if validResponse, ok := response.(UpdateExpenditureCategoryResponseObject); ok {
-		if err := validResponse.VisitUpdateExpenditureCategoryResponse(w); err != nil {
-			sh.options.ResponseErrorHandlerFunc(w, r, err)
-		}
-	} else if response != nil {
-		sh.options.ResponseErrorHandlerFunc(w, r, fmt.Errorf("unexpected response type: %T", response))
-	}
-}
-
-// ListExpenditureTags operation middleware
-func (sh *strictHandler) ListExpenditureTags(w http.ResponseWriter, r *http.Request) {
-	var request ListExpenditureTagsRequestObject
-
-	handler := func(ctx context.Context, w http.ResponseWriter, r *http.Request, request interface{}) (interface{}, error) {
-		return sh.ssi.ListExpenditureTags(ctx, request.(ListExpenditureTagsRequestObject))
-	}
-	for _, middleware := range sh.middlewares {
-		handler = middleware(handler, "ListExpenditureTags")
-	}
-
-	response, err := handler(r.Context(), w, r, request)
-
-	if err != nil {
-		sh.options.ResponseErrorHandlerFunc(w, r, err)
-	} else if validResponse, ok := response.(ListExpenditureTagsResponseObject); ok {
-		if err := validResponse.VisitListExpenditureTagsResponse(w); err != nil {
-			sh.options.ResponseErrorHandlerFunc(w, r, err)
-		}
-	} else if response != nil {
-		sh.options.ResponseErrorHandlerFunc(w, r, fmt.Errorf("unexpected response type: %T", response))
-	}
-}
-
-// CreateExpenditureTag operation middleware
-func (sh *strictHandler) CreateExpenditureTag(w http.ResponseWriter, r *http.Request) {
-	var request CreateExpenditureTagRequestObject
-
-	var body CreateExpenditureTagJSONRequestBody
-	if err := json.NewDecoder(r.Body).Decode(&body); err != nil {
-		sh.options.RequestErrorHandlerFunc(w, r, fmt.Errorf("can't decode JSON body: %w", err))
-		return
-	}
-	request.Body = &body
-
-	handler := func(ctx context.Context, w http.ResponseWriter, r *http.Request, request interface{}) (interface{}, error) {
-		return sh.ssi.CreateExpenditureTag(ctx, request.(CreateExpenditureTagRequestObject))
-	}
-	for _, middleware := range sh.middlewares {
-		handler = middleware(handler, "CreateExpenditureTag")
-	}
-
-	response, err := handler(r.Context(), w, r, request)
-
-	if err != nil {
-		sh.options.ResponseErrorHandlerFunc(w, r, err)
-	} else if validResponse, ok := response.(CreateExpenditureTagResponseObject); ok {
-		if err := validResponse.VisitCreateExpenditureTagResponse(w); err != nil {
-			sh.options.ResponseErrorHandlerFunc(w, r, err)
-		}
-	} else if response != nil {
-		sh.options.ResponseErrorHandlerFunc(w, r, fmt.Errorf("unexpected response type: %T", response))
-	}
-}
-
-// DeleteExpenditureTag operation middleware
-func (sh *strictHandler) DeleteExpenditureTag(w http.ResponseWriter, r *http.Request, id string) {
-	var request DeleteExpenditureTagRequestObject
-
-	request.Id = id
-
-	handler := func(ctx context.Context, w http.ResponseWriter, r *http.Request, request interface{}) (interface{}, error) {
-		return sh.ssi.DeleteExpenditureTag(ctx, request.(DeleteExpenditureTagRequestObject))
-	}
-	for _, middleware := range sh.middlewares {
-		handler = middleware(handler, "DeleteExpenditureTag")
-	}
-
-	response, err := handler(r.Context(), w, r, request)
-
-	if err != nil {
-		sh.options.ResponseErrorHandlerFunc(w, r, err)
-	} else if validResponse, ok := response.(DeleteExpenditureTagResponseObject); ok {
-		if err := validResponse.VisitDeleteExpenditureTagResponse(w); err != nil {
 			sh.options.ResponseErrorHandlerFunc(w, r, err)
 		}
 	} else if response != nil {
@@ -7991,201 +6635,6 @@ func (sh *strictHandler) UpdateHouseholdMember(w http.ResponseWriter, r *http.Re
 	}
 }
 
-// ListIngressCategories operation middleware
-func (sh *strictHandler) ListIngressCategories(w http.ResponseWriter, r *http.Request) {
-	var request ListIngressCategoriesRequestObject
-
-	handler := func(ctx context.Context, w http.ResponseWriter, r *http.Request, request interface{}) (interface{}, error) {
-		return sh.ssi.ListIngressCategories(ctx, request.(ListIngressCategoriesRequestObject))
-	}
-	for _, middleware := range sh.middlewares {
-		handler = middleware(handler, "ListIngressCategories")
-	}
-
-	response, err := handler(r.Context(), w, r, request)
-
-	if err != nil {
-		sh.options.ResponseErrorHandlerFunc(w, r, err)
-	} else if validResponse, ok := response.(ListIngressCategoriesResponseObject); ok {
-		if err := validResponse.VisitListIngressCategoriesResponse(w); err != nil {
-			sh.options.ResponseErrorHandlerFunc(w, r, err)
-		}
-	} else if response != nil {
-		sh.options.ResponseErrorHandlerFunc(w, r, fmt.Errorf("unexpected response type: %T", response))
-	}
-}
-
-// CreateIngressCategory operation middleware
-func (sh *strictHandler) CreateIngressCategory(w http.ResponseWriter, r *http.Request) {
-	var request CreateIngressCategoryRequestObject
-
-	var body CreateIngressCategoryJSONRequestBody
-	if err := json.NewDecoder(r.Body).Decode(&body); err != nil {
-		sh.options.RequestErrorHandlerFunc(w, r, fmt.Errorf("can't decode JSON body: %w", err))
-		return
-	}
-	request.Body = &body
-
-	handler := func(ctx context.Context, w http.ResponseWriter, r *http.Request, request interface{}) (interface{}, error) {
-		return sh.ssi.CreateIngressCategory(ctx, request.(CreateIngressCategoryRequestObject))
-	}
-	for _, middleware := range sh.middlewares {
-		handler = middleware(handler, "CreateIngressCategory")
-	}
-
-	response, err := handler(r.Context(), w, r, request)
-
-	if err != nil {
-		sh.options.ResponseErrorHandlerFunc(w, r, err)
-	} else if validResponse, ok := response.(CreateIngressCategoryResponseObject); ok {
-		if err := validResponse.VisitCreateIngressCategoryResponse(w); err != nil {
-			sh.options.ResponseErrorHandlerFunc(w, r, err)
-		}
-	} else if response != nil {
-		sh.options.ResponseErrorHandlerFunc(w, r, fmt.Errorf("unexpected response type: %T", response))
-	}
-}
-
-// DeleteIngressCategory operation middleware
-func (sh *strictHandler) DeleteIngressCategory(w http.ResponseWriter, r *http.Request, id string) {
-	var request DeleteIngressCategoryRequestObject
-
-	request.Id = id
-
-	handler := func(ctx context.Context, w http.ResponseWriter, r *http.Request, request interface{}) (interface{}, error) {
-		return sh.ssi.DeleteIngressCategory(ctx, request.(DeleteIngressCategoryRequestObject))
-	}
-	for _, middleware := range sh.middlewares {
-		handler = middleware(handler, "DeleteIngressCategory")
-	}
-
-	response, err := handler(r.Context(), w, r, request)
-
-	if err != nil {
-		sh.options.ResponseErrorHandlerFunc(w, r, err)
-	} else if validResponse, ok := response.(DeleteIngressCategoryResponseObject); ok {
-		if err := validResponse.VisitDeleteIngressCategoryResponse(w); err != nil {
-			sh.options.ResponseErrorHandlerFunc(w, r, err)
-		}
-	} else if response != nil {
-		sh.options.ResponseErrorHandlerFunc(w, r, fmt.Errorf("unexpected response type: %T", response))
-	}
-}
-
-// UpdateIngressCategory operation middleware
-func (sh *strictHandler) UpdateIngressCategory(w http.ResponseWriter, r *http.Request, id string) {
-	var request UpdateIngressCategoryRequestObject
-
-	request.Id = id
-
-	var body UpdateIngressCategoryJSONRequestBody
-	if err := json.NewDecoder(r.Body).Decode(&body); err != nil {
-		sh.options.RequestErrorHandlerFunc(w, r, fmt.Errorf("can't decode JSON body: %w", err))
-		return
-	}
-	request.Body = &body
-
-	handler := func(ctx context.Context, w http.ResponseWriter, r *http.Request, request interface{}) (interface{}, error) {
-		return sh.ssi.UpdateIngressCategory(ctx, request.(UpdateIngressCategoryRequestObject))
-	}
-	for _, middleware := range sh.middlewares {
-		handler = middleware(handler, "UpdateIngressCategory")
-	}
-
-	response, err := handler(r.Context(), w, r, request)
-
-	if err != nil {
-		sh.options.ResponseErrorHandlerFunc(w, r, err)
-	} else if validResponse, ok := response.(UpdateIngressCategoryResponseObject); ok {
-		if err := validResponse.VisitUpdateIngressCategoryResponse(w); err != nil {
-			sh.options.ResponseErrorHandlerFunc(w, r, err)
-		}
-	} else if response != nil {
-		sh.options.ResponseErrorHandlerFunc(w, r, fmt.Errorf("unexpected response type: %T", response))
-	}
-}
-
-// ListIngressTags operation middleware
-func (sh *strictHandler) ListIngressTags(w http.ResponseWriter, r *http.Request) {
-	var request ListIngressTagsRequestObject
-
-	handler := func(ctx context.Context, w http.ResponseWriter, r *http.Request, request interface{}) (interface{}, error) {
-		return sh.ssi.ListIngressTags(ctx, request.(ListIngressTagsRequestObject))
-	}
-	for _, middleware := range sh.middlewares {
-		handler = middleware(handler, "ListIngressTags")
-	}
-
-	response, err := handler(r.Context(), w, r, request)
-
-	if err != nil {
-		sh.options.ResponseErrorHandlerFunc(w, r, err)
-	} else if validResponse, ok := response.(ListIngressTagsResponseObject); ok {
-		if err := validResponse.VisitListIngressTagsResponse(w); err != nil {
-			sh.options.ResponseErrorHandlerFunc(w, r, err)
-		}
-	} else if response != nil {
-		sh.options.ResponseErrorHandlerFunc(w, r, fmt.Errorf("unexpected response type: %T", response))
-	}
-}
-
-// CreateIngressTag operation middleware
-func (sh *strictHandler) CreateIngressTag(w http.ResponseWriter, r *http.Request) {
-	var request CreateIngressTagRequestObject
-
-	var body CreateIngressTagJSONRequestBody
-	if err := json.NewDecoder(r.Body).Decode(&body); err != nil {
-		sh.options.RequestErrorHandlerFunc(w, r, fmt.Errorf("can't decode JSON body: %w", err))
-		return
-	}
-	request.Body = &body
-
-	handler := func(ctx context.Context, w http.ResponseWriter, r *http.Request, request interface{}) (interface{}, error) {
-		return sh.ssi.CreateIngressTag(ctx, request.(CreateIngressTagRequestObject))
-	}
-	for _, middleware := range sh.middlewares {
-		handler = middleware(handler, "CreateIngressTag")
-	}
-
-	response, err := handler(r.Context(), w, r, request)
-
-	if err != nil {
-		sh.options.ResponseErrorHandlerFunc(w, r, err)
-	} else if validResponse, ok := response.(CreateIngressTagResponseObject); ok {
-		if err := validResponse.VisitCreateIngressTagResponse(w); err != nil {
-			sh.options.ResponseErrorHandlerFunc(w, r, err)
-		}
-	} else if response != nil {
-		sh.options.ResponseErrorHandlerFunc(w, r, fmt.Errorf("unexpected response type: %T", response))
-	}
-}
-
-// DeleteIngressTag operation middleware
-func (sh *strictHandler) DeleteIngressTag(w http.ResponseWriter, r *http.Request, id string) {
-	var request DeleteIngressTagRequestObject
-
-	request.Id = id
-
-	handler := func(ctx context.Context, w http.ResponseWriter, r *http.Request, request interface{}) (interface{}, error) {
-		return sh.ssi.DeleteIngressTag(ctx, request.(DeleteIngressTagRequestObject))
-	}
-	for _, middleware := range sh.middlewares {
-		handler = middleware(handler, "DeleteIngressTag")
-	}
-
-	response, err := handler(r.Context(), w, r, request)
-
-	if err != nil {
-		sh.options.ResponseErrorHandlerFunc(w, r, err)
-	} else if validResponse, ok := response.(DeleteIngressTagResponseObject); ok {
-		if err := validResponse.VisitDeleteIngressTagResponse(w); err != nil {
-			sh.options.ResponseErrorHandlerFunc(w, r, err)
-		}
-	} else if response != nil {
-		sh.options.ResponseErrorHandlerFunc(w, r, fmt.Errorf("unexpected response type: %T", response))
-	}
-}
-
 // ListIngresses operation middleware
 func (sh *strictHandler) ListIngresses(w http.ResponseWriter, r *http.Request, params ListIngressesParams) {
 	var request ListIngressesRequestObject
@@ -8378,286 +6827,6 @@ func (sh *strictHandler) CreateSavingsGoal(w http.ResponseWriter, r *http.Reques
 		sh.options.ResponseErrorHandlerFunc(w, r, err)
 	} else if validResponse, ok := response.(CreateSavingsGoalResponseObject); ok {
 		if err := validResponse.VisitCreateSavingsGoalResponse(w); err != nil {
-			sh.options.ResponseErrorHandlerFunc(w, r, err)
-		}
-	} else if response != nil {
-		sh.options.ResponseErrorHandlerFunc(w, r, fmt.Errorf("unexpected response type: %T", response))
-	}
-}
-
-// ListSavingsCategories operation middleware
-func (sh *strictHandler) ListSavingsCategories(w http.ResponseWriter, r *http.Request) {
-	var request ListSavingsCategoriesRequestObject
-
-	handler := func(ctx context.Context, w http.ResponseWriter, r *http.Request, request interface{}) (interface{}, error) {
-		return sh.ssi.ListSavingsCategories(ctx, request.(ListSavingsCategoriesRequestObject))
-	}
-	for _, middleware := range sh.middlewares {
-		handler = middleware(handler, "ListSavingsCategories")
-	}
-
-	response, err := handler(r.Context(), w, r, request)
-
-	if err != nil {
-		sh.options.ResponseErrorHandlerFunc(w, r, err)
-	} else if validResponse, ok := response.(ListSavingsCategoriesResponseObject); ok {
-		if err := validResponse.VisitListSavingsCategoriesResponse(w); err != nil {
-			sh.options.ResponseErrorHandlerFunc(w, r, err)
-		}
-	} else if response != nil {
-		sh.options.ResponseErrorHandlerFunc(w, r, fmt.Errorf("unexpected response type: %T", response))
-	}
-}
-
-// CreateSavingsCategory operation middleware
-func (sh *strictHandler) CreateSavingsCategory(w http.ResponseWriter, r *http.Request) {
-	var request CreateSavingsCategoryRequestObject
-
-	var body CreateSavingsCategoryJSONRequestBody
-	if err := json.NewDecoder(r.Body).Decode(&body); err != nil {
-		sh.options.RequestErrorHandlerFunc(w, r, fmt.Errorf("can't decode JSON body: %w", err))
-		return
-	}
-	request.Body = &body
-
-	handler := func(ctx context.Context, w http.ResponseWriter, r *http.Request, request interface{}) (interface{}, error) {
-		return sh.ssi.CreateSavingsCategory(ctx, request.(CreateSavingsCategoryRequestObject))
-	}
-	for _, middleware := range sh.middlewares {
-		handler = middleware(handler, "CreateSavingsCategory")
-	}
-
-	response, err := handler(r.Context(), w, r, request)
-
-	if err != nil {
-		sh.options.ResponseErrorHandlerFunc(w, r, err)
-	} else if validResponse, ok := response.(CreateSavingsCategoryResponseObject); ok {
-		if err := validResponse.VisitCreateSavingsCategoryResponse(w); err != nil {
-			sh.options.ResponseErrorHandlerFunc(w, r, err)
-		}
-	} else if response != nil {
-		sh.options.ResponseErrorHandlerFunc(w, r, fmt.Errorf("unexpected response type: %T", response))
-	}
-}
-
-// DeleteSavingsCategory operation middleware
-func (sh *strictHandler) DeleteSavingsCategory(w http.ResponseWriter, r *http.Request, id string) {
-	var request DeleteSavingsCategoryRequestObject
-
-	request.Id = id
-
-	handler := func(ctx context.Context, w http.ResponseWriter, r *http.Request, request interface{}) (interface{}, error) {
-		return sh.ssi.DeleteSavingsCategory(ctx, request.(DeleteSavingsCategoryRequestObject))
-	}
-	for _, middleware := range sh.middlewares {
-		handler = middleware(handler, "DeleteSavingsCategory")
-	}
-
-	response, err := handler(r.Context(), w, r, request)
-
-	if err != nil {
-		sh.options.ResponseErrorHandlerFunc(w, r, err)
-	} else if validResponse, ok := response.(DeleteSavingsCategoryResponseObject); ok {
-		if err := validResponse.VisitDeleteSavingsCategoryResponse(w); err != nil {
-			sh.options.ResponseErrorHandlerFunc(w, r, err)
-		}
-	} else if response != nil {
-		sh.options.ResponseErrorHandlerFunc(w, r, fmt.Errorf("unexpected response type: %T", response))
-	}
-}
-
-// GetSavingsCategory operation middleware
-func (sh *strictHandler) GetSavingsCategory(w http.ResponseWriter, r *http.Request, id string) {
-	var request GetSavingsCategoryRequestObject
-
-	request.Id = id
-
-	handler := func(ctx context.Context, w http.ResponseWriter, r *http.Request, request interface{}) (interface{}, error) {
-		return sh.ssi.GetSavingsCategory(ctx, request.(GetSavingsCategoryRequestObject))
-	}
-	for _, middleware := range sh.middlewares {
-		handler = middleware(handler, "GetSavingsCategory")
-	}
-
-	response, err := handler(r.Context(), w, r, request)
-
-	if err != nil {
-		sh.options.ResponseErrorHandlerFunc(w, r, err)
-	} else if validResponse, ok := response.(GetSavingsCategoryResponseObject); ok {
-		if err := validResponse.VisitGetSavingsCategoryResponse(w); err != nil {
-			sh.options.ResponseErrorHandlerFunc(w, r, err)
-		}
-	} else if response != nil {
-		sh.options.ResponseErrorHandlerFunc(w, r, fmt.Errorf("unexpected response type: %T", response))
-	}
-}
-
-// UpdateSavingsCategory operation middleware
-func (sh *strictHandler) UpdateSavingsCategory(w http.ResponseWriter, r *http.Request, id string) {
-	var request UpdateSavingsCategoryRequestObject
-
-	request.Id = id
-
-	var body UpdateSavingsCategoryJSONRequestBody
-	if err := json.NewDecoder(r.Body).Decode(&body); err != nil {
-		sh.options.RequestErrorHandlerFunc(w, r, fmt.Errorf("can't decode JSON body: %w", err))
-		return
-	}
-	request.Body = &body
-
-	handler := func(ctx context.Context, w http.ResponseWriter, r *http.Request, request interface{}) (interface{}, error) {
-		return sh.ssi.UpdateSavingsCategory(ctx, request.(UpdateSavingsCategoryRequestObject))
-	}
-	for _, middleware := range sh.middlewares {
-		handler = middleware(handler, "UpdateSavingsCategory")
-	}
-
-	response, err := handler(r.Context(), w, r, request)
-
-	if err != nil {
-		sh.options.ResponseErrorHandlerFunc(w, r, err)
-	} else if validResponse, ok := response.(UpdateSavingsCategoryResponseObject); ok {
-		if err := validResponse.VisitUpdateSavingsCategoryResponse(w); err != nil {
-			sh.options.ResponseErrorHandlerFunc(w, r, err)
-		}
-	} else if response != nil {
-		sh.options.ResponseErrorHandlerFunc(w, r, fmt.Errorf("unexpected response type: %T", response))
-	}
-}
-
-// ListSavingsTags operation middleware
-func (sh *strictHandler) ListSavingsTags(w http.ResponseWriter, r *http.Request) {
-	var request ListSavingsTagsRequestObject
-
-	handler := func(ctx context.Context, w http.ResponseWriter, r *http.Request, request interface{}) (interface{}, error) {
-		return sh.ssi.ListSavingsTags(ctx, request.(ListSavingsTagsRequestObject))
-	}
-	for _, middleware := range sh.middlewares {
-		handler = middleware(handler, "ListSavingsTags")
-	}
-
-	response, err := handler(r.Context(), w, r, request)
-
-	if err != nil {
-		sh.options.ResponseErrorHandlerFunc(w, r, err)
-	} else if validResponse, ok := response.(ListSavingsTagsResponseObject); ok {
-		if err := validResponse.VisitListSavingsTagsResponse(w); err != nil {
-			sh.options.ResponseErrorHandlerFunc(w, r, err)
-		}
-	} else if response != nil {
-		sh.options.ResponseErrorHandlerFunc(w, r, fmt.Errorf("unexpected response type: %T", response))
-	}
-}
-
-// CreateSavingsTag operation middleware
-func (sh *strictHandler) CreateSavingsTag(w http.ResponseWriter, r *http.Request) {
-	var request CreateSavingsTagRequestObject
-
-	var body CreateSavingsTagJSONRequestBody
-	if err := json.NewDecoder(r.Body).Decode(&body); err != nil {
-		sh.options.RequestErrorHandlerFunc(w, r, fmt.Errorf("can't decode JSON body: %w", err))
-		return
-	}
-	request.Body = &body
-
-	handler := func(ctx context.Context, w http.ResponseWriter, r *http.Request, request interface{}) (interface{}, error) {
-		return sh.ssi.CreateSavingsTag(ctx, request.(CreateSavingsTagRequestObject))
-	}
-	for _, middleware := range sh.middlewares {
-		handler = middleware(handler, "CreateSavingsTag")
-	}
-
-	response, err := handler(r.Context(), w, r, request)
-
-	if err != nil {
-		sh.options.ResponseErrorHandlerFunc(w, r, err)
-	} else if validResponse, ok := response.(CreateSavingsTagResponseObject); ok {
-		if err := validResponse.VisitCreateSavingsTagResponse(w); err != nil {
-			sh.options.ResponseErrorHandlerFunc(w, r, err)
-		}
-	} else if response != nil {
-		sh.options.ResponseErrorHandlerFunc(w, r, fmt.Errorf("unexpected response type: %T", response))
-	}
-}
-
-// DeleteSavingsTag operation middleware
-func (sh *strictHandler) DeleteSavingsTag(w http.ResponseWriter, r *http.Request, id string) {
-	var request DeleteSavingsTagRequestObject
-
-	request.Id = id
-
-	handler := func(ctx context.Context, w http.ResponseWriter, r *http.Request, request interface{}) (interface{}, error) {
-		return sh.ssi.DeleteSavingsTag(ctx, request.(DeleteSavingsTagRequestObject))
-	}
-	for _, middleware := range sh.middlewares {
-		handler = middleware(handler, "DeleteSavingsTag")
-	}
-
-	response, err := handler(r.Context(), w, r, request)
-
-	if err != nil {
-		sh.options.ResponseErrorHandlerFunc(w, r, err)
-	} else if validResponse, ok := response.(DeleteSavingsTagResponseObject); ok {
-		if err := validResponse.VisitDeleteSavingsTagResponse(w); err != nil {
-			sh.options.ResponseErrorHandlerFunc(w, r, err)
-		}
-	} else if response != nil {
-		sh.options.ResponseErrorHandlerFunc(w, r, fmt.Errorf("unexpected response type: %T", response))
-	}
-}
-
-// GetSavingsTag operation middleware
-func (sh *strictHandler) GetSavingsTag(w http.ResponseWriter, r *http.Request, id string) {
-	var request GetSavingsTagRequestObject
-
-	request.Id = id
-
-	handler := func(ctx context.Context, w http.ResponseWriter, r *http.Request, request interface{}) (interface{}, error) {
-		return sh.ssi.GetSavingsTag(ctx, request.(GetSavingsTagRequestObject))
-	}
-	for _, middleware := range sh.middlewares {
-		handler = middleware(handler, "GetSavingsTag")
-	}
-
-	response, err := handler(r.Context(), w, r, request)
-
-	if err != nil {
-		sh.options.ResponseErrorHandlerFunc(w, r, err)
-	} else if validResponse, ok := response.(GetSavingsTagResponseObject); ok {
-		if err := validResponse.VisitGetSavingsTagResponse(w); err != nil {
-			sh.options.ResponseErrorHandlerFunc(w, r, err)
-		}
-	} else if response != nil {
-		sh.options.ResponseErrorHandlerFunc(w, r, fmt.Errorf("unexpected response type: %T", response))
-	}
-}
-
-// UpdateSavingsTag operation middleware
-func (sh *strictHandler) UpdateSavingsTag(w http.ResponseWriter, r *http.Request, id string) {
-	var request UpdateSavingsTagRequestObject
-
-	request.Id = id
-
-	var body UpdateSavingsTagJSONRequestBody
-	if err := json.NewDecoder(r.Body).Decode(&body); err != nil {
-		sh.options.RequestErrorHandlerFunc(w, r, fmt.Errorf("can't decode JSON body: %w", err))
-		return
-	}
-	request.Body = &body
-
-	handler := func(ctx context.Context, w http.ResponseWriter, r *http.Request, request interface{}) (interface{}, error) {
-		return sh.ssi.UpdateSavingsTag(ctx, request.(UpdateSavingsTagRequestObject))
-	}
-	for _, middleware := range sh.middlewares {
-		handler = middleware(handler, "UpdateSavingsTag")
-	}
-
-	response, err := handler(r.Context(), w, r, request)
-
-	if err != nil {
-		sh.options.ResponseErrorHandlerFunc(w, r, err)
-	} else if validResponse, ok := response.(UpdateSavingsTagResponseObject); ok {
-		if err := validResponse.VisitUpdateSavingsTagResponse(w); err != nil {
 			sh.options.ResponseErrorHandlerFunc(w, r, err)
 		}
 	} else if response != nil {
@@ -8923,6 +7092,113 @@ func (sh *strictHandler) AddSavingsWithdrawal(w http.ResponseWriter, r *http.Req
 	}
 }
 
+// ListTags operation middleware
+func (sh *strictHandler) ListTags(w http.ResponseWriter, r *http.Request) {
+	var request ListTagsRequestObject
+
+	handler := func(ctx context.Context, w http.ResponseWriter, r *http.Request, request interface{}) (interface{}, error) {
+		return sh.ssi.ListTags(ctx, request.(ListTagsRequestObject))
+	}
+	for _, middleware := range sh.middlewares {
+		handler = middleware(handler, "ListTags")
+	}
+
+	response, err := handler(r.Context(), w, r, request)
+
+	if err != nil {
+		sh.options.ResponseErrorHandlerFunc(w, r, err)
+	} else if validResponse, ok := response.(ListTagsResponseObject); ok {
+		if err := validResponse.VisitListTagsResponse(w); err != nil {
+			sh.options.ResponseErrorHandlerFunc(w, r, err)
+		}
+	} else if response != nil {
+		sh.options.ResponseErrorHandlerFunc(w, r, fmt.Errorf("unexpected response type: %T", response))
+	}
+}
+
+// CreateTag operation middleware
+func (sh *strictHandler) CreateTag(w http.ResponseWriter, r *http.Request) {
+	var request CreateTagRequestObject
+
+	var body CreateTagJSONRequestBody
+	if err := json.NewDecoder(r.Body).Decode(&body); err != nil {
+		sh.options.RequestErrorHandlerFunc(w, r, fmt.Errorf("can't decode JSON body: %w", err))
+		return
+	}
+	request.Body = &body
+
+	handler := func(ctx context.Context, w http.ResponseWriter, r *http.Request, request interface{}) (interface{}, error) {
+		return sh.ssi.CreateTag(ctx, request.(CreateTagRequestObject))
+	}
+	for _, middleware := range sh.middlewares {
+		handler = middleware(handler, "CreateTag")
+	}
+
+	response, err := handler(r.Context(), w, r, request)
+
+	if err != nil {
+		sh.options.ResponseErrorHandlerFunc(w, r, err)
+	} else if validResponse, ok := response.(CreateTagResponseObject); ok {
+		if err := validResponse.VisitCreateTagResponse(w); err != nil {
+			sh.options.ResponseErrorHandlerFunc(w, r, err)
+		}
+	} else if response != nil {
+		sh.options.ResponseErrorHandlerFunc(w, r, fmt.Errorf("unexpected response type: %T", response))
+	}
+}
+
+// DeleteTag operation middleware
+func (sh *strictHandler) DeleteTag(w http.ResponseWriter, r *http.Request, id string) {
+	var request DeleteTagRequestObject
+
+	request.Id = id
+
+	handler := func(ctx context.Context, w http.ResponseWriter, r *http.Request, request interface{}) (interface{}, error) {
+		return sh.ssi.DeleteTag(ctx, request.(DeleteTagRequestObject))
+	}
+	for _, middleware := range sh.middlewares {
+		handler = middleware(handler, "DeleteTag")
+	}
+
+	response, err := handler(r.Context(), w, r, request)
+
+	if err != nil {
+		sh.options.ResponseErrorHandlerFunc(w, r, err)
+	} else if validResponse, ok := response.(DeleteTagResponseObject); ok {
+		if err := validResponse.VisitDeleteTagResponse(w); err != nil {
+			sh.options.ResponseErrorHandlerFunc(w, r, err)
+		}
+	} else if response != nil {
+		sh.options.ResponseErrorHandlerFunc(w, r, fmt.Errorf("unexpected response type: %T", response))
+	}
+}
+
+// ListTagsByType operation middleware
+func (sh *strictHandler) ListTagsByType(w http.ResponseWriter, r *http.Request, pType string) {
+	var request ListTagsByTypeRequestObject
+
+	request.Type = pType
+
+	handler := func(ctx context.Context, w http.ResponseWriter, r *http.Request, request interface{}) (interface{}, error) {
+		return sh.ssi.ListTagsByType(ctx, request.(ListTagsByTypeRequestObject))
+	}
+	for _, middleware := range sh.middlewares {
+		handler = middleware(handler, "ListTagsByType")
+	}
+
+	response, err := handler(r.Context(), w, r, request)
+
+	if err != nil {
+		sh.options.ResponseErrorHandlerFunc(w, r, err)
+	} else if validResponse, ok := response.(ListTagsByTypeResponseObject); ok {
+		if err := validResponse.VisitListTagsByTypeResponse(w); err != nil {
+			sh.options.ResponseErrorHandlerFunc(w, r, err)
+		}
+	} else if response != nil {
+		sh.options.ResponseErrorHandlerFunc(w, r, fmt.Errorf("unexpected response type: %T", response))
+	}
+}
+
 // ListTransactions operation middleware
 func (sh *strictHandler) ListTransactions(w http.ResponseWriter, r *http.Request, params ListTransactionsParams) {
 	var request ListTransactionsRequestObject
@@ -9061,146 +7337,139 @@ func (sh *strictHandler) GetTransfer(w http.ResponseWriter, r *http.Request, id 
 // Base64 encoded, gzipped, json marshaled Swagger object
 var swaggerSpec = []string{
 
-	"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",
+	"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",
 }
 
 // GetSwagger returns the content of the embedded swagger specification file

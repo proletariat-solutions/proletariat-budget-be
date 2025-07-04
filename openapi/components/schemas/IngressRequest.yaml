@@ -1,14 +1,21 @@
 type: object
 properties:
+  accountId:
+    type: string
+    description: The ID of the account this ingress belongs to
+    example: acct_1234567890
   amount:
     type: number
     format: float
     description: The ingress amount
     example: 2500
   category:
+    $ref: './Category.yaml'
+  createdAt:
     type: string
-    description: The category of this ingress
-    example: salary
+    format: date-time
+    description: The timestamp when the ingress was created
+    example: '2023-04-15T12:34:56Z'
   source:
     type: string
     description: The source of the income
@@ -20,11 +27,14 @@ properties:
   tags:
     type: array
     items:
-      type: string
+      $ref: './Tag.yaml'
     description: List of tag IDs associated with this ingress
     example:
-      - regular
-      - work
+      - id: tag_1234567890
+        name: "Salary"
+        color: "#FF0000"
+        description: "Salary payment"
+        backgroundColor: "#00FF00"
   date:
     type: string
     format: date
@@ -41,6 +51,7 @@ properties:
   recurrencePattern:
     $ref: './RecurrencePattern.yaml'
 required:
+  - accountId
   - amount
   - category
   - date

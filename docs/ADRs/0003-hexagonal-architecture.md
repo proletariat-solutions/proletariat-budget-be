@@ -1,4 +1,4 @@
-# ADR 0001: Adoption of Hexagonal Architecture for Backend
+# Architectural Decision Record: Adoption of Hexagonal Architecture for Backend
 
 ## Status
 

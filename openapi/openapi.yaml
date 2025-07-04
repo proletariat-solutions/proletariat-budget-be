@@ -4,30 +4,24 @@ info:
   title: Proletariat Budget API
   contact: { }
 paths:
+  /auth/login:
+    $ref: paths/login.yaml
+  /auth/refresh:
+    $ref: paths/token_refresh.yaml
+  /auth/register:
+    $ref: paths/register.yaml
   /expenditures:
     $ref: paths/expenditures.yaml
   /expenditures/{id}:
     $ref: paths/expenditures_{id}.yaml
-  /expenditure-categories:
-    $ref: paths/expenditure-categories.yaml
-  /expenditure-categories/{id}:
-    $ref: paths/expenditure-categories_{id}.yaml
-  /expenditure-tags:
-    $ref: paths/expenditure-tags.yaml
-  /expenditure-tags/{id}:
-    $ref: paths/expenditure-tags_{id}.yaml
+  /categories:
+    $ref: paths/categories.yaml
+  /categories/{id}:
+    $ref: paths/categories_{id}.yaml
   /ingresses:
     $ref: paths/ingresses.yaml
   /ingresses/{id}:
     $ref: paths/ingresses_{id}.yaml
-  /ingress-categories:
-    $ref: paths/ingress-categories.yaml
-  /ingress-categories/{id}:
-    $ref: paths/ingress-categories_{id}.yaml
-  /ingress-tags:
-    $ref: paths/ingress-tags.yaml
-  /ingress-tags/{id}:
-    $ref: paths/ingress-tags_{id}.yaml
   /accounts:
     $ref: paths/accounts.yaml
   /accounts/{id}:
@@ -54,24 +48,16 @@ paths:
     $ref: paths/savings_{id}_transactions.yaml
   /savings/{id}/progress:
     $ref: paths/savings_{id}_progress.yaml
-  /savings/category:
-    $ref: paths/savings_category.yaml
-  /savings/category/{id}:
-    $ref: paths/savings_category_{id}.yaml
-  /savings/tag:
-    $ref: paths/savings_tag.yaml
-  /savings/tag/{id}:
-    $ref: paths/savings_tag_{id}.yaml
   /household-members:
     $ref: paths/household-members.yaml
   /household-members/{id}:
     $ref: paths/household-members_{id}.yaml
-  /auth/login:
-    $ref: paths/login.yaml
-  /auth/refresh:
-    $ref: paths/token_refresh.yaml
-  /auth/register:
-    $ref: paths/register.yaml
+  /tags:
+    $ref: paths/tags.yaml
+  /tags/{id}:
+    $ref: paths/tags_{id}.yaml
+  /tags/{type}:
+    $ref: paths/tags_{type}.yaml
 
 components:
   securitySchemes:
