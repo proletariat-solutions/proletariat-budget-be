@@ -4,20 +4,28 @@ properties:
     type: string
     description: ID of the source account
     example: acc123
-  destinationAccountId:
-    type: string
-    description: ID of the destination account
-    example: acc456
-  amount:
+  sourceAmount:
     type: number
     format: float
     description: Amount to transfer from source account
     example: 500
+  sourceCurrencyId:
+    type: string
+    description: ID of the source currency
+    example: USD
+  destinationAccountId:
+    type: string
+    description: ID of the destination account
+    example: acc456
   destinationAmount:
     type: number
     format: float
     description: Amount to be received at destination (for currency conversions)
     example: 450
+  destinationCurrencyId:
+    type: string
+    description: ID of the destination currency
+    example: EUR
   exchangeRate:
     type: number
     format: float
@@ -28,14 +36,6 @@ properties:
     format: date
     description: Date of the transfer
     example: '2023-06-15'
-  type:
-    type: string
-    enum:
-      - deposit
-      - withdrawal
-      - transfer
-    description: Type of transfer
-    example: transfer
   fees:
     type: number
     format: float
@@ -45,17 +45,6 @@ properties:
     type: string
     description: Additional details about the transfer
     example: Moving funds to savings account
-  tags:
-    type: array
-    items:
-      $ref: './Tag.yaml'
-    description: List of tag IDs associated with this transfer
-    example:
-      - id: tag_1234567890
-        name: "Currency Conversion"
-        color: "#FF0000"
-        description: "Currency conversion between accounts"
-        backgroundColor: "#00FF00"
 required:
   - sourceAccountId
   - destinationAccountId

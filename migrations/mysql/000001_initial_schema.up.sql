@@ -640,7 +640,6 @@ CREATE TABLE transfers
     id                       BIGINT PRIMARY KEY auto_increment,
     source_account_id        BIGINT    NOT NULL,
     destination_account_id   BIGINT    NOT NULL,
-    destination_amount       DECIMAL(15, 2),
     exchange_rate_multiplier DECIMAL(15, 6),
     fees                     DECIMAL(15, 2),
     outgoing_transaction_id  BIGINT    NOT NULL unique REFERENCES transactions (id),
