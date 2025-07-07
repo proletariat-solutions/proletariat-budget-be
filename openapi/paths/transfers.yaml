@@ -52,11 +52,6 @@ get:
         type: string
         format: date
       description: Filter by end date (inclusive)
-    - name: type
-      in: query
-      schema:
-        type: string
-      description: Filter by transfer type (deposit, withdrawal, transfer)
     - name: limit
       in: query
       schema:

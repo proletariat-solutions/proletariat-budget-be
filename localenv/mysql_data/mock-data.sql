@@ -373,14 +373,12 @@ BEGIN
     -- Create transfer record
     INSERT INTO transfers (source_account_id,
                            destination_account_id,
-                           destination_amount,
                            exchange_rate_multiplier,
                            fees,
                            outgoing_transaction_id,
                            incoming_transaction_id)
     VALUES (p_source_account_id,
             p_destination_account_id,
-            p_destination_amount,
             p_exchange_rate_multiplier,
             p_fees,
             v_outgoing_transaction_id,
