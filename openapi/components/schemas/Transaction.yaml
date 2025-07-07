@@ -5,7 +5,7 @@ properties:
     description: Unique identifier for the transaction
   transactionType:
     type: string
-    enum: [expenditure, ingress, transfer, savings_contribution, savings_withdrawal]
+    enum: [expenditure, ingress, transfer, rollback]
     description: Type of transaction
   date:
     type: string
@@ -54,7 +54,7 @@ properties:
     nullable: true
   relatedEntityType:
     type: string
-    enum: [expenditure, ingress, transfer, savings_goal]
+    enum: [expenditure, ingress, transfer]
     description: Type of the related entity
     nullable: true
   tags:
@@ -68,6 +68,20 @@ properties:
         color: "#FF0000"
         description: "Groceries for the week"
         backgroundColor: "#00FF00"
+  originalTransactionId:
+    type: string
+    description: ID of the original transaction (for rollbacks)
+    nullable: true
+  originalTransactionType:
+    type: string
+    enum: [expenditure, ingress, transfer]
+    description: Type of the original transaction (for rollbacks)
+    nullable: true
+  rollbackReason:
+    type: string
+    description: Reason for the rollback
+    nullable: true
+
 required:
   - id
   - transactionType

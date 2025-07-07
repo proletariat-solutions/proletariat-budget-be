@@ -414,16 +414,16 @@ CREATE INDEX idx_accounts_active ON accounts (active);
 CREATE TABLE transactions
 (
     id               BIGINT PRIMARY KEY auto_increment,
-    account_id       BIGINT                                                                                    NOT NULL,
-    amount           DECIMAL(15, 2)                                                                            NOT NULL,
-    currency         int                                                                                       NOT NULL,
-    transaction_date DATETIME                                                                                  NOT NULL,
+    account_id       BIGINT                                                  NOT NULL,
+    amount           DECIMAL(15, 2)                                          NOT NULL,
+    currency         int                                                     NOT NULL,
+    transaction_date DATETIME                                                NOT NULL,
     description      TEXT,
-    transaction_type ENUM ('expenditure', 'ingress', 'transfer') NOT NULL,
-    balance_after    DECIMAL(15, 2)                                                                            NOT NULL,
-    status           ENUM ('pending', 'completed', 'failed', 'cancelled')                                      NOT NULL DEFAULT 'completed',
-    created_at       TIMESTAMP                                                                                 NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    updated_at       TIMESTAMP                                                                                 NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    transaction_type ENUM ('expenditure', 'ingress', 'transfer', 'rollback') NOT NULL,
+    balance_after    DECIMAL(15, 2)                                          NOT NULL,
+    status           ENUM ('pending', 'completed', 'failed', 'cancelled')    NOT NULL DEFAULT 'completed',
+    created_at       TIMESTAMP                                               NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updated_at       TIMESTAMP                                               NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
 
     -- Foreign key to accounts table
     CONSTRAINT fk_transaction_account FOREIGN KEY (account_id) REFERENCES accounts (id),
@@ -643,7 +643,8 @@ CREATE TABLE transfers
     destination_amount       DECIMAL(15, 2),
     exchange_rate_multiplier DECIMAL(15, 6),
     fees                     DECIMAL(15, 2),
-    transaction_id           BIGINT    NOT NULL unique REFERENCES transactions (id),
+    outgoing_transaction_id  BIGINT    NOT NULL unique REFERENCES transactions (id),
+    incoming_transaction_id  BIGINT    NOT NULL unique REFERENCES transactions (id),
     created_at               TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
     updated_at               TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
 
@@ -680,4 +681,17 @@ create table user_roles
     PRIMARY KEY (user_id, role_id),
     CONSTRAINT fk_user_roles_user FOREIGN KEY (user_id) REFERENCES users (id),
     CONSTRAINT fk_user_roles_role FOREIGN KEY (role_id) REFERENCES roles (id)
+);
+
+create table transaction_rollbacks
+(
+    transaction_id          BIGINT NOT NULL references transactions (id),
+    rollback_transaction_id BIGINT NOT NULL references transactions (id),
+    rollback_reason         TEXT,
+    rollback_timestamp      TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    created_at              TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at              TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    index idx_transaction_rollbacks_transaction_id (transaction_id),
+    index idx_transaction_rollbacks_rollback_transaction_id (rollback_transaction_id),
+    unique KEY uk_transaction_rollbacks_transaction_id_rollback_transaction_id (transaction_id, rollback_transaction_id)
 );
