@@ -1,5 +1,13 @@
 type: object
 properties:
+  to_account_id:
+    type: string
+    description: ID of the associated ingress
+    example: "123e4567-e89b-12d3-a456-426614174001"
+  description:
+    type: string
+    description: Description for the recurrence pattern
+    example: "Monthly income for the first 3 months"
   frequency:
     type: string
     enum: [daily, weekly, monthly, yearly]
@@ -25,3 +33,5 @@ required:
   - frequency
   - interval
   - amount
+  - description
+  - to_account_id

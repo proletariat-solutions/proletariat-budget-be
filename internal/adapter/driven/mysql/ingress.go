@@ -17,15 +17,28 @@ type IngressRepo struct {
 	tagsRepo *port.TagsRepo
 }
 
-func (i IngressRepo) CreateRecurrencePattern(ctx context.Context, recurrencePattern domain.RecurrencePattern) (string, error) {
-	queryInsert := `INSERT INTO ingress_recurrence_patterns (ingress_id, frequency, interval_value, amount, end_date) VALUES (?,?,?,?,?)`
+func (i IngressRepo) CreateRecurrencePattern(ctx context.Context, recurrencePattern openapi.RecurrencePatternRequest) (string, error) {
+	queryInsert := `insert into ingress_recurrence_patterns 
+						(frequency,
+						 interval_value,
+						 amount,
+						 to_account_id,
+						 description,
+						 end_date)
+					VALUES (?,
+							?,
+							?,
+							?,
+							?,
+							?)`
 	result, errInsert := i.db.ExecContext(
 		ctx,
 		queryInsert,
-		recurrencePattern.IngressID,
 		recurrencePattern.Frequency,
 		recurrencePattern.Interval,
 		recurrencePattern.Amount,
+		recurrencePattern.ToAccountId,
+		recurrencePattern.Description,
 		recurrencePattern.EndDate,
 	)
 	if errInsert != nil {
@@ -39,14 +52,16 @@ func (i IngressRepo) CreateRecurrencePattern(ctx context.Context, recurrencePatt
 	return lastIDStr, nil
 }
 
-func (i IngressRepo) UpdateRecurrencePattern(ctx context.Context, id string, recurrencePattern domain.RecurrencePattern) error {
-	queryUpdate := `UPDATE ingress_recurrence_patterns SET frequency=?, interval_value=?, amount=?, end_date=? WHERE id=?`
+func (i IngressRepo) UpdateRecurrencePattern(ctx context.Context, id string, recurrencePattern openapi.RecurrencePattern) error {
+	queryUpdate := `UPDATE ingress_recurrence_patterns SET frequency=?, interval_value=?, amount=?, to_account_id=?, description=?, end_date=? WHERE id=?`
 	_, err := i.db.ExecContext(
 		ctx,
 		queryUpdate,
 		recurrencePattern.Frequency,
 		recurrencePattern.Interval,
 		recurrencePattern.Amount,
+		recurrencePattern.ToAccountId,
+		recurrencePattern.Description,
 		recurrencePattern.EndDate,
 		id,
 	)
@@ -70,15 +85,23 @@ func (i IngressRepo) DeleteRecurrencePattern(ctx context.Context, id string) err
 	return nil
 }
 
-func (i IngressRepo) GetRecurrencePattern(ctx context.Context, id string) (*domain.RecurrencePattern, error) {
-	query := `SELECT id, frequency, interval_value, amount, end_date FROM ingress_recurrence_patterns WHERE id=?`
+func (i IngressRepo) GetRecurrencePattern(ctx context.Context, id string) (*openapi.RecurrencePattern, error) {
+	query := `SELECT id, 
+					 frequency,
+					 interval_value,
+					 amount,
+					 to_account_id,
+					 description,
+						 end_date FROM ingress_recurrence_patterns WHERE id=?`
 
-	var recurrencePattern domain.RecurrencePattern
+	var recurrencePattern openapi.RecurrencePattern
 	err := i.db.QueryRowContext(ctx, query, id).Scan(
-		&recurrencePattern.ID,
+		&recurrencePattern.Id,
 		&recurrencePattern.Frequency,
 		&recurrencePattern.Interval,
 		&recurrencePattern.Amount,
+		&recurrencePattern.ToAccountId,
+		&recurrencePattern.Description,
 		&recurrencePattern.EndDate,
 	)
 	if err != nil {
@@ -92,15 +115,18 @@ func (i IngressRepo) GetRecurrencePattern(ctx context.Context, id string) (*doma
 
 func (i IngressRepo) Create(ctx context.Context, ingress openapi.IngressRequest, transactionID string) (string, error) {
 	queryInsert := `insert into ingresses
-						(category_id, source, is_recurring, transaction_id, created_at, updated_at) 
-					VALUES (?,?,?,?,?,now())`
+						(category_id, source, from_recurrency_pattern_id, transaction_id, created_at) 
+					VALUES (?,?,?,?,now())`
 	result, errInsert := i.db.ExecContext(
 		ctx,
 		queryInsert,
 		ingress.Category,
 		ingress.Source,
-		ingress.Description,
-		ingress.IsRecurring,
+		ingress.RecurrencePattern.Id,
+		transactionID,
+		ingress.CreatedAt,
+		ingress.Amount,
+		ingress.Currency,
 	)
 	if errInsert != nil {
 		return "", fmt.Errorf("failed to create ingress: %w", errInsert)
@@ -113,39 +139,9 @@ func (i IngressRepo) Create(ctx context.Context, ingress openapi.IngressRequest,
 	return lastIDStr, nil
 }
 
-func (i IngressRepo) Update(ctx context.Context, id string, ingress openapi.IngressRequest) error {
-	queryUpdate := `UPDATE ingresses SET category_id=?, source=?, is_recurring=?, updated_at=NOW() WHERE id=?`
-	_, err := i.db.ExecContext(
-		ctx,
-		queryUpdate,
-		ingress.Category,
-		ingress.Source,
-		ingress.IsRecurring,
-		id,
-	)
-	if err != nil {
-		return fmt.Errorf("failed to update ingress: %w", err)
-	}
-	return nil
-}
-
-func (i IngressRepo) Delete(ctx context.Context, id string) error {
-	queryDelete := `DELETE FROM ingresses WHERE id=?`
-	_, err := i.db.ExecContext(
-		ctx,
-		queryDelete,
-		id,
-	)
-	if err != nil {
-		return fmt.Errorf("failed to delete ingress: %w", err)
-	}
-	return nil
-}
-
 func (i IngressRepo) GetByID(ctx context.Context, id string) (*openapi.Ingress, error) {
 	query := `select i.id,
 					   i.source,
-					   i.is_recurring,
 					   i.created_at,
 					   t.amount,
 					   t.currency,
@@ -160,16 +156,18 @@ func (i IngressRepo) GetByID(ctx context.Context, id string) (*openapi.Ingress, 
 					   irp.frequency,
 					   irp.end_date,
 					   irp.amount,
+					   irp.interval_value,
+					   irp.to_account_id,
+					   irp.description,
 					   GROUP_CONCAT(it.tag_id ORDER BY it.tag_id SEPARATOR ',') as tags
 				from ingresses i
 						 inner JOIN categories c ON i.category_id = c.id
 						 inner join transactions t ON i.transaction_id = t.id
-						 left join proletariat_budget.ingress_recurrence_patterns irp on i.id = irp.ingress_id
+						 left join proletariat_budget.ingress_recurrence_patterns irp on i.from_recurrency_pattern_id = irp.id
 						 left join proletariat_budget.ingress_tags it ON i.id = it.ingress_id
 				WHERE i.id = ?
 				GROUP BY i.id,
 						 i.source,
-						 i.is_recurring,
 						 i.created_at,
 						 t.amount,
 						 t.currency,
@@ -183,14 +181,16 @@ func (i IngressRepo) GetByID(ctx context.Context, id string) (*openapi.Ingress, 
 						 irp.id,
 						 irp.frequency,
 						 irp.end_date,
-						 irp.amount`
+						 irp.amount,
+						 irp.interval_value,
+						 irp.to_account_id,
+						 irp.description`
 	var ingress openapi.Ingress
 	ingressRecurrencePattern := openapi.RecurrencePattern{}
 	var tags string
 	err := i.db.QueryRowContext(ctx, query, id).Scan(
 		&ingress.Id,
 		&ingress.Source,
-		&ingress.IsRecurring,
 		&ingress.CreatedAt,
 		&ingress.Amount,
 		&ingress.Currency,
@@ -206,6 +206,9 @@ func (i IngressRepo) GetByID(ctx context.Context, id string) (*openapi.Ingress, 
 		&ingressRecurrencePattern.Frequency,
 		&ingressRecurrencePattern.EndDate,
 		&ingressRecurrencePattern.Amount,
+		&ingressRecurrencePattern.Interval,
+		&ingressRecurrencePattern.ToAccountId,
+		&ingressRecurrencePattern.Description,
 		&tags,
 	)
 	if err != nil {
@@ -214,7 +217,7 @@ func (i IngressRepo) GetByID(ctx context.Context, id string) (*openapi.Ingress, 
 		}
 		return nil, fmt.Errorf("failed to select ingress: %w", err)
 	}
-	if *ingress.IsRecurring {
+	if ingressRecurrencePattern.Id != "" {
 		ingress.RecurrencePattern = &ingressRecurrencePattern
 	}
 	ingress.Tags, err = (*i.tagsRepo).GetByIDs(ctx, strings.Split(tags, ","))
@@ -227,7 +230,6 @@ func (i IngressRepo) GetByID(ctx context.Context, id string) (*openapi.Ingress, 
 func (i IngressRepo) List(ctx context.Context, params openapi.ListIngressesParams) (*openapi.IngressList, error) {
 	querySelect := `select i.id,
 						   i.source,
-						   i.is_recurring,
 						   i.created_at,
 						   t.amount,
 						   t.currency,
@@ -238,19 +240,21 @@ func (i IngressRepo) List(ctx context.Context, params openapi.ListIngressesParam
 						   c.color,
 						   c.background_color,
 						   c.active,
-						   irp.id                                                   as recurrence_pattern_id,
+						   irp.id as recurrence_pattern_id,
 						   irp.frequency,
 						   irp.end_date,
 						   irp.amount,
+						   irp.interval_value,
+						   irp.to_account_id,
+						   irp.description,
 						   GROUP_CONCAT(it.tag_id ORDER BY it.tag_id SEPARATOR ',') as tags
 					from ingresses i
 							 inner JOIN categories c ON i.category_id = c.id
 							 inner join transactions t ON i.transaction_id = t.id
-							 left join proletariat_budget.ingress_recurrence_patterns irp on i.id = irp.ingress_id
+							 left join proletariat_budget.ingress_recurrence_patterns irp on i.from_recurrency_pattern_id = irp.id
 							 left join proletariat_budget.ingress_tags it ON i.id = it.ingress_id
 					GROUP BY i.id,
 							 i.source,
-							 i.is_recurring,
 							 i.created_at,
 							 t.amount,
 							 t.currency,
@@ -264,13 +268,16 @@ func (i IngressRepo) List(ctx context.Context, params openapi.ListIngressesParam
 							 irp.id,
 							 irp.frequency,
 							 irp.end_date,
-							 irp.amount;`
+							 irp.amount,
+							 irp.interval_value,
+							 irp.to_account_id,
+							 irp.description`
 
 	queryCount := `SELECT COUNT(*) 
 					FROM ingresses i
 					inner JOIN categories c ON i.category_id = c.id
 					inner join transactions t ON i.transaction_id = t.id
-					left join proletariat_budget.ingress_recurrence_patterns irp on i.id = irp.ingress_id
+					left join proletariat_budget.ingress_recurrence_patterns irp on i.from_recurrency_pattern_id = irp.id
 					left join proletariat_budget.ingress_tags it ON i.id = it.ingress_id`
 
 	whereClause := make([]string, 0)
@@ -311,7 +318,13 @@ func (i IngressRepo) List(ctx context.Context, params openapi.ListIngressesParam
 		args = append(args, params.Currency)
 	}
 	if params.IsRecurring != nil {
-		whereClause = append(whereClause, "i.is_recurring =?")
+		var condition string
+		if *params.IsRecurring {
+			condition = "is not null"
+		} else {
+			condition = "is null"
+		}
+		whereClause = append(whereClause, "i.from_recurrency_pattern_id "+condition)
 		args = append(args, *params.IsRecurring)
 	}
 	if len(whereClause) > 0 {
@@ -353,7 +366,6 @@ func (i IngressRepo) List(ctx context.Context, params openapi.ListIngressesParam
 		err := rows.Scan(
 			&ingress.Id,
 			&ingress.Source,
-			&ingress.IsRecurring,
 			&ingress.CreatedAt,
 			&ingress.Amount,
 			&ingress.Currency,
@@ -369,12 +381,15 @@ func (i IngressRepo) List(ctx context.Context, params openapi.ListIngressesParam
 			&recurrencePattern.Frequency,
 			&recurrencePattern.EndDate,
 			&recurrencePattern.Amount,
+			&recurrencePattern.Interval,
+			&recurrencePattern.ToAccountId,
+			&recurrencePattern.Description,
 			&tags,
 		)
 		if err != nil {
 			return nil, fmt.Errorf("failed to scan row: %w", err)
 		}
-		if *ingress.IsRecurring {
+		if recurrencePattern.Id != "" {
 			ingress.RecurrencePattern = &recurrencePattern
 		}
 		ingresses = append(ingresses, ingress)

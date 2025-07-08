@@ -153,7 +153,6 @@ CREATE PROCEDURE CreateIngress(
     IN p_description TEXT,
     IN p_category_id BIGINT,
     IN p_source VARCHAR(255),
-    IN p_is_recurring BOOLEAN,
     IN p_tag_ids JSON -- JSON array of tag IDs, e.g., '[1, 2, 3]'
 )
 BEGIN
@@ -215,11 +214,9 @@ BEGIN
     -- Create ingress record
     INSERT INTO ingresses (category_id,
                            source,
-                           is_recurring,
                            transaction_id)
     VALUES (p_category_id,
             p_source,
-            p_is_recurring,
             v_transaction_id);
 
     SET v_ingress_id = LAST_INSERT_ID();
@@ -330,7 +327,7 @@ BEGIN
             v_source_currency,
             p_transaction_date,
             CONCAT('Transfer to account ', p_destination_account_id,
-                   CASE WHEN p_description IS NOT NULL THEN CONCAT(' - ', p_description) ELSE '' END),
+                   IF(p_description IS NOT NULL, CONCAT(' - ', p_description), '')),
             'transfer',
             v_source_new_balance,
             'completed');
@@ -351,7 +348,7 @@ BEGIN
             v_dest_currency,
             p_transaction_date,
             CONCAT('Transfer from account ', p_source_account_id,
-                   CASE WHEN p_description IS NOT NULL THEN CONCAT(' - ', p_description) ELSE '' END),
+                   IF(p_description IS NOT NULL, CONCAT(' - ', p_description), '')),
             'transfer',
             v_dest_new_balance,
             'completed');
@@ -492,9 +489,7 @@ BEGIN
                 v_currency,
                 CURRENT_TIMESTAMP,
                 CONCAT('Rollback of expenditure transaction #', p_transaction_id,
-                       CASE
-                           WHEN p_rollback_reason IS NOT NULL THEN CONCAT(' - Reason: ', p_rollback_reason)
-                           ELSE '' END),
+                       IF(p_rollback_reason IS NOT NULL, CONCAT(' - Reason: ', p_rollback_reason), '')),
                 'rollback',
                 v_new_balance,
                 'completed');
@@ -548,9 +543,7 @@ BEGIN
                 v_currency,
                 CURRENT_TIMESTAMP,
                 CONCAT('Rollback of ingress transaction #', p_transaction_id,
-                       CASE
-                           WHEN p_rollback_reason IS NOT NULL THEN CONCAT(' - Reason: ', p_rollback_reason)
-                           ELSE '' END),
+                       IF(p_rollback_reason IS NOT NULL, CONCAT(' - Reason: ', p_rollback_reason), '')),
                 'rollback',
                 v_new_balance,
                 'completed');
@@ -641,9 +634,7 @@ BEGIN
                 v_source_currency,
                 CURRENT_TIMESTAMP,
                 CONCAT('Rollback of transfer (outgoing) #', v_outgoing_transaction_id,
-                       CASE
-                           WHEN p_rollback_reason IS NOT NULL THEN CONCAT(' - Reason: ', p_rollback_reason)
-                           ELSE '' END),
+                       IF(p_rollback_reason IS NOT NULL, CONCAT(' - Reason: ', p_rollback_reason), '')),
                 'rollback',
                 v_source_new_balance,
                 'completed');
@@ -664,9 +655,7 @@ BEGIN
                 v_dest_currency,
                 CURRENT_TIMESTAMP,
                 CONCAT('Rollback of transfer (incoming) #', v_incoming_transaction_id,
-                       CASE
-                           WHEN p_rollback_reason IS NOT NULL THEN CONCAT(' - Reason: ', p_rollback_reason)
-                           ELSE '' END),
+                       IF(p_rollback_reason IS NOT NULL, CONCAT(' - Reason: ', p_rollback_reason), '')),
                 'rollback',
                 v_dest_new_balance,
                 'completed');
@@ -700,11 +689,10 @@ BEGIN
     COMMIT;
 
     -- Return success information
-    SELECT CASE v_transaction_type
-               WHEN 'transfer' THEN CONCAT('Transfer rolled back successfully. Source rollback ID: ',
-                                           v_source_rollback_id, ', Destination rollback ID: ', v_dest_rollback_id)
-               ELSE CONCAT('Transaction rolled back successfully. Rollback transaction ID: ', v_rollback_transaction_id)
-               END as result_message;
+    SELECT IF(v_transaction_type = 'transfer', CONCAT('Transfer rolled back successfully. Source rollback ID: ',
+                                                      v_source_rollback_id, ', Destination rollback ID: ',
+                                                      v_dest_rollback_id),
+              CONCAT('Transaction rolled back successfully. Rollback transaction ID: ', v_rollback_transaction_id)) as result_message;
 
 END$$
 
@@ -1590,41 +1578,61 @@ VALUES ('Goal Achievement',
 
 
 -- Sample ingresses using CreateIngress procedure
-CALL CreateIngress(1, 85000.00, 7, '2024-01-15 09:00:00', 'January salary payment', 1, 'Employer Direct Deposit', TRUE,
+CALL CreateIngress(1, 85000.00, 7,
+                   '2024-01-15 09:00:00', 'January salary payment',
+                   1, 'Employer Direct Deposit',
                    '[
                      1,
                      9
                    ]');
-CALL CreateIngress(2, 45000.00, 7, '2024-01-20 14:30:00', 'Freelance web development project', 3, 'Client Payment',
-                   FALSE, '[
+CALL CreateIngress(2, 45000.00, 7,
+                   '2024-01-20 14:30:00', 'Freelance web development project',
+                   3, 'Client Payment',
+                    '[
           3,
           6
         ]');
-CALL CreateIngress(1, 12000.00, 7, '2024-01-25 16:45:00', 'Performance bonus Q4 2023', 1, 'Company Bonus', FALSE, '[
+CALL CreateIngress(1, 12000.00, 7,
+                   '2024-01-25 16:45:00', 'Performance bonus Q4 2023',
+                   1, 'Company Bonus', '[
   2,
   9
 ]');
-CALL CreateIngress(3, 8500.00, 7, '2024-02-01 10:15:00', 'Part-time job payment', 1, 'Part-time Employer', TRUE, '[
+CALL CreateIngress(3, 8500.00, 7,
+                   '2024-02-01 10:15:00', 'Part-time job payment',
+                   1, 'Part-time Employer', '[
   1,
   9
 ]');
-CALL CreateIngress(2, 25000.00, 7, '2024-02-05 11:20:00', 'Tax refund 2023', 4, 'Government Refund', FALSE, '[
+CALL CreateIngress(2, 25000.00, 7,
+                   '2024-02-05 11:20:00', 'Tax refund 2023',
+                   4, 'Government Refund', '[
   6
 ]');
-CALL CreateIngress(1, 15000.00, 7, '2024-02-10 13:00:00', 'Investment dividends', 3, 'Stock Dividends', FALSE, '[
+CALL CreateIngress(1, 15000.00, 7,
+                   '2024-02-10 13:00:00', 'Investment dividends',
+                   3, 'Stock Dividends',  '[
   4
 ]');
-CALL CreateIngress(4, 30000.00, 7, '2024-02-14 09:30:00', 'Rental property income', 3, 'Tenant Payment', TRUE, '[
+CALL CreateIngress(4, 30000.00, 7,
+                   '2024-02-14 09:30:00', 'Rental property income',
+                   3, 'Tenant Payment', '[
   8
 ]');
-CALL CreateIngress(1, 5000.00, 7, '2024-02-18 15:45:00', 'Birthday gift from parents', 4, 'Family Gift', FALSE, '[
+CALL CreateIngress(1, 5000.00, 7,
+                   '2024-02-18 15:45:00', 'Birthday gift from parents',
+                   4, 'Family Gift', '[
   5
 ]');
-CALL CreateIngress(2, 18000.00, 7, '2024-02-22 12:10:00', 'Side business sales', 2, 'Online Store', FALSE, '[
+CALL CreateIngress(2, 18000.00, 7,
+                   '2024-02-22 12:10:00', 'Side business sales',
+                   2, 'Online Store',  '[
   7,
   6
 ]');
-CALL CreateIngress(3, 75.00, 150, '2024-02-28 16:00:00', 'Tutoring sessions payment', 2, 'Private Students', FALSE, '[
+CALL CreateIngress(3, 75.00, 150,
+                   '2024-02-28 16:00:00', 'Tutoring sessions payment',
+                   2, 'Private Students',  '[
   3,
   6
 ]');
