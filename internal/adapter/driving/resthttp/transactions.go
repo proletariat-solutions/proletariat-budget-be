@@ -15,11 +15,6 @@ func (c *Controller) CreateTransfer(ctx context.Context, request openapi.CreateT
 	panic("implement me")
 }
 
-func (c *Controller) DeleteTransfer(ctx context.Context, request openapi.DeleteTransferRequestObject) (openapi.DeleteTransferResponseObject, error) {
-	//TODO implement me
-	panic("implement me")
-}
-
 func (c *Controller) GetTransfer(ctx context.Context, request openapi.GetTransferRequestObject) (openapi.GetTransferResponseObject, error) {
 	//TODO implement me
 	panic("implement me")

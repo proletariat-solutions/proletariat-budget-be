@@ -24,18 +24,3 @@ get:
       $ref: ../components/responses/404.yaml
     '500':
       $ref: ../components/responses/500.yaml
-delete:
-  summary: Delete transfer
-  description: Deletes a transfer by ID (if possible)
-  operationId: deleteTransfer
-  tags:
-    - Transfers
-  responses:
-    '204':
-      description: Transfer deleted successfully
-    '401':
-      $ref: ../components/responses/401.yaml
-    '404':
-      $ref: ../components/responses/404.yaml
-    '500':
-      $ref: ../components/responses/500.yaml

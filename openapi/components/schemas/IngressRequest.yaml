@@ -44,10 +44,6 @@ properties:
     type: string
     description: The currency of the ingress
     example: USD
-  isRecurring:
-    type: boolean
-    description: Whether this is a recurring income
-    example: true
   recurrencePattern:
     $ref: './RecurrencePattern.yaml'
 required:

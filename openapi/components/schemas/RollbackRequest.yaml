@@ -1,0 +1,7 @@
+type: object
+properties:
+  rollbackReason:
+    type: string
+    description: Reason for rolling back the Expenditure
+required:
+  - rollbackReason

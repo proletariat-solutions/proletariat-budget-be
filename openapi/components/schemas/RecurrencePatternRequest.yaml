@@ -1,0 +1,27 @@
+type: object
+properties:
+  frequency:
+    type: string
+    enum: [daily, weekly, monthly, yearly]
+    description: Frequency of the recurrence
+    example: "monthly"
+  interval:
+    type: integer
+    minimum: 1
+    description: Interval value for the frequency (e.g., every 2 weeks)
+    example: 1
+  amount:
+    type: number
+    format: float
+    description: Amount for each recurrence
+    example: 1500.00
+  end_date:
+    type: string
+    format: date
+    nullable: true
+    description: End date for the recurrence pattern (null for indefinite)
+    example: "2024-12-31"
+required:
+  - frequency
+  - interval
+  - amount

@@ -64,6 +64,14 @@ const (
 	RecurrencePatternFrequencyYearly  RecurrencePatternFrequency = "yearly"
 )
 
+// Defines values for RecurrencePatternRequestFrequency.
+const (
+	RecurrencePatternRequestFrequencyDaily   RecurrencePatternRequestFrequency = "daily"
+	RecurrencePatternRequestFrequencyMonthly RecurrencePatternRequestFrequency = "monthly"
+	RecurrencePatternRequestFrequencyWeekly  RecurrencePatternRequestFrequency = "weekly"
+	RecurrencePatternRequestFrequencyYearly  RecurrencePatternRequestFrequency = "yearly"
+)
+
 // Defines values for SavingsGoalAutoContributeFrequency.
 const (
 	SavingsGoalAutoContributeFrequencyDaily   SavingsGoalAutoContributeFrequency = "daily"
@@ -81,10 +89,10 @@ const (
 
 // Defines values for SavingsGoalRequestAutoContributeFrequency.
 const (
-	Daily   SavingsGoalRequestAutoContributeFrequency = "daily"
-	Monthly SavingsGoalRequestAutoContributeFrequency = "monthly"
-	Weekly  SavingsGoalRequestAutoContributeFrequency = "weekly"
-	Yearly  SavingsGoalRequestAutoContributeFrequency = "yearly"
+	SavingsGoalRequestAutoContributeFrequencyDaily   SavingsGoalRequestAutoContributeFrequency = "daily"
+	SavingsGoalRequestAutoContributeFrequencyMonthly SavingsGoalRequestAutoContributeFrequency = "monthly"
+	SavingsGoalRequestAutoContributeFrequencyWeekly  SavingsGoalRequestAutoContributeFrequency = "weekly"
+	SavingsGoalRequestAutoContributeFrequencyYearly  SavingsGoalRequestAutoContributeFrequency = "yearly"
 )
 
 // Defines values for SavingsProgressRecentActivityType.
@@ -494,10 +502,7 @@ type Ingress struct {
 	Description *string `json:"description,omitempty"`
 
 	// Id Unique identifier for the ingress
-	Id string `json:"id"`
-
-	// IsRecurring Whether this is a recurring income
-	IsRecurring       *bool              `json:"isRecurring,omitempty"`
+	Id                string             `json:"id"`
 	RecurrencePattern *RecurrencePattern `json:"recurrencePattern,omitempty"`
 
 	// Source The source of the income
@@ -532,10 +537,7 @@ type IngressRequest struct {
 	Date openapi_types.Date `json:"date"`
 
 	// Description Additional details about the ingress
-	Description *string `json:"description,omitempty"`
-
-	// IsRecurring Whether this is a recurring income
-	IsRecurring       *bool              `json:"isRecurring,omitempty"`
+	Description       *string            `json:"description,omitempty"`
 	RecurrencePattern *RecurrencePattern `json:"recurrencePattern,omitempty"`
 
 	// Source The source of the income
@@ -572,24 +574,57 @@ type LoginResponse struct {
 
 // RecurrencePattern defines model for RecurrencePattern.
 type RecurrencePattern struct {
-	// Amount The amount of the recurring income
-	Amount *float32 `json:"amount,omitempty"`
+	// Amount Amount for each recurrence
+	Amount float32 `json:"amount"`
 
-	// EndDate When the recurring income ends (if applicable)
-	EndDate *openapi_types.Date `json:"endDate,omitempty"`
+	// CreatedAt When the recurrence pattern was created
+	CreatedAt time.Time `json:"created_at"`
 
-	// Frequency How often the income recurs
-	Frequency *RecurrencePatternFrequency `json:"frequency,omitempty"`
+	// EndDate End date for the recurrence pattern (null for indefinite)
+	EndDate *openapi_types.Date `json:"end_date"`
 
-	// Id Unique identifier for the recurring income
-	Id *string `json:"id,omitempty"`
+	// Frequency Frequency of the recurrence
+	Frequency RecurrencePatternFrequency `json:"frequency"`
 
-	// Interval How many frequency units between occurrences
-	Interval *int `json:"interval,omitempty"`
+	// Id Unique identifier for the recurrence pattern
+	Id string `json:"id"`
+
+	// IngressId ID of the associated ingress
+	IngressId string `json:"ingress_id"`
+
+	// Interval Interval value for the frequency (e.g., every 2 weeks)
+	Interval int `json:"interval"`
+
+	// UpdatedAt When the recurrence pattern was last updated
+	UpdatedAt time.Time `json:"updated_at"`
 }
 
-// RecurrencePatternFrequency How often the income recurs
+// RecurrencePatternFrequency Frequency of the recurrence
 type RecurrencePatternFrequency string
+
+// RecurrencePatternRequest defines model for RecurrencePatternRequest.
+type RecurrencePatternRequest struct {
+	// Amount Amount for each recurrence
+	Amount float32 `json:"amount"`
+
+	// EndDate End date for the recurrence pattern (null for indefinite)
+	EndDate *openapi_types.Date `json:"end_date"`
+
+	// Frequency Frequency of the recurrence
+	Frequency RecurrencePatternRequestFrequency `json:"frequency"`
+
+	// Interval Interval value for the frequency (e.g., every 2 weeks)
+	Interval int `json:"interval"`
+}
+
+// RecurrencePatternRequestFrequency Frequency of the recurrence
+type RecurrencePatternRequestFrequency string
+
+// RollbackRequest defines model for RollbackRequest.
+type RollbackRequest struct {
+	// RollbackReason Reason for rolling back the Expenditure
+	RollbackReason string `json:"rollbackReason"`
+}
 
 // SavingsContribution defines model for SavingsContribution.
 type SavingsContribution struct {
@@ -1431,8 +1466,8 @@ type UpdateCategoryJSONRequestBody = CategoryRequest
 // CreateExpenditureJSONRequestBody defines body for CreateExpenditure for application/json ContentType.
 type CreateExpenditureJSONRequestBody = ExpenditureRequest
 
-// UpdateExpenditureJSONRequestBody defines body for UpdateExpenditure for application/json ContentType.
-type UpdateExpenditureJSONRequestBody = ExpenditureRequest
+// RollbackExpenditureJSONRequestBody defines body for RollbackExpenditure for application/json ContentType.
+type RollbackExpenditureJSONRequestBody = RollbackRequest
 
 // CreateHouseholdMemberJSONRequestBody defines body for CreateHouseholdMember for application/json ContentType.
 type CreateHouseholdMemberJSONRequestBody = HouseholdMemberRequest
@@ -1443,8 +1478,14 @@ type UpdateHouseholdMemberJSONRequestBody = HouseholdMemberRequest
 // CreateIngressJSONRequestBody defines body for CreateIngress for application/json ContentType.
 type CreateIngressJSONRequestBody = IngressRequest
 
-// UpdateIngressJSONRequestBody defines body for UpdateIngress for application/json ContentType.
-type UpdateIngressJSONRequestBody = IngressRequest
+// UpdateIngressRecurrencePatternJSONRequestBody defines body for UpdateIngressRecurrencePattern for application/json ContentType.
+type UpdateIngressRecurrencePatternJSONRequestBody = RecurrencePatternRequest
+
+// RollbackIngressJSONRequestBody defines body for RollbackIngress for application/json ContentType.
+type RollbackIngressJSONRequestBody = RollbackRequest
+
+// CreateIngressRecurrencePatternJSONRequestBody defines body for CreateIngressRecurrencePattern for application/json ContentType.
+type CreateIngressRecurrencePatternJSONRequestBody = RecurrencePatternRequest
 
 // CreateSavingsGoalJSONRequestBody defines body for CreateSavingsGoal for application/json ContentType.
 type CreateSavingsGoalJSONRequestBody = SavingsGoalRequest
@@ -1463,6 +1504,9 @@ type CreateTagJSONRequestBody = TagRequest
 
 // CreateTransferJSONRequestBody defines body for CreateTransfer for application/json ContentType.
 type CreateTransferJSONRequestBody = TransferRequest
+
+// RollbackTransferJSONRequestBody defines body for RollbackTransfer for application/json ContentType.
+type RollbackTransferJSONRequestBody = RollbackRequest
 
 // ServerInterface represents all server handlers.
 type ServerInterface interface {
@@ -1514,15 +1558,12 @@ type ServerInterface interface {
 	// Create a new expenditure
 	// (POST /expenditures)
 	CreateExpenditure(w http.ResponseWriter, r *http.Request)
-	// Delete expenditure
-	// (DELETE /expenditures/{id})
-	DeleteExpenditure(w http.ResponseWriter, r *http.Request, id string)
 	// Get expenditure by ID
 	// (GET /expenditures/{id})
 	GetExpenditure(w http.ResponseWriter, r *http.Request, id string)
-	// Update expenditure
-	// (PUT /expenditures/{id})
-	UpdateExpenditure(w http.ResponseWriter, r *http.Request, id string)
+	// Rollback an expenditure
+	// (POST /expenditures/{id}/rollback)
+	RollbackExpenditure(w http.ResponseWriter, r *http.Request, id string)
 	// List all household members
 	// (GET /household-members)
 	ListHouseholdMembers(w http.ResponseWriter, r *http.Request, params ListHouseholdMembersParams)
@@ -1544,15 +1585,24 @@ type ServerInterface interface {
 	// Create a new ingress
 	// (POST /ingresses)
 	CreateIngress(w http.ResponseWriter, r *http.Request)
-	// Delete ingress
-	// (DELETE /ingresses/{id})
-	DeleteIngress(w http.ResponseWriter, r *http.Request, id string)
 	// Get ingress by ID
 	// (GET /ingresses/{id})
 	GetIngress(w http.ResponseWriter, r *http.Request, id string)
-	// Update ingress
-	// (PUT /ingresses/{id})
-	UpdateIngress(w http.ResponseWriter, r *http.Request, id string)
+	// Delete a recurrence pattern
+	// (DELETE /ingresses/{id}/recurrence-pattern/{pattern_id})
+	DeleteIngressRecurrencePattern(w http.ResponseWriter, r *http.Request, id string, patternId string)
+	// Get a specific recurrence pattern
+	// (GET /ingresses/{id}/recurrence-pattern/{pattern_id})
+	GetIngressRecurrencePattern(w http.ResponseWriter, r *http.Request, id string, patternId string)
+	// Update a recurrence pattern
+	// (PUT /ingresses/{id}/recurrence-pattern/{pattern_id})
+	UpdateIngressRecurrencePattern(w http.ResponseWriter, r *http.Request, id string, patternId string)
+	// Rollback an Ingress
+	// (POST /ingresses/{id}/rollback)
+	RollbackIngress(w http.ResponseWriter, r *http.Request, id string)
+	// Create a recurrence pattern for Ingresses
+	// (POST /recurrence-pattern)
+	CreateIngressRecurrencePattern(w http.ResponseWriter, r *http.Request)
 	// List all savings goals
 	// (GET /savings)
 	ListSavingsGoals(w http.ResponseWriter, r *http.Request, params ListSavingsGoalsParams)
@@ -1607,12 +1657,12 @@ type ServerInterface interface {
 	// Create a new money transfer
 	// (POST /transfers)
 	CreateTransfer(w http.ResponseWriter, r *http.Request)
-	// Delete transfer
-	// (DELETE /transfers/{id})
-	DeleteTransfer(w http.ResponseWriter, r *http.Request, id string)
 	// Get transfer by ID
 	// (GET /transfers/{id})
 	GetTransfer(w http.ResponseWriter, r *http.Request, id string)
+	// Rollback a Transfer
+	// (POST /transfers/{id}/rollback)
+	RollbackTransfer(w http.ResponseWriter, r *http.Request, id string)
 }
 
 // ServerInterfaceWrapper converts contexts to parameters.
@@ -2188,37 +2238,6 @@ func (siw *ServerInterfaceWrapper) CreateExpenditure(w http.ResponseWriter, r *h
 	handler.ServeHTTP(w, r)
 }
 
-// DeleteExpenditure operation middleware
-func (siw *ServerInterfaceWrapper) DeleteExpenditure(w http.ResponseWriter, r *http.Request) {
-
-	var err error
-
-	// ------------- Path parameter "id" -------------
-	var id string
-
-	err = runtime.BindStyledParameterWithOptions("simple", "id", r.PathValue("id"), &id, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true})
-	if err != nil {
-		siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "id", Err: err})
-		return
-	}
-
-	ctx := r.Context()
-
-	ctx = context.WithValue(ctx, BearerAuthScopes, []string{})
-
-	r = r.WithContext(ctx)
-
-	handler := http.Handler(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		siw.Handler.DeleteExpenditure(w, r, id)
-	}))
-
-	for _, middleware := range siw.HandlerMiddlewares {
-		handler = middleware(handler)
-	}
-
-	handler.ServeHTTP(w, r)
-}
-
 // GetExpenditure operation middleware
 func (siw *ServerInterfaceWrapper) GetExpenditure(w http.ResponseWriter, r *http.Request) {
 
@@ -2250,8 +2269,8 @@ func (siw *ServerInterfaceWrapper) GetExpenditure(w http.ResponseWriter, r *http
 	handler.ServeHTTP(w, r)
 }
 
-// UpdateExpenditure operation middleware
-func (siw *ServerInterfaceWrapper) UpdateExpenditure(w http.ResponseWriter, r *http.Request) {
+// RollbackExpenditure operation middleware
+func (siw *ServerInterfaceWrapper) RollbackExpenditure(w http.ResponseWriter, r *http.Request) {
 
 	var err error
 
@@ -2271,7 +2290,7 @@ func (siw *ServerInterfaceWrapper) UpdateExpenditure(w http.ResponseWriter, r *h
 	r = r.WithContext(ctx)
 
 	handler := http.Handler(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		siw.Handler.UpdateExpenditure(w, r, id)
+		siw.Handler.RollbackExpenditure(w, r, id)
 	}))
 
 	for _, middleware := range siw.HandlerMiddlewares {
@@ -2568,37 +2587,6 @@ func (siw *ServerInterfaceWrapper) CreateIngress(w http.ResponseWriter, r *http.
 	handler.ServeHTTP(w, r)
 }
 
-// DeleteIngress operation middleware
-func (siw *ServerInterfaceWrapper) DeleteIngress(w http.ResponseWriter, r *http.Request) {
-
-	var err error
-
-	// ------------- Path parameter "id" -------------
-	var id string
-
-	err = runtime.BindStyledParameterWithOptions("simple", "id", r.PathValue("id"), &id, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true})
-	if err != nil {
-		siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "id", Err: err})
-		return
-	}
-
-	ctx := r.Context()
-
-	ctx = context.WithValue(ctx, BearerAuthScopes, []string{})
-
-	r = r.WithContext(ctx)
-
-	handler := http.Handler(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		siw.Handler.DeleteIngress(w, r, id)
-	}))
-
-	for _, middleware := range siw.HandlerMiddlewares {
-		handler = middleware(handler)
-	}
-
-	handler.ServeHTTP(w, r)
-}
-
 // GetIngress operation middleware
 func (siw *ServerInterfaceWrapper) GetIngress(w http.ResponseWriter, r *http.Request) {
 
@@ -2630,8 +2618,128 @@ func (siw *ServerInterfaceWrapper) GetIngress(w http.ResponseWriter, r *http.Req
 	handler.ServeHTTP(w, r)
 }
 
-// UpdateIngress operation middleware
-func (siw *ServerInterfaceWrapper) UpdateIngress(w http.ResponseWriter, r *http.Request) {
+// DeleteIngressRecurrencePattern operation middleware
+func (siw *ServerInterfaceWrapper) DeleteIngressRecurrencePattern(w http.ResponseWriter, r *http.Request) {
+
+	var err error
+
+	// ------------- Path parameter "id" -------------
+	var id string
+
+	err = runtime.BindStyledParameterWithOptions("simple", "id", r.PathValue("id"), &id, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true})
+	if err != nil {
+		siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "id", Err: err})
+		return
+	}
+
+	// ------------- Path parameter "pattern_id" -------------
+	var patternId string
+
+	err = runtime.BindStyledParameterWithOptions("simple", "pattern_id", r.PathValue("pattern_id"), &patternId, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true})
+	if err != nil {
+		siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "pattern_id", Err: err})
+		return
+	}
+
+	ctx := r.Context()
+
+	ctx = context.WithValue(ctx, BearerAuthScopes, []string{})
+
+	r = r.WithContext(ctx)
+
+	handler := http.Handler(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		siw.Handler.DeleteIngressRecurrencePattern(w, r, id, patternId)
+	}))
+
+	for _, middleware := range siw.HandlerMiddlewares {
+		handler = middleware(handler)
+	}
+
+	handler.ServeHTTP(w, r)
+}
+
+// GetIngressRecurrencePattern operation middleware
+func (siw *ServerInterfaceWrapper) GetIngressRecurrencePattern(w http.ResponseWriter, r *http.Request) {
+
+	var err error
+
+	// ------------- Path parameter "id" -------------
+	var id string
+
+	err = runtime.BindStyledParameterWithOptions("simple", "id", r.PathValue("id"), &id, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true})
+	if err != nil {
+		siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "id", Err: err})
+		return
+	}
+
+	// ------------- Path parameter "pattern_id" -------------
+	var patternId string
+
+	err = runtime.BindStyledParameterWithOptions("simple", "pattern_id", r.PathValue("pattern_id"), &patternId, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true})
+	if err != nil {
+		siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "pattern_id", Err: err})
+		return
+	}
+
+	ctx := r.Context()
+
+	ctx = context.WithValue(ctx, BearerAuthScopes, []string{})
+
+	r = r.WithContext(ctx)
+
+	handler := http.Handler(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		siw.Handler.GetIngressRecurrencePattern(w, r, id, patternId)
+	}))
+
+	for _, middleware := range siw.HandlerMiddlewares {
+		handler = middleware(handler)
+	}
+
+	handler.ServeHTTP(w, r)
+}
+
+// UpdateIngressRecurrencePattern operation middleware
+func (siw *ServerInterfaceWrapper) UpdateIngressRecurrencePattern(w http.ResponseWriter, r *http.Request) {
+
+	var err error
+
+	// ------------- Path parameter "id" -------------
+	var id string
+
+	err = runtime.BindStyledParameterWithOptions("simple", "id", r.PathValue("id"), &id, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true})
+	if err != nil {
+		siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "id", Err: err})
+		return
+	}
+
+	// ------------- Path parameter "pattern_id" -------------
+	var patternId string
+
+	err = runtime.BindStyledParameterWithOptions("simple", "pattern_id", r.PathValue("pattern_id"), &patternId, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true})
+	if err != nil {
+		siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "pattern_id", Err: err})
+		return
+	}
+
+	ctx := r.Context()
+
+	ctx = context.WithValue(ctx, BearerAuthScopes, []string{})
+
+	r = r.WithContext(ctx)
+
+	handler := http.Handler(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		siw.Handler.UpdateIngressRecurrencePattern(w, r, id, patternId)
+	}))
+
+	for _, middleware := range siw.HandlerMiddlewares {
+		handler = middleware(handler)
+	}
+
+	handler.ServeHTTP(w, r)
+}
+
+// RollbackIngress operation middleware
+func (siw *ServerInterfaceWrapper) RollbackIngress(w http.ResponseWriter, r *http.Request) {
 
 	var err error
 
@@ -2651,7 +2759,27 @@ func (siw *ServerInterfaceWrapper) UpdateIngress(w http.ResponseWriter, r *http.
 	r = r.WithContext(ctx)
 
 	handler := http.Handler(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		siw.Handler.UpdateIngress(w, r, id)
+		siw.Handler.RollbackIngress(w, r, id)
+	}))
+
+	for _, middleware := range siw.HandlerMiddlewares {
+		handler = middleware(handler)
+	}
+
+	handler.ServeHTTP(w, r)
+}
+
+// CreateIngressRecurrencePattern operation middleware
+func (siw *ServerInterfaceWrapper) CreateIngressRecurrencePattern(w http.ResponseWriter, r *http.Request) {
+
+	ctx := r.Context()
+
+	ctx = context.WithValue(ctx, BearerAuthScopes, []string{})
+
+	r = r.WithContext(ctx)
+
+	handler := http.Handler(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		siw.Handler.CreateIngressRecurrencePattern(w, r)
 	}))
 
 	for _, middleware := range siw.HandlerMiddlewares {
@@ -3468,37 +3596,6 @@ func (siw *ServerInterfaceWrapper) CreateTransfer(w http.ResponseWriter, r *http
 	handler.ServeHTTP(w, r)
 }
 
-// DeleteTransfer operation middleware
-func (siw *ServerInterfaceWrapper) DeleteTransfer(w http.ResponseWriter, r *http.Request) {
-
-	var err error
-
-	// ------------- Path parameter "id" -------------
-	var id string
-
-	err = runtime.BindStyledParameterWithOptions("simple", "id", r.PathValue("id"), &id, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true})
-	if err != nil {
-		siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "id", Err: err})
-		return
-	}
-
-	ctx := r.Context()
-
-	ctx = context.WithValue(ctx, BearerAuthScopes, []string{})
-
-	r = r.WithContext(ctx)
-
-	handler := http.Handler(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		siw.Handler.DeleteTransfer(w, r, id)
-	}))
-
-	for _, middleware := range siw.HandlerMiddlewares {
-		handler = middleware(handler)
-	}
-
-	handler.ServeHTTP(w, r)
-}
-
 // GetTransfer operation middleware
 func (siw *ServerInterfaceWrapper) GetTransfer(w http.ResponseWriter, r *http.Request) {
 
@@ -3521,6 +3618,37 @@ func (siw *ServerInterfaceWrapper) GetTransfer(w http.ResponseWriter, r *http.Re
 
 	handler := http.Handler(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		siw.Handler.GetTransfer(w, r, id)
+	}))
+
+	for _, middleware := range siw.HandlerMiddlewares {
+		handler = middleware(handler)
+	}
+
+	handler.ServeHTTP(w, r)
+}
+
+// RollbackTransfer operation middleware
+func (siw *ServerInterfaceWrapper) RollbackTransfer(w http.ResponseWriter, r *http.Request) {
+
+	var err error
+
+	// ------------- Path parameter "id" -------------
+	var id string
+
+	err = runtime.BindStyledParameterWithOptions("simple", "id", r.PathValue("id"), &id, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true})
+	if err != nil {
+		siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "id", Err: err})
+		return
+	}
+
+	ctx := r.Context()
+
+	ctx = context.WithValue(ctx, BearerAuthScopes, []string{})
+
+	r = r.WithContext(ctx)
+
+	handler := http.Handler(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		siw.Handler.RollbackTransfer(w, r, id)
 	}))
 
 	for _, middleware := range siw.HandlerMiddlewares {
@@ -3666,9 +3794,8 @@ func HandlerWithOptions(si ServerInterface, options StdHTTPServerOptions) http.H
 	m.HandleFunc("GET "+options.BaseURL+"/exchange-rates", wrapper.GetExchangeRates)
 	m.HandleFunc("GET "+options.BaseURL+"/expenditures", wrapper.ListExpenditures)
 	m.HandleFunc("POST "+options.BaseURL+"/expenditures", wrapper.CreateExpenditure)
-	m.HandleFunc("DELETE "+options.BaseURL+"/expenditures/{id}", wrapper.DeleteExpenditure)
 	m.HandleFunc("GET "+options.BaseURL+"/expenditures/{id}", wrapper.GetExpenditure)
-	m.HandleFunc("PUT "+options.BaseURL+"/expenditures/{id}", wrapper.UpdateExpenditure)
+	m.HandleFunc("POST "+options.BaseURL+"/expenditures/{id}/rollback", wrapper.RollbackExpenditure)
 	m.HandleFunc("GET "+options.BaseURL+"/household-members", wrapper.ListHouseholdMembers)
 	m.HandleFunc("POST "+options.BaseURL+"/household-members", wrapper.CreateHouseholdMember)
 	m.HandleFunc("DELETE "+options.BaseURL+"/household-members/{id}", wrapper.DeleteHouseholdMember)
@@ -3676,9 +3803,12 @@ func HandlerWithOptions(si ServerInterface, options StdHTTPServerOptions) http.H
 	m.HandleFunc("PUT "+options.BaseURL+"/household-members/{id}", wrapper.UpdateHouseholdMember)
 	m.HandleFunc("GET "+options.BaseURL+"/ingresses", wrapper.ListIngresses)
 	m.HandleFunc("POST "+options.BaseURL+"/ingresses", wrapper.CreateIngress)
-	m.HandleFunc("DELETE "+options.BaseURL+"/ingresses/{id}", wrapper.DeleteIngress)
 	m.HandleFunc("GET "+options.BaseURL+"/ingresses/{id}", wrapper.GetIngress)
-	m.HandleFunc("PUT "+options.BaseURL+"/ingresses/{id}", wrapper.UpdateIngress)
+	m.HandleFunc("DELETE "+options.BaseURL+"/ingresses/{id}/recurrence-pattern/{pattern_id}", wrapper.DeleteIngressRecurrencePattern)
+	m.HandleFunc("GET "+options.BaseURL+"/ingresses/{id}/recurrence-pattern/{pattern_id}", wrapper.GetIngressRecurrencePattern)
+	m.HandleFunc("PUT "+options.BaseURL+"/ingresses/{id}/recurrence-pattern/{pattern_id}", wrapper.UpdateIngressRecurrencePattern)
+	m.HandleFunc("POST "+options.BaseURL+"/ingresses/{id}/rollback", wrapper.RollbackIngress)
+	m.HandleFunc("POST "+options.BaseURL+"/recurrence-pattern", wrapper.CreateIngressRecurrencePattern)
 	m.HandleFunc("GET "+options.BaseURL+"/savings", wrapper.ListSavingsGoals)
 	m.HandleFunc("POST "+options.BaseURL+"/savings", wrapper.CreateSavingsGoal)
 	m.HandleFunc("DELETE "+options.BaseURL+"/savings/{id}", wrapper.DeleteSavingsGoal)
@@ -3697,8 +3827,8 @@ func HandlerWithOptions(si ServerInterface, options StdHTTPServerOptions) http.H
 	m.HandleFunc("GET "+options.BaseURL+"/transactions", wrapper.ListTransactions)
 	m.HandleFunc("GET "+options.BaseURL+"/transfers", wrapper.ListTransfers)
 	m.HandleFunc("POST "+options.BaseURL+"/transfers", wrapper.CreateTransfer)
-	m.HandleFunc("DELETE "+options.BaseURL+"/transfers/{id}", wrapper.DeleteTransfer)
 	m.HandleFunc("GET "+options.BaseURL+"/transfers/{id}", wrapper.GetTransfer)
+	m.HandleFunc("POST "+options.BaseURL+"/transfers/{id}/rollback", wrapper.RollbackTransfer)
 
 	return m
 }
@@ -4330,47 +4460,6 @@ func (response CreateExpenditure500JSONResponse) VisitCreateExpenditureResponse(
 	return json.NewEncoder(w).Encode(response)
 }
 
-type DeleteExpenditureRequestObject struct {
-	Id string `json:"id"`
-}
-
-type DeleteExpenditureResponseObject interface {
-	VisitDeleteExpenditureResponse(w http.ResponseWriter) error
-}
-
-type DeleteExpenditure204Response struct {
-}
-
-func (response DeleteExpenditure204Response) VisitDeleteExpenditureResponse(w http.ResponseWriter) error {
-	w.WriteHeader(204)
-	return nil
-}
-
-type DeleteExpenditure401Response = N401Response
-
-func (response DeleteExpenditure401Response) VisitDeleteExpenditureResponse(w http.ResponseWriter) error {
-	w.WriteHeader(401)
-	return nil
-}
-
-type DeleteExpenditure404JSONResponse struct{ N404JSONResponse }
-
-func (response DeleteExpenditure404JSONResponse) VisitDeleteExpenditureResponse(w http.ResponseWriter) error {
-	w.Header().Set("Content-Type", "application/json")
-	w.WriteHeader(404)
-
-	return json.NewEncoder(w).Encode(response)
-}
-
-type DeleteExpenditure500JSONResponse struct{ N500JSONResponse }
-
-func (response DeleteExpenditure500JSONResponse) VisitDeleteExpenditureResponse(w http.ResponseWriter) error {
-	w.Header().Set("Content-Type", "application/json")
-	w.WriteHeader(500)
-
-	return json.NewEncoder(w).Encode(response)
-}
-
 type GetExpenditureRequestObject struct {
 	Id string `json:"id"`
 }
@@ -4413,56 +4502,37 @@ func (response GetExpenditure500JSONResponse) VisitGetExpenditureResponse(w http
 	return json.NewEncoder(w).Encode(response)
 }
 
-type UpdateExpenditureRequestObject struct {
+type RollbackExpenditureRequestObject struct {
 	Id   string `json:"id"`
-	Body *UpdateExpenditureJSONRequestBody
+	Body *RollbackExpenditureJSONRequestBody
 }
 
-type UpdateExpenditureResponseObject interface {
-	VisitUpdateExpenditureResponse(w http.ResponseWriter) error
+type RollbackExpenditureResponseObject interface {
+	VisitRollbackExpenditureResponse(w http.ResponseWriter) error
 }
 
-type UpdateExpenditure200JSONResponse Expenditure
-
-func (response UpdateExpenditure200JSONResponse) VisitUpdateExpenditureResponse(w http.ResponseWriter) error {
-	w.Header().Set("Content-Type", "application/json")
-	w.WriteHeader(200)
-
-	return json.NewEncoder(w).Encode(response)
+type RollbackExpenditure201Response struct {
 }
 
-type UpdateExpenditure400JSONResponse struct{ N400JSONResponse }
-
-func (response UpdateExpenditure400JSONResponse) VisitUpdateExpenditureResponse(w http.ResponseWriter) error {
-	w.Header().Set("Content-Type", "application/json")
-	w.WriteHeader(400)
-
-	return json.NewEncoder(w).Encode(response)
-}
-
-type UpdateExpenditure401Response = N401Response
-
-func (response UpdateExpenditure401Response) VisitUpdateExpenditureResponse(w http.ResponseWriter) error {
-	w.WriteHeader(401)
+func (response RollbackExpenditure201Response) VisitRollbackExpenditureResponse(w http.ResponseWriter) error {
+	w.WriteHeader(201)
 	return nil
 }
 
-type UpdateExpenditure404JSONResponse struct{ N404JSONResponse }
-
-func (response UpdateExpenditure404JSONResponse) VisitUpdateExpenditureResponse(w http.ResponseWriter) error {
-	w.Header().Set("Content-Type", "application/json")
-	w.WriteHeader(404)
-
-	return json.NewEncoder(w).Encode(response)
+type RollbackExpenditure404Response struct {
 }
 
-type UpdateExpenditure500JSONResponse struct{ N500JSONResponse }
+func (response RollbackExpenditure404Response) VisitRollbackExpenditureResponse(w http.ResponseWriter) error {
+	w.WriteHeader(404)
+	return nil
+}
 
-func (response UpdateExpenditure500JSONResponse) VisitUpdateExpenditureResponse(w http.ResponseWriter) error {
-	w.Header().Set("Content-Type", "application/json")
-	w.WriteHeader(500)
+type RollbackExpenditure409Response struct {
+}
 
-	return json.NewEncoder(w).Encode(response)
+func (response RollbackExpenditure409Response) VisitRollbackExpenditureResponse(w http.ResponseWriter) error {
+	w.WriteHeader(409)
+	return nil
 }
 
 type ListHouseholdMembersRequestObject struct {
@@ -4750,47 +4820,6 @@ func (response CreateIngress500JSONResponse) VisitCreateIngressResponse(w http.R
 	return json.NewEncoder(w).Encode(response)
 }
 
-type DeleteIngressRequestObject struct {
-	Id string `json:"id"`
-}
-
-type DeleteIngressResponseObject interface {
-	VisitDeleteIngressResponse(w http.ResponseWriter) error
-}
-
-type DeleteIngress204Response struct {
-}
-
-func (response DeleteIngress204Response) VisitDeleteIngressResponse(w http.ResponseWriter) error {
-	w.WriteHeader(204)
-	return nil
-}
-
-type DeleteIngress401Response = N401Response
-
-func (response DeleteIngress401Response) VisitDeleteIngressResponse(w http.ResponseWriter) error {
-	w.WriteHeader(401)
-	return nil
-}
-
-type DeleteIngress404JSONResponse struct{ N404JSONResponse }
-
-func (response DeleteIngress404JSONResponse) VisitDeleteIngressResponse(w http.ResponseWriter) error {
-	w.Header().Set("Content-Type", "application/json")
-	w.WriteHeader(404)
-
-	return json.NewEncoder(w).Encode(response)
-}
-
-type DeleteIngress500JSONResponse struct{ N500JSONResponse }
-
-func (response DeleteIngress500JSONResponse) VisitDeleteIngressResponse(w http.ResponseWriter) error {
-	w.Header().Set("Content-Type", "application/json")
-	w.WriteHeader(500)
-
-	return json.NewEncoder(w).Encode(response)
-}
-
 type GetIngressRequestObject struct {
 	Id string `json:"id"`
 }
@@ -4833,52 +4862,228 @@ func (response GetIngress500JSONResponse) VisitGetIngressResponse(w http.Respons
 	return json.NewEncoder(w).Encode(response)
 }
 
-type UpdateIngressRequestObject struct {
-	Id   string `json:"id"`
-	Body *UpdateIngressJSONRequestBody
+type DeleteIngressRecurrencePatternRequestObject struct {
+	Id        string `json:"id"`
+	PatternId string `json:"pattern_id"`
 }
 
-type UpdateIngressResponseObject interface {
-	VisitUpdateIngressResponse(w http.ResponseWriter) error
+type DeleteIngressRecurrencePatternResponseObject interface {
+	VisitDeleteIngressRecurrencePatternResponse(w http.ResponseWriter) error
 }
 
-type UpdateIngress200JSONResponse Ingress
-
-func (response UpdateIngress200JSONResponse) VisitUpdateIngressResponse(w http.ResponseWriter) error {
-	w.Header().Set("Content-Type", "application/json")
-	w.WriteHeader(200)
-
-	return json.NewEncoder(w).Encode(response)
+type DeleteIngressRecurrencePattern204Response struct {
 }
 
-type UpdateIngress400JSONResponse struct{ N400JSONResponse }
-
-func (response UpdateIngress400JSONResponse) VisitUpdateIngressResponse(w http.ResponseWriter) error {
-	w.Header().Set("Content-Type", "application/json")
-	w.WriteHeader(400)
-
-	return json.NewEncoder(w).Encode(response)
+func (response DeleteIngressRecurrencePattern204Response) VisitDeleteIngressRecurrencePatternResponse(w http.ResponseWriter) error {
+	w.WriteHeader(204)
+	return nil
 }
 
-type UpdateIngress401Response = N401Response
+type DeleteIngressRecurrencePattern401Response = N401Response
 
-func (response UpdateIngress401Response) VisitUpdateIngressResponse(w http.ResponseWriter) error {
+func (response DeleteIngressRecurrencePattern401Response) VisitDeleteIngressRecurrencePatternResponse(w http.ResponseWriter) error {
 	w.WriteHeader(401)
 	return nil
 }
 
-type UpdateIngress404JSONResponse struct{ N404JSONResponse }
+type DeleteIngressRecurrencePattern404JSONResponse struct{ N404JSONResponse }
 
-func (response UpdateIngress404JSONResponse) VisitUpdateIngressResponse(w http.ResponseWriter) error {
+func (response DeleteIngressRecurrencePattern404JSONResponse) VisitDeleteIngressRecurrencePatternResponse(w http.ResponseWriter) error {
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(404)
 
 	return json.NewEncoder(w).Encode(response)
 }
 
-type UpdateIngress500JSONResponse struct{ N500JSONResponse }
+type DeleteIngressRecurrencePattern500JSONResponse struct{ N500JSONResponse }
 
-func (response UpdateIngress500JSONResponse) VisitUpdateIngressResponse(w http.ResponseWriter) error {
+func (response DeleteIngressRecurrencePattern500JSONResponse) VisitDeleteIngressRecurrencePatternResponse(w http.ResponseWriter) error {
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(500)
+
+	return json.NewEncoder(w).Encode(response)
+}
+
+type GetIngressRecurrencePatternRequestObject struct {
+	Id        string `json:"id"`
+	PatternId string `json:"pattern_id"`
+}
+
+type GetIngressRecurrencePatternResponseObject interface {
+	VisitGetIngressRecurrencePatternResponse(w http.ResponseWriter) error
+}
+
+type GetIngressRecurrencePattern200JSONResponse struct {
+	Data *RecurrencePattern `json:"data,omitempty"`
+}
+
+func (response GetIngressRecurrencePattern200JSONResponse) VisitGetIngressRecurrencePatternResponse(w http.ResponseWriter) error {
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(200)
+
+	return json.NewEncoder(w).Encode(response)
+}
+
+type GetIngressRecurrencePattern401Response = N401Response
+
+func (response GetIngressRecurrencePattern401Response) VisitGetIngressRecurrencePatternResponse(w http.ResponseWriter) error {
+	w.WriteHeader(401)
+	return nil
+}
+
+type GetIngressRecurrencePattern404JSONResponse struct{ N404JSONResponse }
+
+func (response GetIngressRecurrencePattern404JSONResponse) VisitGetIngressRecurrencePatternResponse(w http.ResponseWriter) error {
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(404)
+
+	return json.NewEncoder(w).Encode(response)
+}
+
+type GetIngressRecurrencePattern500JSONResponse struct{ N500JSONResponse }
+
+func (response GetIngressRecurrencePattern500JSONResponse) VisitGetIngressRecurrencePatternResponse(w http.ResponseWriter) error {
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(500)
+
+	return json.NewEncoder(w).Encode(response)
+}
+
+type UpdateIngressRecurrencePatternRequestObject struct {
+	Id        string `json:"id"`
+	PatternId string `json:"pattern_id"`
+	Body      *UpdateIngressRecurrencePatternJSONRequestBody
+}
+
+type UpdateIngressRecurrencePatternResponseObject interface {
+	VisitUpdateIngressRecurrencePatternResponse(w http.ResponseWriter) error
+}
+
+type UpdateIngressRecurrencePattern200JSONResponse struct {
+	Data *RecurrencePattern `json:"data,omitempty"`
+}
+
+func (response UpdateIngressRecurrencePattern200JSONResponse) VisitUpdateIngressRecurrencePatternResponse(w http.ResponseWriter) error {
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(200)
+
+	return json.NewEncoder(w).Encode(response)
+}
+
+type UpdateIngressRecurrencePattern400JSONResponse struct{ N400JSONResponse }
+
+func (response UpdateIngressRecurrencePattern400JSONResponse) VisitUpdateIngressRecurrencePatternResponse(w http.ResponseWriter) error {
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(400)
+
+	return json.NewEncoder(w).Encode(response)
+}
+
+type UpdateIngressRecurrencePattern401Response = N401Response
+
+func (response UpdateIngressRecurrencePattern401Response) VisitUpdateIngressRecurrencePatternResponse(w http.ResponseWriter) error {
+	w.WriteHeader(401)
+	return nil
+}
+
+type UpdateIngressRecurrencePattern404JSONResponse struct{ N404JSONResponse }
+
+func (response UpdateIngressRecurrencePattern404JSONResponse) VisitUpdateIngressRecurrencePatternResponse(w http.ResponseWriter) error {
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(404)
+
+	return json.NewEncoder(w).Encode(response)
+}
+
+type UpdateIngressRecurrencePattern500JSONResponse struct{ N500JSONResponse }
+
+func (response UpdateIngressRecurrencePattern500JSONResponse) VisitUpdateIngressRecurrencePatternResponse(w http.ResponseWriter) error {
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(500)
+
+	return json.NewEncoder(w).Encode(response)
+}
+
+type RollbackIngressRequestObject struct {
+	Id   string `json:"id"`
+	Body *RollbackIngressJSONRequestBody
+}
+
+type RollbackIngressResponseObject interface {
+	VisitRollbackIngressResponse(w http.ResponseWriter) error
+}
+
+type RollbackIngress201Response struct {
+}
+
+func (response RollbackIngress201Response) VisitRollbackIngressResponse(w http.ResponseWriter) error {
+	w.WriteHeader(201)
+	return nil
+}
+
+type RollbackIngress404Response struct {
+}
+
+func (response RollbackIngress404Response) VisitRollbackIngressResponse(w http.ResponseWriter) error {
+	w.WriteHeader(404)
+	return nil
+}
+
+type RollbackIngress409Response struct {
+}
+
+func (response RollbackIngress409Response) VisitRollbackIngressResponse(w http.ResponseWriter) error {
+	w.WriteHeader(409)
+	return nil
+}
+
+type CreateIngressRecurrencePatternRequestObject struct {
+	Body *CreateIngressRecurrencePatternJSONRequestBody
+}
+
+type CreateIngressRecurrencePatternResponseObject interface {
+	VisitCreateIngressRecurrencePatternResponse(w http.ResponseWriter) error
+}
+
+type CreateIngressRecurrencePattern201JSONResponse struct {
+	Data *RecurrencePattern `json:"data,omitempty"`
+}
+
+func (response CreateIngressRecurrencePattern201JSONResponse) VisitCreateIngressRecurrencePatternResponse(w http.ResponseWriter) error {
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(201)
+
+	return json.NewEncoder(w).Encode(response)
+}
+
+type CreateIngressRecurrencePattern400JSONResponse struct{ N400JSONResponse }
+
+func (response CreateIngressRecurrencePattern400JSONResponse) VisitCreateIngressRecurrencePatternResponse(w http.ResponseWriter) error {
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(400)
+
+	return json.NewEncoder(w).Encode(response)
+}
+
+type CreateIngressRecurrencePattern401Response = N401Response
+
+func (response CreateIngressRecurrencePattern401Response) VisitCreateIngressRecurrencePatternResponse(w http.ResponseWriter) error {
+	w.WriteHeader(401)
+	return nil
+}
+
+type CreateIngressRecurrencePattern404JSONResponse struct{ N404JSONResponse }
+
+func (response CreateIngressRecurrencePattern404JSONResponse) VisitCreateIngressRecurrencePatternResponse(w http.ResponseWriter) error {
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(404)
+
+	return json.NewEncoder(w).Encode(response)
+}
+
+type CreateIngressRecurrencePattern500JSONResponse struct{ N500JSONResponse }
+
+func (response CreateIngressRecurrencePattern500JSONResponse) VisitCreateIngressRecurrencePatternResponse(w http.ResponseWriter) error {
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(500)
 
@@ -5659,47 +5864,6 @@ func (response CreateTransfer500JSONResponse) VisitCreateTransferResponse(w http
 	return json.NewEncoder(w).Encode(response)
 }
 
-type DeleteTransferRequestObject struct {
-	Id string `json:"id"`
-}
-
-type DeleteTransferResponseObject interface {
-	VisitDeleteTransferResponse(w http.ResponseWriter) error
-}
-
-type DeleteTransfer204Response struct {
-}
-
-func (response DeleteTransfer204Response) VisitDeleteTransferResponse(w http.ResponseWriter) error {
-	w.WriteHeader(204)
-	return nil
-}
-
-type DeleteTransfer401Response = N401Response
-
-func (response DeleteTransfer401Response) VisitDeleteTransferResponse(w http.ResponseWriter) error {
-	w.WriteHeader(401)
-	return nil
-}
-
-type DeleteTransfer404JSONResponse struct{ N404JSONResponse }
-
-func (response DeleteTransfer404JSONResponse) VisitDeleteTransferResponse(w http.ResponseWriter) error {
-	w.Header().Set("Content-Type", "application/json")
-	w.WriteHeader(404)
-
-	return json.NewEncoder(w).Encode(response)
-}
-
-type DeleteTransfer500JSONResponse struct{ N500JSONResponse }
-
-func (response DeleteTransfer500JSONResponse) VisitDeleteTransferResponse(w http.ResponseWriter) error {
-	w.Header().Set("Content-Type", "application/json")
-	w.WriteHeader(500)
-
-	return json.NewEncoder(w).Encode(response)
-}
-
 type GetTransferRequestObject struct {
 	Id string `json:"id"`
 }
@@ -5740,6 +5904,39 @@ func (response GetTransfer500JSONResponse) VisitGetTransferResponse(w http.Respo
 	w.WriteHeader(500)
 
 	return json.NewEncoder(w).Encode(response)
+}
+
+type RollbackTransferRequestObject struct {
+	Id   string `json:"id"`
+	Body *RollbackTransferJSONRequestBody
+}
+
+type RollbackTransferResponseObject interface {
+	VisitRollbackTransferResponse(w http.ResponseWriter) error
+}
+
+type RollbackTransfer201Response struct {
+}
+
+func (response RollbackTransfer201Response) VisitRollbackTransferResponse(w http.ResponseWriter) error {
+	w.WriteHeader(201)
+	return nil
+}
+
+type RollbackTransfer404Response struct {
+}
+
+func (response RollbackTransfer404Response) VisitRollbackTransferResponse(w http.ResponseWriter) error {
+	w.WriteHeader(404)
+	return nil
+}
+
+type RollbackTransfer409Response struct {
+}
+
+func (response RollbackTransfer409Response) VisitRollbackTransferResponse(w http.ResponseWriter) error {
+	w.WriteHeader(409)
+	return nil
 }
 
 // StrictServerInterface represents all server handlers.
@@ -5792,15 +5989,12 @@ type StrictServerInterface interface {
 	// Create a new expenditure
 	// (POST /expenditures)
 	CreateExpenditure(ctx context.Context, request CreateExpenditureRequestObject) (CreateExpenditureResponseObject, error)
-	// Delete expenditure
-	// (DELETE /expenditures/{id})
-	DeleteExpenditure(ctx context.Context, request DeleteExpenditureRequestObject) (DeleteExpenditureResponseObject, error)
 	// Get expenditure by ID
 	// (GET /expenditures/{id})
 	GetExpenditure(ctx context.Context, request GetExpenditureRequestObject) (GetExpenditureResponseObject, error)
-	// Update expenditure
-	// (PUT /expenditures/{id})
-	UpdateExpenditure(ctx context.Context, request UpdateExpenditureRequestObject) (UpdateExpenditureResponseObject, error)
+	// Rollback an expenditure
+	// (POST /expenditures/{id}/rollback)
+	RollbackExpenditure(ctx context.Context, request RollbackExpenditureRequestObject) (RollbackExpenditureResponseObject, error)
 	// List all household members
 	// (GET /household-members)
 	ListHouseholdMembers(ctx context.Context, request ListHouseholdMembersRequestObject) (ListHouseholdMembersResponseObject, error)
@@ -5822,15 +6016,24 @@ type StrictServerInterface interface {
 	// Create a new ingress
 	// (POST /ingresses)
 	CreateIngress(ctx context.Context, request CreateIngressRequestObject) (CreateIngressResponseObject, error)
-	// Delete ingress
-	// (DELETE /ingresses/{id})
-	DeleteIngress(ctx context.Context, request DeleteIngressRequestObject) (DeleteIngressResponseObject, error)
 	// Get ingress by ID
 	// (GET /ingresses/{id})
 	GetIngress(ctx context.Context, request GetIngressRequestObject) (GetIngressResponseObject, error)
-	// Update ingress
-	// (PUT /ingresses/{id})
-	UpdateIngress(ctx context.Context, request UpdateIngressRequestObject) (UpdateIngressResponseObject, error)
+	// Delete a recurrence pattern
+	// (DELETE /ingresses/{id}/recurrence-pattern/{pattern_id})
+	DeleteIngressRecurrencePattern(ctx context.Context, request DeleteIngressRecurrencePatternRequestObject) (DeleteIngressRecurrencePatternResponseObject, error)
+	// Get a specific recurrence pattern
+	// (GET /ingresses/{id}/recurrence-pattern/{pattern_id})
+	GetIngressRecurrencePattern(ctx context.Context, request GetIngressRecurrencePatternRequestObject) (GetIngressRecurrencePatternResponseObject, error)
+	// Update a recurrence pattern
+	// (PUT /ingresses/{id}/recurrence-pattern/{pattern_id})
+	UpdateIngressRecurrencePattern(ctx context.Context, request UpdateIngressRecurrencePatternRequestObject) (UpdateIngressRecurrencePatternResponseObject, error)
+	// Rollback an Ingress
+	// (POST /ingresses/{id}/rollback)
+	RollbackIngress(ctx context.Context, request RollbackIngressRequestObject) (RollbackIngressResponseObject, error)
+	// Create a recurrence pattern for Ingresses
+	// (POST /recurrence-pattern)
+	CreateIngressRecurrencePattern(ctx context.Context, request CreateIngressRecurrencePatternRequestObject) (CreateIngressRecurrencePatternResponseObject, error)
 	// List all savings goals
 	// (GET /savings)
 	ListSavingsGoals(ctx context.Context, request ListSavingsGoalsRequestObject) (ListSavingsGoalsResponseObject, error)
@@ -5885,12 +6088,12 @@ type StrictServerInterface interface {
 	// Create a new money transfer
 	// (POST /transfers)
 	CreateTransfer(ctx context.Context, request CreateTransferRequestObject) (CreateTransferResponseObject, error)
-	// Delete transfer
-	// (DELETE /transfers/{id})
-	DeleteTransfer(ctx context.Context, request DeleteTransferRequestObject) (DeleteTransferResponseObject, error)
 	// Get transfer by ID
 	// (GET /transfers/{id})
 	GetTransfer(ctx context.Context, request GetTransferRequestObject) (GetTransferResponseObject, error)
+	// Rollback a Transfer
+	// (POST /transfers/{id}/rollback)
+	RollbackTransfer(ctx context.Context, request RollbackTransferRequestObject) (RollbackTransferResponseObject, error)
 }
 
 type StrictHandlerFunc = strictnethttp.StrictHTTPHandlerFunc
@@ -6373,32 +6576,6 @@ func (sh *strictHandler) CreateExpenditure(w http.ResponseWriter, r *http.Reques
 	}
 }
 
-// DeleteExpenditure operation middleware
-func (sh *strictHandler) DeleteExpenditure(w http.ResponseWriter, r *http.Request, id string) {
-	var request DeleteExpenditureRequestObject
-
-	request.Id = id
-
-	handler := func(ctx context.Context, w http.ResponseWriter, r *http.Request, request interface{}) (interface{}, error) {
-		return sh.ssi.DeleteExpenditure(ctx, request.(DeleteExpenditureRequestObject))
-	}
-	for _, middleware := range sh.middlewares {
-		handler = middleware(handler, "DeleteExpenditure")
-	}
-
-	response, err := handler(r.Context(), w, r, request)
-
-	if err != nil {
-		sh.options.ResponseErrorHandlerFunc(w, r, err)
-	} else if validResponse, ok := response.(DeleteExpenditureResponseObject); ok {
-		if err := validResponse.VisitDeleteExpenditureResponse(w); err != nil {
-			sh.options.ResponseErrorHandlerFunc(w, r, err)
-		}
-	} else if response != nil {
-		sh.options.ResponseErrorHandlerFunc(w, r, fmt.Errorf("unexpected response type: %T", response))
-	}
-}
-
 // GetExpenditure operation middleware
 func (sh *strictHandler) GetExpenditure(w http.ResponseWriter, r *http.Request, id string) {
 	var request GetExpenditureRequestObject
@@ -6425,13 +6602,13 @@ func (sh *strictHandler) GetExpenditure(w http.ResponseWriter, r *http.Request, 
 	}
 }
 
-// UpdateExpenditure operation middleware
-func (sh *strictHandler) UpdateExpenditure(w http.ResponseWriter, r *http.Request, id string) {
-	var request UpdateExpenditureRequestObject
+// RollbackExpenditure operation middleware
+func (sh *strictHandler) RollbackExpenditure(w http.ResponseWriter, r *http.Request, id string) {
+	var request RollbackExpenditureRequestObject
 
 	request.Id = id
 
-	var body UpdateExpenditureJSONRequestBody
+	var body RollbackExpenditureJSONRequestBody
 	if err := json.NewDecoder(r.Body).Decode(&body); err != nil {
 		sh.options.RequestErrorHandlerFunc(w, r, fmt.Errorf("can't decode JSON body: %w", err))
 		return
@@ -6439,18 +6616,18 @@ func (sh *strictHandler) UpdateExpenditure(w http.ResponseWriter, r *http.Reques
 	request.Body = &body
 
 	handler := func(ctx context.Context, w http.ResponseWriter, r *http.Request, request interface{}) (interface{}, error) {
-		return sh.ssi.UpdateExpenditure(ctx, request.(UpdateExpenditureRequestObject))
+		return sh.ssi.RollbackExpenditure(ctx, request.(RollbackExpenditureRequestObject))
 	}
 	for _, middleware := range sh.middlewares {
-		handler = middleware(handler, "UpdateExpenditure")
+		handler = middleware(handler, "RollbackExpenditure")
 	}
 
 	response, err := handler(r.Context(), w, r, request)
 
 	if err != nil {
 		sh.options.ResponseErrorHandlerFunc(w, r, err)
-	} else if validResponse, ok := response.(UpdateExpenditureResponseObject); ok {
-		if err := validResponse.VisitUpdateExpenditureResponse(w); err != nil {
+	} else if validResponse, ok := response.(RollbackExpenditureResponseObject); ok {
+		if err := validResponse.VisitRollbackExpenditureResponse(w); err != nil {
 			sh.options.ResponseErrorHandlerFunc(w, r, err)
 		}
 	} else if response != nil {
@@ -6657,32 +6834,6 @@ func (sh *strictHandler) CreateIngress(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-// DeleteIngress operation middleware
-func (sh *strictHandler) DeleteIngress(w http.ResponseWriter, r *http.Request, id string) {
-	var request DeleteIngressRequestObject
-
-	request.Id = id
-
-	handler := func(ctx context.Context, w http.ResponseWriter, r *http.Request, request interface{}) (interface{}, error) {
-		return sh.ssi.DeleteIngress(ctx, request.(DeleteIngressRequestObject))
-	}
-	for _, middleware := range sh.middlewares {
-		handler = middleware(handler, "DeleteIngress")
-	}
-
-	response, err := handler(r.Context(), w, r, request)
-
-	if err != nil {
-		sh.options.ResponseErrorHandlerFunc(w, r, err)
-	} else if validResponse, ok := response.(DeleteIngressResponseObject); ok {
-		if err := validResponse.VisitDeleteIngressResponse(w); err != nil {
-			sh.options.ResponseErrorHandlerFunc(w, r, err)
-		}
-	} else if response != nil {
-		sh.options.ResponseErrorHandlerFunc(w, r, fmt.Errorf("unexpected response type: %T", response))
-	}
-}
-
 // GetIngress operation middleware
 func (sh *strictHandler) GetIngress(w http.ResponseWriter, r *http.Request, id string) {
 	var request GetIngressRequestObject
@@ -6709,13 +6860,68 @@ func (sh *strictHandler) GetIngress(w http.ResponseWriter, r *http.Request, id s
 	}
 }
 
-// UpdateIngress operation middleware
-func (sh *strictHandler) UpdateIngress(w http.ResponseWriter, r *http.Request, id string) {
-	var request UpdateIngressRequestObject
+// DeleteIngressRecurrencePattern operation middleware
+func (sh *strictHandler) DeleteIngressRecurrencePattern(w http.ResponseWriter, r *http.Request, id string, patternId string) {
+	var request DeleteIngressRecurrencePatternRequestObject
 
 	request.Id = id
+	request.PatternId = patternId
 
-	var body UpdateIngressJSONRequestBody
+	handler := func(ctx context.Context, w http.ResponseWriter, r *http.Request, request interface{}) (interface{}, error) {
+		return sh.ssi.DeleteIngressRecurrencePattern(ctx, request.(DeleteIngressRecurrencePatternRequestObject))
+	}
+	for _, middleware := range sh.middlewares {
+		handler = middleware(handler, "DeleteIngressRecurrencePattern")
+	}
+
+	response, err := handler(r.Context(), w, r, request)
+
+	if err != nil {
+		sh.options.ResponseErrorHandlerFunc(w, r, err)
+	} else if validResponse, ok := response.(DeleteIngressRecurrencePatternResponseObject); ok {
+		if err := validResponse.VisitDeleteIngressRecurrencePatternResponse(w); err != nil {
+			sh.options.ResponseErrorHandlerFunc(w, r, err)
+		}
+	} else if response != nil {
+		sh.options.ResponseErrorHandlerFunc(w, r, fmt.Errorf("unexpected response type: %T", response))
+	}
+}
+
+// GetIngressRecurrencePattern operation middleware
+func (sh *strictHandler) GetIngressRecurrencePattern(w http.ResponseWriter, r *http.Request, id string, patternId string) {
+	var request GetIngressRecurrencePatternRequestObject
+
+	request.Id = id
+	request.PatternId = patternId
+
+	handler := func(ctx context.Context, w http.ResponseWriter, r *http.Request, request interface{}) (interface{}, error) {
+		return sh.ssi.GetIngressRecurrencePattern(ctx, request.(GetIngressRecurrencePatternRequestObject))
+	}
+	for _, middleware := range sh.middlewares {
+		handler = middleware(handler, "GetIngressRecurrencePattern")
+	}
+
+	response, err := handler(r.Context(), w, r, request)
+
+	if err != nil {
+		sh.options.ResponseErrorHandlerFunc(w, r, err)
+	} else if validResponse, ok := response.(GetIngressRecurrencePatternResponseObject); ok {
+		if err := validResponse.VisitGetIngressRecurrencePatternResponse(w); err != nil {
+			sh.options.ResponseErrorHandlerFunc(w, r, err)
+		}
+	} else if response != nil {
+		sh.options.ResponseErrorHandlerFunc(w, r, fmt.Errorf("unexpected response type: %T", response))
+	}
+}
+
+// UpdateIngressRecurrencePattern operation middleware
+func (sh *strictHandler) UpdateIngressRecurrencePattern(w http.ResponseWriter, r *http.Request, id string, patternId string) {
+	var request UpdateIngressRecurrencePatternRequestObject
+
+	request.Id = id
+	request.PatternId = patternId
+
+	var body UpdateIngressRecurrencePatternJSONRequestBody
 	if err := json.NewDecoder(r.Body).Decode(&body); err != nil {
 		sh.options.RequestErrorHandlerFunc(w, r, fmt.Errorf("can't decode JSON body: %w", err))
 		return
@@ -6723,18 +6929,82 @@ func (sh *strictHandler) UpdateIngress(w http.ResponseWriter, r *http.Request, i
 	request.Body = &body
 
 	handler := func(ctx context.Context, w http.ResponseWriter, r *http.Request, request interface{}) (interface{}, error) {
-		return sh.ssi.UpdateIngress(ctx, request.(UpdateIngressRequestObject))
+		return sh.ssi.UpdateIngressRecurrencePattern(ctx, request.(UpdateIngressRecurrencePatternRequestObject))
 	}
 	for _, middleware := range sh.middlewares {
-		handler = middleware(handler, "UpdateIngress")
+		handler = middleware(handler, "UpdateIngressRecurrencePattern")
 	}
 
 	response, err := handler(r.Context(), w, r, request)
 
 	if err != nil {
 		sh.options.ResponseErrorHandlerFunc(w, r, err)
-	} else if validResponse, ok := response.(UpdateIngressResponseObject); ok {
-		if err := validResponse.VisitUpdateIngressResponse(w); err != nil {
+	} else if validResponse, ok := response.(UpdateIngressRecurrencePatternResponseObject); ok {
+		if err := validResponse.VisitUpdateIngressRecurrencePatternResponse(w); err != nil {
+			sh.options.ResponseErrorHandlerFunc(w, r, err)
+		}
+	} else if response != nil {
+		sh.options.ResponseErrorHandlerFunc(w, r, fmt.Errorf("unexpected response type: %T", response))
+	}
+}
+
+// RollbackIngress operation middleware
+func (sh *strictHandler) RollbackIngress(w http.ResponseWriter, r *http.Request, id string) {
+	var request RollbackIngressRequestObject
+
+	request.Id = id
+
+	var body RollbackIngressJSONRequestBody
+	if err := json.NewDecoder(r.Body).Decode(&body); err != nil {
+		sh.options.RequestErrorHandlerFunc(w, r, fmt.Errorf("can't decode JSON body: %w", err))
+		return
+	}
+	request.Body = &body
+
+	handler := func(ctx context.Context, w http.ResponseWriter, r *http.Request, request interface{}) (interface{}, error) {
+		return sh.ssi.RollbackIngress(ctx, request.(RollbackIngressRequestObject))
+	}
+	for _, middleware := range sh.middlewares {
+		handler = middleware(handler, "RollbackIngress")
+	}
+
+	response, err := handler(r.Context(), w, r, request)
+
+	if err != nil {
+		sh.options.ResponseErrorHandlerFunc(w, r, err)
+	} else if validResponse, ok := response.(RollbackIngressResponseObject); ok {
+		if err := validResponse.VisitRollbackIngressResponse(w); err != nil {
+			sh.options.ResponseErrorHandlerFunc(w, r, err)
+		}
+	} else if response != nil {
+		sh.options.ResponseErrorHandlerFunc(w, r, fmt.Errorf("unexpected response type: %T", response))
+	}
+}
+
+// CreateIngressRecurrencePattern operation middleware
+func (sh *strictHandler) CreateIngressRecurrencePattern(w http.ResponseWriter, r *http.Request) {
+	var request CreateIngressRecurrencePatternRequestObject
+
+	var body CreateIngressRecurrencePatternJSONRequestBody
+	if err := json.NewDecoder(r.Body).Decode(&body); err != nil {
+		sh.options.RequestErrorHandlerFunc(w, r, fmt.Errorf("can't decode JSON body: %w", err))
+		return
+	}
+	request.Body = &body
+
+	handler := func(ctx context.Context, w http.ResponseWriter, r *http.Request, request interface{}) (interface{}, error) {
+		return sh.ssi.CreateIngressRecurrencePattern(ctx, request.(CreateIngressRecurrencePatternRequestObject))
+	}
+	for _, middleware := range sh.middlewares {
+		handler = middleware(handler, "CreateIngressRecurrencePattern")
+	}
+
+	response, err := handler(r.Context(), w, r, request)
+
+	if err != nil {
+		sh.options.ResponseErrorHandlerFunc(w, r, err)
+	} else if validResponse, ok := response.(CreateIngressRecurrencePatternResponseObject); ok {
+		if err := validResponse.VisitCreateIngressRecurrencePatternResponse(w); err != nil {
 			sh.options.ResponseErrorHandlerFunc(w, r, err)
 		}
 	} else if response != nil {
@@ -7247,32 +7517,6 @@ func (sh *strictHandler) CreateTransfer(w http.ResponseWriter, r *http.Request) 
 	}
 }
 
-// DeleteTransfer operation middleware
-func (sh *strictHandler) DeleteTransfer(w http.ResponseWriter, r *http.Request, id string) {
-	var request DeleteTransferRequestObject
-
-	request.Id = id
-
-	handler := func(ctx context.Context, w http.ResponseWriter, r *http.Request, request interface{}) (interface{}, error) {
-		return sh.ssi.DeleteTransfer(ctx, request.(DeleteTransferRequestObject))
-	}
-	for _, middleware := range sh.middlewares {
-		handler = middleware(handler, "DeleteTransfer")
-	}
-
-	response, err := handler(r.Context(), w, r, request)
-
-	if err != nil {
-		sh.options.ResponseErrorHandlerFunc(w, r, err)
-	} else if validResponse, ok := response.(DeleteTransferResponseObject); ok {
-		if err := validResponse.VisitDeleteTransferResponse(w); err != nil {
-			sh.options.ResponseErrorHandlerFunc(w, r, err)
-		}
-	} else if response != nil {
-		sh.options.ResponseErrorHandlerFunc(w, r, fmt.Errorf("unexpected response type: %T", response))
-	}
-}
-
 // GetTransfer operation middleware
 func (sh *strictHandler) GetTransfer(w http.ResponseWriter, r *http.Request, id string) {
 	var request GetTransferRequestObject
@@ -7299,141 +7543,181 @@ func (sh *strictHandler) GetTransfer(w http.ResponseWriter, r *http.Request, id 
 	}
 }
 
+// RollbackTransfer operation middleware
+func (sh *strictHandler) RollbackTransfer(w http.ResponseWriter, r *http.Request, id string) {
+	var request RollbackTransferRequestObject
+
+	request.Id = id
+
+	var body RollbackTransferJSONRequestBody
+	if err := json.NewDecoder(r.Body).Decode(&body); err != nil {
+		sh.options.RequestErrorHandlerFunc(w, r, fmt.Errorf("can't decode JSON body: %w", err))
+		return
+	}
+	request.Body = &body
+
+	handler := func(ctx context.Context, w http.ResponseWriter, r *http.Request, request interface{}) (interface{}, error) {
+		return sh.ssi.RollbackTransfer(ctx, request.(RollbackTransferRequestObject))
+	}
+	for _, middleware := range sh.middlewares {
+		handler = middleware(handler, "RollbackTransfer")
+	}
+
+	response, err := handler(r.Context(), w, r, request)
+
+	if err != nil {
+		sh.options.ResponseErrorHandlerFunc(w, r, err)
+	} else if validResponse, ok := response.(RollbackTransferResponseObject); ok {
+		if err := validResponse.VisitRollbackTransferResponse(w); err != nil {
+			sh.options.ResponseErrorHandlerFunc(w, r, err)
+		}
+	} else if response != nil {
+		sh.options.ResponseErrorHandlerFunc(w, r, fmt.Errorf("unexpected response type: %T", response))
+	}
+}
+
 // Base64 encoded, gzipped, json marshaled Swagger object
 var swaggerSpec = []string{
 
-	"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",
+	"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",
+	"/wQBAA==",
 }
 
 // GetSwagger returns the content of the embedded swagger specification file

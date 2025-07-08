@@ -2,27 +2,48 @@ type: object
 properties:
   id:
     type: string
-    description: Unique identifier for the recurring income
-    example: 'income_123'
+    description: Unique identifier for the recurrence pattern
+    example: "123e4567-e89b-12d3-a456-426614174000"
+  ingress_id:
+    type: string
+    description: ID of the associated ingress
+    example: "123e4567-e89b-12d3-a456-426614174001"
   frequency:
     type: string
-    enum:
-      - daily
-      - weekly
-      - monthly
-      - yearly
-    description: How often the income recurs
-    example: monthly
+    enum: [daily, weekly, monthly, yearly]
+    description: Frequency of the recurrence
+    example: "monthly"
   interval:
     type: integer
-    description: How many frequency units between occurrences
+    minimum: 1
+    description: Interval value for the frequency (e.g., every 2 weeks)
     example: 1
-  endDate:
-    type: string
-    format: date
-    description: When the recurring income ends (if applicable)
-    example: '2024-12-31'
   amount:
     type: number
-    description: The amount of the recurring income
-    example: 100.00
+    format: float
+    description: Amount for each recurrence
+    example: 1500.00
+  end_date:
+    type: string
+    format: date
+    nullable: true
+    description: End date for the recurrence pattern (null for indefinite)
+    example: "2024-12-31"
+  created_at:
+    type: string
+    format: date-time
+    description: When the recurrence pattern was created
+    example: "2024-01-15T10:30:00Z"
+  updated_at:
+    type: string
+    format: date-time
+    description: When the recurrence pattern was last updated
+    example: "2024-01-15T10:30:00Z"
+required:
+  - id
+  - ingress_id
+  - frequency
+  - interval
+  - amount
+  - created_at
+  - updated_at

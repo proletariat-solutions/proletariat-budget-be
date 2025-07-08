@@ -1,0 +1,30 @@
+post:
+  summary: Create a recurrence pattern for Ingresses
+  description: Create a new recurrence pattern for Ingresses
+  operationId: createIngressRecurrencePattern
+  tags:
+    - Ingresses
+  requestBody:
+    required: true
+    content:
+      application/json:
+        schema:
+          $ref: '../components/schemas/RecurrencePatternRequest.yaml'
+  responses:
+    '201':
+      description: Recurrence pattern created successfully
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              data:
+                $ref: '../components/schemas/RecurrencePattern.yaml'
+    '400':
+      $ref: '../components/responses/400.yaml'
+    '404':
+      $ref: '../components/responses/404.yaml'
+    '401':
+      $ref: '../components/responses/401.yaml'
+    '500':
+      $ref: '../components/responses/500.yaml'

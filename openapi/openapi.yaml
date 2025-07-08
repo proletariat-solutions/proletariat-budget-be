@@ -14,6 +14,8 @@ paths:
     $ref: paths/expenditures.yaml
   /expenditures/{id}:
     $ref: paths/expenditures_{id}.yaml
+  /expenditures/{id}/rollback:
+    $ref: paths/expenditures_{id}_rollback.yaml
   /categories:
     $ref: paths/categories.yaml
   /categories/{id}:
@@ -22,6 +24,12 @@ paths:
     $ref: paths/ingresses.yaml
   /ingresses/{id}:
     $ref: paths/ingresses_{id}.yaml
+  /ingresses/{id}/rollback:
+    $ref: paths/ingresses_{id}_rollback.yaml
+  /recurrence-pattern:
+    $ref: paths/recurrence-patterns.yaml
+  /ingresses/{id}/recurrence-pattern/{pattern_id}:
+    $ref: paths/ingresses_{id}_recurrence-patterns_{pattern_id}.yaml
   /accounts:
     $ref: paths/accounts.yaml
   /accounts/{id}:
@@ -30,6 +38,8 @@ paths:
     $ref: paths/transfers.yaml
   /transfers/{id}:
     $ref: paths/transfers_{id}.yaml
+  /transfers/{id}/rollback:
+    $ref: paths/transfers_{id}_rollback.yaml
   /balances:
     $ref: paths/balances.yaml
   /exchange-rates:
