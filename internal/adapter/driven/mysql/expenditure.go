@@ -18,17 +18,10 @@ type ExpenditureRepo struct {
 	tagsRepo *port.TagsRepo
 }
 
-func NewExpenditureRepo(db *sql.DB, tagsRepo *port.TagsRepo) *ExpenditureRepo {
-	return &ExpenditureRepo{
-		db:       db,
-		tagsRepo: tagsRepo,
-	}
-}
-
-func (r *ExpenditureRepo) Create(ctx context.Context, expenditure openapi.Expenditure, transactionID string) (string, error) {
+func (r *ExpenditureRepo) Create(ctx context.Context, expenditure openapi.ExpenditureRequest, transactionID string) (string, error) {
 	queryInsert := `insert into expenditures
-						(category_id, declared, planned, transaction_id, created_at, updated_at)
-					VALUES (?, ?, ?, ?, ?, NOW())`
+						(category_id, declared, planned, transaction_id, created_at)
+					VALUES (?, ?, ?, ?, NOW())`
 	result, errInsert := r.db.ExecContext(
 		ctx,
 		queryInsert,
@@ -47,37 +40,6 @@ func (r *ExpenditureRepo) Create(ctx context.Context, expenditure openapi.Expend
 	}
 	lastIDStr := strconv.FormatInt(expenditureId, 10)
 	return lastIDStr, nil
-}
-
-func (r *ExpenditureRepo) Update(ctx context.Context, id string, expenditure openapi.Expenditure) error {
-	queryUpdate := `UPDATE expenditures SET category_id =?,  declared =?, planned =?, updated_at = NOW() WHERE id =?`
-
-	_, err := r.db.ExecContext(
-		ctx,
-		queryUpdate,
-		expenditure.Category.Id,
-		expenditure.Declared,
-		expenditure.Planned,
-		id,
-	)
-	if err != nil {
-		return fmt.Errorf("failed to update expenditure: %w", err)
-	}
-
-	return nil
-
-}
-
-func (r *ExpenditureRepo) Delete(ctx context.Context, id string) error {
-	queryDelete := `DELETE FROM expenditures WHERE id =?`
-
-	_, err := r.db.ExecContext(ctx, queryDelete, id)
-	if err != nil {
-		return fmt.Errorf("failed to delete expenditure: %w", err)
-	}
-
-	return nil
-
 }
 
 func (r *ExpenditureRepo) GetByID(ctx context.Context, id string) (*openapi.Expenditure, error) {

@@ -1,28 +1,22 @@
-type: object
-properties:
-  id:
-    type: string
-    description: Unique identifier for the recurring income
-    example: 'income_123'
-  frequency:
-    type: string
-    enum:
-      - daily
-      - weekly
-      - monthly
-      - yearly
-    description: How often the income recurs
-    example: monthly
-  interval:
-    type: integer
-    description: How many frequency units between occurrences
-    example: 1
-  endDate:
-    type: string
-    format: date
-    description: When the recurring income ends (if applicable)
-    example: '2024-12-31'
-  amount:
-    type: number
-    description: The amount of the recurring income
-    example: 100.00
+allOf:
+  - $ref: "./RecurrencePatternRequest.yaml"
+  - type: object
+    properties:
+      id:
+        type: string
+        description: Unique identifier for the recurrence pattern
+        example: "123e4567-e89b-12d3-a456-426614174000"
+      created_at:
+        type: string
+        format: date-time
+        description: When the recurrence pattern was created
+        example: "2024-01-15T10:30:00Z"
+      updated_at:
+        type: string
+        format: date-time
+        description: When the recurrence pattern was last updated
+        example: "2024-01-15T10:30:00Z"
+    required:
+      - id
+      - created_at
+      - updated_at

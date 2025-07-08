@@ -423,7 +423,6 @@ CREATE TABLE transactions
     balance_after    DECIMAL(15, 2)                                          NOT NULL,
     status           ENUM ('pending', 'completed', 'failed', 'cancelled')    NOT NULL DEFAULT 'completed',
     created_at       TIMESTAMP                                               NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    updated_at       TIMESTAMP                                               NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
 
     -- Foreign key to accounts table
     CONSTRAINT fk_transaction_account FOREIGN KEY (account_id) REFERENCES accounts (id),
@@ -457,7 +456,6 @@ CREATE TABLE expenditures
     planned        BOOLEAN   NOT NULL DEFAULT FALSE,
     transaction_id BIGINT    NOT NULL unique REFERENCES transactions (id),
     created_at     TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    updated_at     TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     INDEX idx_category (category_id),
     INDEX idx_declared (declared),
     INDEX idx_planned (planned),
@@ -486,12 +484,13 @@ CREATE TABLE ingresses
     id             BIGINT auto_increment PRIMARY KEY,
     category_id    bigint    NOT NULL,
     source         VARCHAR(255),
-    is_recurring   BOOLEAN            DEFAULT FALSE,
+    from_recurrency_pattern_id   BIGINT references ingress_recurrence_patterns (id),
     transaction_id BIGINT    NOT NULL unique REFERENCES transactions (id),
     created_at     TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    updated_at     TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     INDEX idx_category (category_id),
     INDEX idx_source (source),
+    index idx_from_recurrency_pattern_id (from_recurrency_pattern_id),
+    index idx_transaction_id (transaction_id),
     foreign key (category_id) REFERENCES categories (id)
 );
 
@@ -509,17 +508,13 @@ Create table ingress_tags
 CREATE TABLE ingress_recurrence_patterns
 (
     id             BIGINT auto_increment PRIMARY KEY,
-    ingress_id     BIGINT                                        NOT NULL,
-    frequency      ENUM ('daily', 'weekly', 'monthly', 'yearly') NOT NULL,
+    frequency      ENUM ('daily', 'weekly', 'monthly', 'yearly') NOT NULL DEFAULT 'monthly',
     interval_value INT                                           NOT NULL DEFAULT 1,
     amount         DECIMAL(15, 2),
-    end_date       DATE,
-    foreign key (ingress_id) REFERENCES ingresses (id) ON DELETE CASCADE
+    to_account_id  BIGINT                                        NOT NULL references accounts (id),
+    description    TEXT                                          NOT NULL,
+    end_date       DATE
 );
-
--- Create index for common query patterns
-CREATE INDEX idx_ingresses_category ON ingresses (category_id);
-CREATE INDEX idx_ingresses_is_recurring ON ingresses (is_recurring);
 
 -- Create savings goals table
 CREATE TABLE savings_goals
@@ -563,12 +558,12 @@ CREATE TABLE savings_goal_tags
 -- Create savings contributions table
 CREATE TABLE savings_contributions
 (
-    id                BIGINT PRIMARY KEY auto_increment,
-    savings_goal_id   BIGINT    NOT NULL,
-    date              DATE      NOT NULL,
-    transfer_id       BIGINT    NOT NULL unique REFERENCES transfers (id),
-    created_at        TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    updated_at        TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    id              BIGINT PRIMARY KEY auto_increment,
+    savings_goal_id BIGINT    NOT NULL,
+    date            DATE      NOT NULL,
+    transfer_id     BIGINT    NOT NULL unique REFERENCES transfers (id),
+    created_at      TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updated_at      TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     FOREIGN KEY (savings_goal_id) REFERENCES savings_goals (id) ON DELETE CASCADE
 );
 
@@ -585,13 +580,13 @@ CREATE TABLE savings_contribution_tags
 -- Create savings withdrawals table
 CREATE TABLE savings_withdrawals
 (
-    id                     BIGINT auto_increment PRIMARY KEY,
-    savings_goal_id        BIGINT       NOT NULL,
-    date                   DATE         NOT NULL,
-    reason                 VARCHAR(255) NOT NULL,
-    transfer_id            BIGINT       NOT NULL unique REFERENCES transfers (id),
-    created_at             TIMESTAMP    NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    updated_at             TIMESTAMP    NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    id              BIGINT auto_increment PRIMARY KEY,
+    savings_goal_id BIGINT       NOT NULL,
+    date            DATE         NOT NULL,
+    reason          VARCHAR(255) NOT NULL,
+    transfer_id     BIGINT       NOT NULL unique REFERENCES transfers (id),
+    created_at      TIMESTAMP    NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updated_at      TIMESTAMP    NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     FOREIGN KEY (savings_goal_id) REFERENCES savings_goals (id) ON DELETE CASCADE
 );
 
@@ -645,7 +640,6 @@ CREATE TABLE transfers
     outgoing_transaction_id  BIGINT    NOT NULL unique REFERENCES transactions (id),
     incoming_transaction_id  BIGINT    NOT NULL unique REFERENCES transactions (id),
     created_at               TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    updated_at               TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
 
     CONSTRAINT fk_transfer_source_account FOREIGN KEY (source_account_id) REFERENCES accounts (id),
     CONSTRAINT fk_transfer_destination_account FOREIGN KEY (destination_account_id) REFERENCES accounts (id)
@@ -689,7 +683,6 @@ create table transaction_rollbacks
     rollback_reason         TEXT,
     rollback_timestamp      TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     created_at              TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    updated_at              TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     index idx_transaction_rollbacks_transaction_id (transaction_id),
     index idx_transaction_rollbacks_rollback_transaction_id (rollback_transaction_id),
     unique KEY uk_transaction_rollbacks_transaction_id_rollback_transaction_id (transaction_id, rollback_transaction_id)

@@ -15,17 +15,27 @@ func (c *Controller) CreateIngress(ctx context.Context, request openapi.CreateIn
 	panic("implement me")
 }
 
-func (c *Controller) DeleteIngress(ctx context.Context, request openapi.DeleteIngressRequestObject) (openapi.DeleteIngressResponseObject, error) {
-	//TODO implement me
-	panic("implement me")
-}
-
 func (c *Controller) GetIngress(ctx context.Context, request openapi.GetIngressRequestObject) (openapi.GetIngressResponseObject, error) {
 	//TODO implement me
 	panic("implement me")
 }
 
-func (c *Controller) UpdateIngress(ctx context.Context, request openapi.UpdateIngressRequestObject) (openapi.UpdateIngressResponseObject, error) {
+func (c *Controller) DeleteIngressRecurrencePattern(ctx context.Context, request openapi.DeleteIngressRecurrencePatternRequestObject) (openapi.DeleteIngressRecurrencePatternResponseObject, error) {
+	//TODO implement me
+	panic("implement me")
+}
+
+func (c *Controller) GetIngressRecurrencePattern(ctx context.Context, request openapi.GetIngressRecurrencePatternRequestObject) (openapi.GetIngressRecurrencePatternResponseObject, error) {
+	//TODO implement me
+	panic("implement me")
+}
+
+func (c *Controller) UpdateIngressRecurrencePattern(ctx context.Context, request openapi.UpdateIngressRecurrencePatternRequestObject) (openapi.UpdateIngressRecurrencePatternResponseObject, error) {
+	//TODO implement me
+	panic("implement me")
+}
+
+func (c *Controller) CreateIngressRecurrencePattern(ctx context.Context, request openapi.CreateIngressRecurrencePatternRequestObject) (openapi.CreateIngressRecurrencePatternResponseObject, error) {
 	//TODO implement me
 	panic("implement me")
 }

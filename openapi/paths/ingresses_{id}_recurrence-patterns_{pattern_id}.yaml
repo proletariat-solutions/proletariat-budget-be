@@ -1,0 +1,111 @@
+get:
+  summary: Get a specific recurrence pattern
+  description: Retrieve a specific recurrence pattern for an ingress
+  operationId: getIngressRecurrencePattern
+  tags:
+    - Ingresses
+    - Recurrence Patterns
+  parameters:
+    - name: id
+      in: path
+      required: true
+      description: The ingress ID
+      schema:
+        type: string
+    - name: pattern_id
+      in: path
+      required: true
+      description: The recurrence pattern ID
+      schema:
+        type: string
+  responses:
+    '200':
+      description: Recurrence pattern details
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              data:
+                $ref: '../components/schemas/RecurrencePattern.yaml'
+    '404':
+      $ref: '../components/responses/404.yaml'
+    '401':
+      $ref: '../components/responses/401.yaml'
+    '500':
+      $ref: '../components/responses/500.yaml'
+
+put:
+  summary: Update a recurrence pattern
+  description: Update an existing recurrence pattern for an ingress
+  operationId: updateIngressRecurrencePattern
+  tags:
+    - Ingresses
+    - Recurrence Patterns
+  parameters:
+    - name: id
+      in: path
+      required: true
+      description: The ingress ID
+      schema:
+        type: string
+    - name: pattern_id
+      in: path
+      required: true
+      description: The recurrence pattern ID
+      schema:
+        type: string
+  requestBody:
+    required: true
+    content:
+      application/json:
+        schema:
+          $ref: '../components/schemas/RecurrencePatternRequest.yaml'
+  responses:
+    '200':
+      description: Recurrence pattern updated successfully
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              data:
+                $ref: '../components/schemas/RecurrencePattern.yaml'
+    '400':
+      $ref: '../components/responses/400.yaml'
+    '404':
+      $ref: '../components/responses/404.yaml'
+    '401':
+      $ref: '../components/responses/401.yaml'
+    '500':
+      $ref: '../components/responses/500.yaml'
+
+delete:
+  summary: Delete a recurrence pattern
+  description: Delete a specific recurrence pattern for an ingress
+  operationId: deleteIngressRecurrencePattern
+  tags:
+    - Ingresses
+    - Recurrence Patterns
+  parameters:
+    - name: id
+      in: path
+      required: true
+      description: The ingress ID
+      schema:
+        type: string
+    - name: pattern_id
+      in: path
+      required: true
+      description: The recurrence pattern ID
+      schema:
+        type: string
+  responses:
+    '204':
+      description: Recurrence pattern deleted successfully
+    '404':
+      $ref: '../components/responses/404.yaml'
+    '401':
+      $ref: '../components/responses/401.yaml'
+    '500':
+      $ref: '../components/responses/500.yaml'
