@@ -117,26 +117,26 @@ func FromOAPIIngressRequest(i *openapi.IngressRequest) *Transaction {
 func FromOAPITransferDebit(t *openapi.Transfer, sourceAccountCurrency string) *Transaction {
 	return &Transaction{
 		AccountID:       t.SourceAccountId,
-		Amount:          t.Amount,
+		Amount:          *t.SourceAmount,
 		Currency:        sourceAccountCurrency,
 		TransactionDate: t.Date.Time,
 		Description:     *t.Description,
 		TransactionType: TransactionTypeTransfer,
-		CreatedAt:       t.CreatedAt,
-		UpdatedAt:       t.UpdatedAt,
+		CreatedAt:       time.Now(),
+		UpdatedAt:       time.Now(),
 	}
 }
 
 func FromOAPITransferCredit(t *openapi.Transfer, destinationAccountCurrency string) *Transaction {
 	return &Transaction{
 		AccountID:       t.DestinationAccountId,
-		Amount:          t.Amount,
+		Amount:          *t.DestinationAmount,
 		Currency:        destinationAccountCurrency,
 		TransactionDate: t.Date.Time,
 		Description:     *t.Description,
 		TransactionType: TransactionTypeTransfer,
-		CreatedAt:       t.CreatedAt,
-		UpdatedAt:       t.UpdatedAt,
+		CreatedAt:       time.Now(),
+		UpdatedAt:       time.Now(),
 	}
 }
 
