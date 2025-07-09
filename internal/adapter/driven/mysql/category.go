@@ -6,11 +6,16 @@ import (
 	"errors"
 	"fmt"
 	"ghorkov32/proletariat-budget-be/internal/core/domain"
+	"ghorkov32/proletariat-budget-be/internal/core/port"
 	"ghorkov32/proletariat-budget-be/openapi"
 )
 
 type CategoryRepoImpl struct {
 	db *sql.DB
+}
+
+func NewCategoryRepo(db *sql.DB) port.CategoryRepo {
+	return &CategoryRepoImpl{db: db}
 }
 
 func (c CategoryRepoImpl) Create(ctx context.Context, category openapi.Category, categoryType string) (string, error) {

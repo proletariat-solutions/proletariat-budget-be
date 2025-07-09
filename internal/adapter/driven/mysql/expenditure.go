@@ -18,6 +18,10 @@ type ExpenditureRepo struct {
 	tagsRepo *port.TagsRepo
 }
 
+func NewExpenditureRepo(db *sql.DB, tagsRepo *port.TagsRepo) port.ExpenditureRepo {
+	return &ExpenditureRepo{db: db, tagsRepo: tagsRepo}
+}
+
 func (r *ExpenditureRepo) Create(ctx context.Context, expenditure openapi.ExpenditureRequest, transactionID string) (string, error) {
 	queryInsert := `insert into expenditures
 						(category_id, declared, planned, transaction_id, created_at)

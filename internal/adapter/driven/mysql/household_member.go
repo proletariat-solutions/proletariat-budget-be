@@ -6,6 +6,7 @@ import (
 	"errors"
 	"fmt"
 	"ghorkov32/proletariat-budget-be/internal/core/domain"
+	"ghorkov32/proletariat-budget-be/internal/core/port"
 	"ghorkov32/proletariat-budget-be/openapi"
 	"strconv"
 )
@@ -14,7 +15,11 @@ type HouseholdMemberRepository struct {
 	db *sql.DB
 }
 
-func (h HouseholdMemberRepository) Create(ctx context.Context, householdMember openapi.HouseholdMember) (string, error) {
+func NewHouseholdMemberRepository(db *sql.DB) port.HouseholdMembersRepo {
+	return &HouseholdMemberRepository{db: db}
+}
+
+func (h HouseholdMemberRepository) Create(ctx context.Context, householdMember openapi.HouseholdMemberRequest) (string, error) {
 	query := `INSERT INTO household_members (name, surname, nickname, role, active, created_at, updated_at) VALUES (?,?,?,?,true, now(), NOW())`
 	result, err := h.db.ExecContext(
 		ctx, query, householdMember.FirstName, householdMember.LastName, householdMember.Nickname, householdMember.Role,
@@ -29,10 +34,10 @@ func (h HouseholdMemberRepository) Create(ctx context.Context, householdMember o
 	return strconv.FormatInt(id, 10), nil
 }
 
-func (h HouseholdMemberRepository) Update(ctx context.Context, householdMember openapi.HouseholdMember) error {
+func (h HouseholdMemberRepository) Update(ctx context.Context, id string, householdMember openapi.HouseholdMemberRequest) error {
 	query := `UPDATE household_members SET name =?, surname =?, nickname =?, role =?, updated_at = NOW() WHERE id =?`
 	result, err := h.db.ExecContext(
-		ctx, query, householdMember.FirstName, householdMember.LastName, householdMember.Nickname, householdMember.Role, householdMember.Id,
+		ctx, query, householdMember.FirstName, householdMember.LastName, householdMember.Nickname, householdMember.Role, id,
 	)
 	if err != nil {
 		return fmt.Errorf("failed to update household member: %w", err)
@@ -79,7 +84,7 @@ func (h HouseholdMemberRepository) GetByID(ctx context.Context, id string) (*ope
 	return &householdMember, nil
 }
 
-func (h HouseholdMemberRepository) List(ctx context.Context) ([]openapi.HouseholdMember, error) {
+func (h HouseholdMemberRepository) List(ctx context.Context) (*openapi.HouseholdMemberList, error) {
 	query := `SELECT id, name, surname, nickname, role, active, created_at, updated_at FROM household_members WHERE active = true`
 	rows, err := h.db.QueryContext(ctx, query)
 	if err != nil {
@@ -95,5 +100,5 @@ func (h HouseholdMemberRepository) List(ctx context.Context) ([]openapi.Househol
 		}
 		householdMembers = append(householdMembers, householdMember)
 	}
-	return householdMembers, nil
+	return &openapi.HouseholdMemberList{Members: &householdMembers}, nil
 }

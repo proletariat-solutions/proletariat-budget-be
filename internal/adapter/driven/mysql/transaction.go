@@ -17,6 +17,10 @@ type TransactionRepoImpl struct {
 	tagsRepo *port.TagsRepo
 }
 
+func NewTransactionRepo(db *sql.DB, tagsRepo port.TagsRepo) port.TransactionRepo {
+	return &TransactionRepoImpl{db: db, tagsRepo: &tagsRepo}
+}
+
 func (t TransactionRepoImpl) Create(ctx context.Context, transaction domain.Transaction) (string, error) {
 	queryInsert := `insert into transactions
 					(account_id,

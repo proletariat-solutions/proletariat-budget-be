@@ -17,6 +17,13 @@ type IngressRepo struct {
 	tagsRepo *port.TagsRepo
 }
 
+func NewIngressRepo(db *sql.DB, tagsRepo *port.TagsRepo) port.IngressRepo {
+	return &IngressRepo{
+		db:       db,
+		tagsRepo: tagsRepo,
+	}
+}
+
 func (i IngressRepo) CreateRecurrencePattern(ctx context.Context, recurrencePattern openapi.RecurrencePatternRequest) (string, error) {
 	queryInsert := `insert into ingress_recurrence_patterns 
 						(frequency,

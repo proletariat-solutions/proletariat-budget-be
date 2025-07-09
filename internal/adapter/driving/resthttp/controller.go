@@ -5,8 +5,10 @@ import (
 	"ghorkov32/proletariat-budget-be/openapi"
 )
 
-var _ openapi.StrictServerInterface = (*Controller)(nil)
-
 type Controller struct {
-	authUseCase *usecase.AuthUseCase
+	useCases *usecase.UseCases
+}
+
+func NewController(useCases *usecase.UseCases) openapi.StrictServerInterface {
+	return &Controller{useCases: useCases}
 }
