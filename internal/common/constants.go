@@ -5,7 +5,7 @@ import (
 )
 
 const (
-	APPNAME = "tmpl-com-rest-api"
+	APPNAME = "proletariat-budget-be"
 
 	RequestID = "request_id"
 

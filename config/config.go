@@ -1,29 +1,33 @@
 package config
 
 import (
+	"os"
 	"time"
 
 	"github.com/caarlos0/env/v11"
 	"github.com/rs/zerolog/log"
+
+	"github.com/joho/godotenv"
 )
 
 type Configs struct {
-	App     *App
-	MySQL   *MySQL
-	HTTP    *HTTP
+	App   *App
+	MySQL *MySQL
+	HTTP  *HTTP
 }
 
 func Load() *Configs {
-	cfg := &Configs{
-		App:     &App{},
-		MySQL:   &MySQL{},
-		HTTP:    &HTTP{},
+	cfg := Configs{
+		App:   &App{},
+		MySQL: &MySQL{},
+		HTTP:  &HTTP{},
 	}
-	if err := env.Parse(cfg); err != nil {
-		log.Fatal().Err(err).Msg("failed to load configs")
+	setupFromLocalFile()
+	if err := env.Parse(&cfg); err != nil {
+		log.Fatal().Err(err).Msg("Unable to load environment variables")
 	}
 
-	return cfg
+	return &cfg
 }
 
 type HTTP struct {
@@ -50,27 +54,16 @@ type MySQL struct {
 }
 
 // ParseConfig parses environment variables into the config struct
-func ParseConfig() (*Configs, error) {
-	app := &App{}
-	mysql := &MySQL{}
-	http := &HTTP{}
+func setupFromLocalFile() {
+	err := godotenv.Load(".env") // DO NOT commit the .env file
 
-
-	if err := env.Parse(app); err != nil {
-		return nil, err
+	if err != nil {
+		if os.IsNotExist(err) {
+			log.Warn().Msg(".env file not found, proceeding with original values")
+		} else {
+			log.Err(err).Msg("failed to read .env file, proceeding with original values")
+		}
+	} else {
+		log.Info().Msg(".env read successfully")
 	}
-
-	if err := env.Parse(mysql); err != nil {
-		return nil, err
-	}
-
-	if err := env.Parse(http); err != nil {
-		return nil, err
-	}
-
-	return &Configs{
-		App:     app,
-		MySQL:   mysql,
-		HTTP:    http,
-	}, nil
 }
