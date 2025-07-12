@@ -31,7 +31,11 @@ func main() {
 
 	defer db.Close()
 
-	runMigrations(configs)
+	err := runMigrations(configs)
+
+	if err != nil {
+		log.Fatal().Err(err).Msg("failed to run migrations")
+	}
 
 	ports := instantiatePorts(db)
 
@@ -41,11 +45,17 @@ func main() {
 
 	handler := openapi.NewStrictHandler(controller, nil)
 
+	oapiSpecs, errSw := openapi.GetSwagger()
+	if errSw != nil {
+		log.Fatal().Err(errSw).Msg("failed to get OpenAPI specs")
+	}
+
 	httpServer := resthttp.NewHTTPServer(
 		configs.App,
 		openapi.Handler(handler),
 		resthttp.MetricsCollector,
 		middleware.DetailedRequestLogger,
+		middleware.OpenAPIValidationMiddleware(oapiSpecs),
 		// TODO:  Middlewares
 	)
 	go httpServer.Start()
@@ -64,7 +74,7 @@ func main() {
 	log.Info().Msg("application stopping ...")
 }
 
-func runMigrations(configs *config.Configs) {
+func runMigrations(configs *config.Configs) error {
 	// Run database migrations
 	migrationConfig := mysql.MigrationConfig{
 		MigrationsPath: "./migrations/mysql",
@@ -76,8 +86,9 @@ func runMigrations(configs *config.Configs) {
 	}
 
 	if err := mysql.RunMigrations(migrationConfig); err != nil {
-		log.Fatal().Err(err).Msg("Failed to run database migrations")
+		return fmt.Errorf("failed to run database migrations: %w", err)
 	}
+	return nil
 }
 
 func initDB(configs *config.Configs) *sql.DB {

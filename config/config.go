@@ -37,7 +37,7 @@ type HTTP struct {
 
 type App struct {
 	LogLevel    string        `env:"LOG_LEVEL" envDefault:"debug"`
-	ServerPort  int           `env:"SERVER_PORT" envDefault:"8080"`
+	ServerPort  int           `env:"SERVER_PORT" envDefault:"9091"`
 	ReadTimeout time.Duration `env:"SERVER_READ_TIMEOUT" envDefault:"500s"`
 }
 
@@ -46,8 +46,8 @@ type MySQL struct {
 	Host         string `env:"MYSQL_HOST" envDefault:"localhost"`
 	Port         string `env:"MYSQL_PORT" envDefault:"3306"`
 	Database     string `env:"MYSQL_DATABASE" envDefault:"proletariat_budget"`
-	User         string `env:"MYSQL_USER" envDefault:"root"`
-	Password     string `env:"MYSQL_PASSWORD" envDefault:""`
+	User         string `env:"MYSQL_USER" envDefault:"budgetuser"`
+	Password     string `env:"MYSQL_PASSWORD" envDefault:"budgetpassword"`
 	MaxOpenConns int    `env:"MYSQL_MAX_OPEN_CONNS" envDefault:"10"`
 	MaxIdleConns int    `env:"MYSQL_MAX_IDLE_CONNS" envDefault:"5"`
 	ConnMaxLife  int    `env:"MYSQL_CONN_MAX_LIFETIME" envDefault:"300"` // seconds

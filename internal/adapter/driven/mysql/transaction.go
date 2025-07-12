@@ -85,7 +85,7 @@ func (t TransactionRepoImpl) GetByID(ctx context.Context, id string) (*domain.Tr
 		&transaction.Status,
 	)
 	if errors.Is(err, sql.ErrNoRows) {
-		return nil, domain.ErrEntityNotFound
+		return nil, err // TODO return correct error from domain
 	}
 	if err != nil {
 		return nil, err

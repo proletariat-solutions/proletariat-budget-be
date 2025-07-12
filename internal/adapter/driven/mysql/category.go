@@ -5,7 +5,6 @@ import (
 	"database/sql"
 	"errors"
 	"fmt"
-	"ghorkov32/proletariat-budget-be/internal/core/domain"
 	"ghorkov32/proletariat-budget-be/internal/core/port"
 	"ghorkov32/proletariat-budget-be/openapi"
 )
@@ -101,7 +100,7 @@ func (c CategoryRepoImpl) GetByID(ctx context.Context, id string) (*openapi.Cate
 		&category.Active,
 	)
 	if errors.Is(err, sql.ErrNoRows) {
-		return nil, domain.ErrEntityNotFound
+		return nil, err // TODO return correct error from domain
 	} else if err != nil {
 		return nil, fmt.Errorf("failed to select category: %w", err)
 	}

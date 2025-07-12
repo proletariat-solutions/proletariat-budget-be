@@ -2,15 +2,15 @@ package port
 
 import (
 	"context"
-	"ghorkov32/proletariat-budget-be/openapi"
+	"ghorkov32/proletariat-budget-be/internal/core/domain"
 )
 
 type AccountRepo interface {
-	Create(ctx context.Context, account openapi.AccountRequest) (string, error)
-	GetByID(ctx context.Context, id string) (*openapi.Account, error)
-	Update(ctx context.Context, account openapi.Account) error
-	Deactivate(ctx context.Context, id string) error
+	Create(ctx context.Context, account domain.Account) (*string, error)
+	GetByID(ctx context.Context, id string) (*domain.Account, error)
+	Update(ctx context.Context, account domain.Account) error
+	SetActive(ctx context.Context, id string, active bool) error
 	Delete(ctx context.Context, id string) error
-	List(ctx context.Context, params openapi.ListAccountsParams) (*openapi.AccountList, error)
+	List(ctx context.Context, params domain.AccountListParams) (*domain.AccountList, error)
 	HasTransactions(ctx context.Context, id string) (bool, error)
 }

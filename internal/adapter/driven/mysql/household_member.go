@@ -7,7 +7,6 @@ import (
 	"fmt"
 	"ghorkov32/proletariat-budget-be/internal/core/domain"
 	"ghorkov32/proletariat-budget-be/internal/core/port"
-	"ghorkov32/proletariat-budget-be/openapi"
 	"strconv"
 )
 
@@ -19,7 +18,7 @@ func NewHouseholdMemberRepository(db *sql.DB) port.HouseholdMembersRepo {
 	return &HouseholdMemberRepository{db: db}
 }
 
-func (h HouseholdMemberRepository) Create(ctx context.Context, householdMember openapi.HouseholdMemberRequest) (string, error) {
+func (h HouseholdMemberRepository) Create(ctx context.Context, householdMember domain.HouseholdMember) (string, error) {
 	query := `INSERT INTO household_members (name, surname, nickname, role, active, created_at, updated_at) VALUES (?,?,?,?,true, now(), NOW())`
 	result, err := h.db.ExecContext(
 		ctx, query, householdMember.FirstName, householdMember.LastName, householdMember.Nickname, householdMember.Role,
@@ -34,7 +33,7 @@ func (h HouseholdMemberRepository) Create(ctx context.Context, householdMember o
 	return strconv.FormatInt(id, 10), nil
 }
 
-func (h HouseholdMemberRepository) Update(ctx context.Context, id string, householdMember openapi.HouseholdMemberRequest) error {
+func (h HouseholdMemberRepository) Update(ctx context.Context, id string, householdMember domain.HouseholdMember) error {
 	query := `UPDATE household_members SET name =?, surname =?, nickname =?, role =?, updated_at = NOW() WHERE id =?`
 	result, err := h.db.ExecContext(
 		ctx, query, householdMember.FirstName, householdMember.LastName, householdMember.Nickname, householdMember.Role, id,
@@ -47,7 +46,7 @@ func (h HouseholdMemberRepository) Update(ctx context.Context, id string, househ
 		return fmt.Errorf("failed to update household member: %w", errRowsAffected)
 	}
 	if rowsAffected == 0 {
-		return domain.ErrEntityNotFound
+		return err // TODO return correct error from domain
 	}
 	return nil
 }
@@ -65,40 +64,50 @@ func (h HouseholdMemberRepository) Delete(ctx context.Context, id string) error 
 		return fmt.Errorf("failed to delete household member: %w", errRowsAffected)
 	}
 	if rowsAffected == 0 {
-		return domain.ErrEntityNotFound
+		return err // TODO return correct error from domain
 	}
 	return nil
 }
 
-func (h HouseholdMemberRepository) GetByID(ctx context.Context, id string) (*openapi.HouseholdMember, error) {
+func (h HouseholdMemberRepository) GetByID(ctx context.Context, id string) (*domain.HouseholdMember, error) {
 	query := `SELECT id, name, surname, nickname, role, active, created_at, updated_at FROM household_members WHERE id =?`
-	var householdMember openapi.HouseholdMember
+	var householdMember domain.HouseholdMember
 	row := h.db.QueryRowContext(ctx, query, id)
-	err := row.Scan(&householdMember.Id, &householdMember.FirstName, &householdMember.LastName, &householdMember.Nickname, &householdMember.Role, &householdMember.Active, &householdMember.CreatedAt, &householdMember.UpdatedAt)
+	err := row.Scan(&householdMember.ID, &householdMember.FirstName, &householdMember.LastName, &householdMember.Nickname, &householdMember.Role, &householdMember.Active, &householdMember.CreatedAt, &householdMember.UpdatedAt)
 	if err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
-			return nil, domain.ErrEntityNotFound
+			return nil, err // TODO return correct error from domain
 		}
 		return nil, fmt.Errorf("failed to select household member: %w", err)
 	}
 	return &householdMember, nil
 }
 
-func (h HouseholdMemberRepository) List(ctx context.Context) (*openapi.HouseholdMemberList, error) {
+func (h HouseholdMemberRepository) CanDelete(ctx context.Context, id string) (bool, error) {
+	query := `SELECT COUNT(*) FROM accounts WHERE owner = ?`
+	var count int
+	err := h.db.QueryRowContext(ctx, query, id).Scan(&count)
+	if err != nil {
+		return false, fmt.Errorf("failed to check household member deletion: %w", err)
+	}
+	return count == 0, nil
+}
+
+func (h HouseholdMemberRepository) List(ctx context.Context) (*domain.HouseholdMemberList, error) {
 	query := `SELECT id, name, surname, nickname, role, active, created_at, updated_at FROM household_members WHERE active = true`
 	rows, err := h.db.QueryContext(ctx, query)
 	if err != nil {
 		return nil, fmt.Errorf("failed to select household members: %w", err)
 	}
 	defer rows.Close()
-	var householdMembers []openapi.HouseholdMember
+	var householdMembers []domain.HouseholdMember
 	for rows.Next() {
-		var householdMember openapi.HouseholdMember
-		err := rows.Scan(&householdMember.Id, &householdMember.FirstName, &householdMember.LastName, &householdMember.Nickname, &householdMember.Role, &householdMember.Active, &householdMember.CreatedAt, &householdMember.UpdatedAt)
+		var householdMember domain.HouseholdMember
+		err := rows.Scan(&householdMember.ID, &householdMember.FirstName, &householdMember.LastName, &householdMember.Nickname, &householdMember.Role, &householdMember.Active, &householdMember.CreatedAt, &householdMember.UpdatedAt)
 		if err != nil {
 			return nil, fmt.Errorf("failed to scan row: %w", err)
 		}
 		householdMembers = append(householdMembers, householdMember)
 	}
-	return &openapi.HouseholdMemberList{Members: &householdMembers}, nil
+	return &domain.HouseholdMemberList{HouseholdMembers: householdMembers}, nil
 }

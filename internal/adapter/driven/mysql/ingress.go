@@ -5,7 +5,6 @@ import (
 	"database/sql"
 	"errors"
 	"fmt"
-	"ghorkov32/proletariat-budget-be/internal/core/domain"
 	"ghorkov32/proletariat-budget-be/internal/core/port"
 	"ghorkov32/proletariat-budget-be/openapi"
 	"sort"
@@ -113,7 +112,7 @@ func (i IngressRepo) GetRecurrencePattern(ctx context.Context, id string) (*open
 	)
 	if err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
-			return nil, domain.ErrEntityNotFound
+			return nil, err // TODO return correct error from domain
 		}
 		return nil, fmt.Errorf("failed to select recurrence pattern: %w", err)
 	}
@@ -220,7 +219,7 @@ func (i IngressRepo) GetByID(ctx context.Context, id string) (*openapi.Ingress, 
 	)
 	if err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
-			return nil, domain.ErrEntityNotFound
+			return nil, err // TODO return correct error from domain
 		}
 		return nil, fmt.Errorf("failed to select ingress: %w", err)
 	}

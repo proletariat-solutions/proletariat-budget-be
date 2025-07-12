@@ -38,6 +38,10 @@ paths:
     $ref: paths/accounts_{id}.yaml
   /accounts/{id}/can-delete:
     $ref: paths/accounts_{id}_can-delete.yaml
+  /accounts/{id}/deactivate:
+    $ref: paths/accounts_{id}_deactivate.yaml
+  /accounts/{id}/activate:
+    $ref: paths/accounts_{id}_activate.yaml
   /transfers:
     $ref: paths/transfers.yaml
   /transfers/{id}:

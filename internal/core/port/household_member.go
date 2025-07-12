@@ -2,13 +2,14 @@ package port
 
 import (
 	"context"
-	"ghorkov32/proletariat-budget-be/openapi"
+	"ghorkov32/proletariat-budget-be/internal/core/domain"
 )
 
 type HouseholdMembersRepo interface {
-	Create(ctx context.Context, householdMember openapi.HouseholdMemberRequest) (string, error)
-	Update(ctx context.Context, id string, householdMember openapi.HouseholdMemberRequest) error
+	Create(ctx context.Context, householdMember domain.HouseholdMember) (string, error)
+	Update(ctx context.Context, id string, householdMember domain.HouseholdMember) error
 	Delete(ctx context.Context, id string) error
-	GetByID(ctx context.Context, id string) (*openapi.HouseholdMember, error)
-	List(ctx context.Context) (*openapi.HouseholdMemberList, error)
+	CanDelete(ctx context.Context, id string) (bool, error)
+	GetByID(ctx context.Context, id string) (*domain.HouseholdMember, error)
+	List(ctx context.Context) (*domain.HouseholdMemberList, error)
 }
