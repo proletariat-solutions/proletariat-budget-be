@@ -5,44 +5,41 @@ import (
 	"database/sql"
 	"errors"
 	"ghorkov32/proletariat-budget-be/internal/core/domain"
+	"ghorkov32/proletariat-budget-be/internal/core/port"
 	"github.com/golang-jwt/jwt/v5"
 	"time"
 )
 
-type AuthRepository struct {
+type AuthRepoImpl struct {
 	db     *sql.DB
 	secret []byte // JWT secret
 }
 
-func NewAuthRepository(db *sql.DB, secret string) *AuthRepository {
-	return &AuthRepository{
+func NewAuthRepository(db *sql.DB, secret string) port.AuthRepo {
+	return &AuthRepoImpl{
 		db:     db,
 		secret: []byte(secret),
 	}
 }
 
-func (r *AuthRepository) CreateUser(ctx context.Context, user domain.User) (string, error) {
-	// Implementation for creating a user in the database
-	// Remember to hash the password before storing
-	// ...
+func (r *AuthRepoImpl) CreateUser(ctx context.Context, user domain.User) (string, error) {
+	return "", errors.New("not implemented") // Replace with actual implementation
 }
 
-func (r *AuthRepository) GetUserByEmail(ctx context.Context, email string) (*domain.User, error) {
-	// Implementation for retrieving a user by email
-	// ...
+func (r *AuthRepoImpl) GetUserByEmail(ctx context.Context, email string) (*domain.User, error) {
+
+	return nil, errors.New("not implemented") // Replace with actual implementation
 }
 
-func (r *AuthRepository) GetUserByID(ctx context.Context, id string) (*domain.User, error) {
-	// Implementation for retrieving a user by ID
-	// ...
+func (r *AuthRepoImpl) GetUserByID(ctx context.Context, id string) (*domain.User, error) {
+	return nil, errors.New("not implemented") // Replace with actual implementation
 }
 
-func (r *AuthRepository) UpdateUser(ctx context.Context, id string, user domain.User) error {
-	// Implementation for updating a user
-	// ...
+func (r *AuthRepoImpl) UpdateUser(ctx context.Context, id string, user domain.User) error {
+	return errors.New("not implemented") // Replace with actual implementation
 }
 
-func (r *AuthRepository) CreateToken(ctx context.Context, userID string) (*domain.AuthToken, error) {
+func (r *AuthRepoImpl) CreateToken(ctx context.Context, userID string) (*domain.AuthToken, error) {
 	// Create JWT token
 	expiresAt := time.Now().Add(24 * time.Hour)
 
@@ -68,7 +65,7 @@ func (r *AuthRepository) CreateToken(ctx context.Context, userID string) (*domai
 	}, nil
 }
 
-func (r *AuthRepository) ValidateToken(ctx context.Context, tokenStr string) (*domain.User, error) {
+func (r *AuthRepoImpl) ValidateToken(ctx context.Context, tokenStr string) (*domain.User, error) {
 	// Parse and validate JWT token
 	token, err := jwt.Parse(tokenStr, func(token *jwt.Token) (interface{}, error) {
 		if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
@@ -99,7 +96,6 @@ func (r *AuthRepository) ValidateToken(ctx context.Context, tokenStr string) (*d
 	return r.GetUserByID(ctx, userID)
 }
 
-func (r *AuthRepository) RevokeToken(ctx context.Context, token string) error {
-	// Implementation for revoking a token
-	// ...
+func (r *AuthRepoImpl) RevokeToken(ctx context.Context, token string) error {
+	return errors.New("not implemented") // Replace with actual implementation
 }

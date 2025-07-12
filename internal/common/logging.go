@@ -1,12 +1,12 @@
 package common
 
 import (
-	"path/filepath"
-	"strconv"
-
 	"github.com/rs/zerolog"
 	"github.com/rs/zerolog/log"
 	"github.com/rs/zerolog/pkgerrors"
+	"os"
+	"path/filepath"
+	"strconv"
 )
 
 func SetupLogger(level string) {
@@ -19,5 +19,9 @@ func SetupLogger(level string) {
 	zerolog.CallerMarshalFunc = func(_ uintptr, file string, line int) string {
 		return filepath.Base(file) + ":" + strconv.Itoa(line)
 	}
-	log.Logger = log.With().Caller().Str("app", APPNAME).Logger()
+	log.Logger = log.Output(zerolog.ConsoleWriter{
+		Out:        os.Stdout,
+		TimeFormat: "15:04:05",
+		NoColor:    false, // Enable colors
+	}).With().Caller().Str("app", APPNAME).Logger()
 }

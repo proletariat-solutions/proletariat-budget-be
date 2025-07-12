@@ -6,27 +6,21 @@ import (
 	"errors"
 	"fmt"
 	"ghorkov32/proletariat-budget-be/internal/core/domain"
-	"ghorkov32/proletariat-budget-be/openapi"
+	"ghorkov32/proletariat-budget-be/internal/core/port"
 	"strconv"
+	"strings"
 	"time"
-
-	"github.com/rs/zerolog/log"
 )
 
-type AccountRepo struct {
+type AccountRepoImpl struct {
 	db *sql.DB
 }
 
-func NewAccountRepo(db *sql.DB) *AccountRepo {
-	return &AccountRepo{db: db}
+func NewAccountRepo(db *sql.DB) port.AccountRepo {
+	return &AccountRepoImpl{db: db}
 }
 
-func (r *AccountRepo) Create(ctx context.Context, account openapi.Account) (string, error) {
-
-	now := time.Now()
-	account.CreatedAt = now
-	account.UpdatedAt = now
-
+func (r *AccountRepoImpl) Create(ctx context.Context, account domain.Account) (*string, error) {
 	query := `
         INSERT INTO accounts (
             name, type, institution, currency, initial_balance, 
@@ -43,47 +37,42 @@ func (r *AccountRepo) Create(ctx context.Context, account openapi.Account) (stri
 		account.Institution,
 		account.Currency,
 		account.InitialBalance,
-		account.CurrentBalance,
+		account.InitialBalance,
 		account.Active,
 		account.Description,
 		account.AccountNumber,
-		account.Owner.Id,
+		account.OwnerID,
 		account.AccountInformation,
-		account.CreatedAt,
-		account.UpdatedAt,
 	)
 
 	if err != nil {
-		log.Error().Err(err).Msg("Failed to create account")
-		return "", err
+		return nil, translateError(err)
 	}
 
 	lastID, err := result.LastInsertId()
 
 	if err != nil {
-		log.Error().Err(err).Msg("Failed to get last insert ID")
-		return "", err
+		return nil, translateError(err)
 	}
 
 	lastIDStr := strconv.FormatInt(lastID, 10)
 
-	return lastIDStr, nil
+	return &lastIDStr, nil
 }
 
-func (r *AccountRepo) GetByID(ctx context.Context, id string) (*openapi.Account, error) {
+func (r *AccountRepoImpl) GetByID(ctx context.Context, id string) (*domain.Account, error) {
 	query := `SELECT 
 				a.id, a.name, type, institution, currency, 
 				initial_balance, current_balance, a.active, 
 				description, account_number, account_information, 
-				a.created_at, a.updated_at, hm.id, hm.name, 
-				hm.surname, hm.nickname, hm.role, hm.active, 
-				hm.created_at, hm.updated_at 
-				FROM accounts a left join household_members hm on a.owner = hm.id WHERE a.active = true AND a.id =?`
+				a.created_at, a.updated_at, a.owner, hm.id, hm.name, hm.surname, hm.nickname, hm.role, hm.active, hm.created_at, hm.updated_at
+				FROM accounts a left join proletariat_budget.household_members hm on a.owner = hm.id  WHERE a.id =?`
 
-	var account openapi.Account
-	householdMember := openapi.HouseholdMember{}
+	account := &domain.Account{
+		Owner: &domain.HouseholdMember{},
+	}
 	err := r.db.QueryRowContext(ctx, query, id).Scan(
-		&account.Id,
+		&account.ID,
 		&account.Name,
 		&account.Type,
 		&account.Institution,
@@ -96,26 +85,27 @@ func (r *AccountRepo) GetByID(ctx context.Context, id string) (*openapi.Account,
 		&account.AccountInformation,
 		&account.CreatedAt,
 		&account.UpdatedAt,
-		&householdMember.Id,
-		&householdMember.FirstName,
-		&householdMember.LastName,
-		&householdMember.Nickname,
-		&householdMember.Role,
-		&householdMember.Active,
-		&householdMember.CreatedAt,
-		&householdMember.UpdatedAt,
+		&account.OwnerID,
+		&account.Owner.ID,
+		&account.Owner.FirstName,
+		&account.Owner.LastName,
+		&account.Owner.Nickname,
+		&account.Owner.Role,
+		&account.Owner.Active,
+		&account.Owner.CreatedAt,
+		&account.Owner.UpdatedAt,
 	)
 	if errors.Is(err, sql.ErrNoRows) {
-		return nil, domain.ErrEntityNotFound
+		return nil, port.ErrRecordNotFound
 	} else if err != nil {
-		return nil, fmt.Errorf("failed to select account: %w", err)
+		return nil, translateError(err)
 	}
 
-	return &account, nil
+	return account, nil
 
 }
 
-func (r *AccountRepo) Update(ctx context.Context, account openapi.Account) error {
+func (r *AccountRepoImpl) Update(ctx context.Context, account domain.Account) error {
 	query := `
         UPDATE accounts SET 
             name =?, type =?, institution =?, currency =?, initial_balance =?, 
@@ -141,61 +131,140 @@ func (r *AccountRepo) Update(ctx context.Context, account openapi.Account) error
 		account.AccountNumber,
 		account.AccountInformation,
 		account.UpdatedAt,
-		account.Id,
-		account.Owner.Id,
+		account.OwnerID,
+		account.ID,
 	)
 
 	if err != nil {
-		log.Error().Err(err).Msg("Failed to update account")
-		return err
+		return translateError(err)
 	}
 	return nil
 }
 
-func (r *AccountRepo) Delete(ctx context.Context, id string) error {
-	query := `DELETE FROM accounts WHERE id =?`
+func (r *AccountRepoImpl) SetActive(ctx context.Context, id string, active bool) error {
+	query := `UPDATE accounts SET active = ?, updated_at = NOW() WHERE id =?`
+	result, err := r.db.ExecContext(
+		ctx,
+		query,
+		active,
+		id,
+	)
+	if err != nil {
+		return translateError(err)
+	}
+	rowsAffected, errRowsAffected := result.RowsAffected()
+	if errRowsAffected != nil {
+		return fmt.Errorf("failed to delete account: %w", errRowsAffected)
+	}
+	if rowsAffected == 0 {
+		return port.ErrRecordNotFound
+	}
+	return nil
+}
 
+func (r *AccountRepoImpl) Delete(ctx context.Context, id string) error {
+	query := `DELETE FROM accounts WHERE id =?`
 	result, err := r.db.ExecContext(
 		ctx,
 		query,
 		id,
 	)
-
 	if err != nil {
-		log.Error().Err(err).Msg("Failed to delete account")
-		return err
+		return translateError(err)
 	}
-
-	rowsAffected, err := result.RowsAffected()
-	if err != nil {
-		log.Error().Err(err).Msg("Failed to get rows affected")
-		return err
+	rowsAffected, errRowsAffected := result.RowsAffected()
+	if errRowsAffected != nil {
+		return translateError(errRowsAffected)
 	}
-
 	if rowsAffected == 0 {
-		return fmt.Errorf("account not found")
+		return port.ErrRecordNotFound
 	}
 	return nil
 }
 
-func (r *AccountRepo) List(ctx context.Context) ([]openapi.Account, error) {
-	query := `SELECT 
-                a.id, a.name, type, institution, currency, initial_balance, current_balance, a.active, 
-                description, account_number, account_information, a.created_at, a.updated_at,  hm.id, hm.name, hm.surname, hm.nickname, hm.role, hm.active, hm.created_at, hm.updated_at
-                FROM accounts a left join household_members hm on a.owner = hm.id WHERE a.active = true`
+func (r *AccountRepoImpl) List(ctx context.Context, params domain.AccountListParams) (*domain.AccountList, error) {
+	query := `SELECT a.id,
+					   a.name,
+					   type,
+					   institution,
+					   currency,
+					   initial_balance,
+					   current_balance,
+					   a.active,
+					   description,
+					   account_number,
+					   account_information,
+					   a.created_at,
+					   a.updated_at,
+					   hm.id,
+					   hm.name,
+					   hm.surname,
+					   hm.nickname,
+					   hm.role,
+					   hm.active,
+					   hm.created_at,
+					   hm.updated_at
+				FROM accounts a
+						 left join household_members hm on a.owner = hm.id`
 
-	rows, err := r.db.QueryContext(ctx, query)
+	whereClause := make([]string, 0)
+	args := make([]any, 0)
+	if params.Currency != nil {
+		whereClause = append(whereClause, "a.currency =?")
+		args = append(args, *params.Currency)
+	}
+	if params.Type != nil {
+		whereClause = append(whereClause, "a.type =?")
+		args = append(args, *params.Type)
+	}
+	if params.Active != nil {
+		whereClause = append(whereClause, "a.active =?")
+		args = append(args, *params.Active)
+	}
+
+	queryCount := "SELECT COUNT(*) FROM accounts a"
+	if len(whereClause) > 0 {
+		query += " WHERE " + strings.Join(whereClause, " AND ")
+		queryCount += " WHERE " + strings.Join(whereClause, " AND ")
+
+	}
+	query += " ORDER BY a.created_at DESC"
+	stmtCount, errQueryCountStmt := r.db.PrepareContext(ctx, queryCount)
+	if errQueryCountStmt != nil {
+		return nil, translateError(errQueryCountStmt)
+	}
+	var count int
+	errCount := stmtCount.QueryRowContext(ctx, args...).Scan(&count)
+	if errCount != nil {
+		return nil, translateError(errCount)
+	}
+
+	var accounts []domain.Account
+	if count == 0 {
+		return &domain.AccountList{
+			Metadata: domain.ListMetadata{
+				Total:  0,
+				Limit:  *params.Limit,
+				Offset: *params.Offset,
+			},
+			Accounts: accounts,
+		}, nil
+	}
+	query += " LIMIT? OFFSET?"
+	args = append(args, params.Limit, params.Offset)
+
+	rows, err := r.db.QueryContext(ctx, query, args...)
 	if err != nil {
-		return nil, fmt.Errorf("failed to select accounts: %w", err)
+		return nil, translateError(err)
 	}
 	defer rows.Close()
 
-	var accounts []openapi.Account
 	for rows.Next() {
-		householdMember := openapi.HouseholdMember{}
-		var account openapi.Account
+		account := domain.Account{
+			Owner: &domain.HouseholdMember{},
+		}
 		err := rows.Scan(
-			&account.Id,
+			&account.ID,
 			&account.Name,
 			&account.Type,
 			&account.Institution,
@@ -208,19 +277,37 @@ func (r *AccountRepo) List(ctx context.Context) ([]openapi.Account, error) {
 			&account.AccountInformation,
 			&account.CreatedAt,
 			&account.UpdatedAt,
-			&householdMember.Id,
-			&householdMember.FirstName,
-			&householdMember.LastName,
-			&householdMember.Nickname,
-			&householdMember.Role,
-			&householdMember.Active,
-			&householdMember.CreatedAt,
-			&householdMember.UpdatedAt,
+			&account.Owner.ID,
+			&account.Owner.FirstName,
+			&account.Owner.LastName,
+			&account.Owner.Nickname,
+			&account.Owner.Role,
+			&account.Owner.Active,
+			&account.Owner.CreatedAt,
+			&account.Owner.UpdatedAt,
 		)
 		if err != nil {
-			return nil, fmt.Errorf("failed to scan row: %w", err)
+			return nil, translateError(err)
 		}
 		accounts = append(accounts, account)
 	}
-	return accounts, nil
+	return &domain.AccountList{
+			Metadata: domain.ListMetadata{
+				Total:  count,
+				Limit:  *params.Limit,
+				Offset: *params.Offset,
+			},
+			Accounts: accounts,
+		},
+		nil
+}
+
+func (r *AccountRepoImpl) HasTransactions(ctx context.Context, id string) (bool, error) {
+	query := `SELECT COUNT(*) FROM transactions WHERE account_id =?`
+	var count int
+	err := r.db.QueryRowContext(ctx, query, id).Scan(&count)
+	if err != nil {
+		return false, translateError(err)
+	}
+	return count > 0, nil
 }

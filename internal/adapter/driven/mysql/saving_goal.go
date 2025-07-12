@@ -16,6 +16,10 @@ type SavingGoalRepoImpl struct {
 	tagsRepo *port.TagsRepo
 }
 
+func NewSavingGoalRepo(db *sql.DB, tagsRepo *port.TagsRepo) port.SavingsGoalRepo {
+	return &SavingGoalRepoImpl{db: db, tagsRepo: tagsRepo}
+}
+
 func (s SavingGoalRepoImpl) Create(ctx context.Context, savingsGoal openapi.SavingsGoalRequest) (string, error) {
 	queryInsert := `INSERT INTO savings_goals
 						(name,

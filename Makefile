@@ -23,7 +23,7 @@ codegen:
     rm ./openapi/out.yaml
 
 .PHONY: test
-## test: run unit tests
+## test: run unit integration_tests
 test:
 	go test -v ./...
 

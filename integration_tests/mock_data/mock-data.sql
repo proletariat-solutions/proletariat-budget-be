@@ -30,7 +30,7 @@ DROP PROCEDURE IF EXISTS RollbackTransaction;
 
 
 -- Create stored procedure for expenditure creation
-DELIMITER $$
+
 
 CREATE PROCEDURE CreateExpenditure(
     IN p_account_id BIGINT,
@@ -138,12 +138,8 @@ BEGIN
             END WHILE;
     END IF;
     COMMIT;
-END$$
+END;
 
-DELIMITER ;
-
-
-DELIMITER $$
 
 CREATE PROCEDURE CreateIngress(
     IN p_account_id BIGINT,
@@ -243,11 +239,11 @@ BEGIN
     -- Return the created IDs for reference
     SELECT v_transaction_id as transaction_id, v_ingress_id as ingress_id, v_new_balance as new_balance;
 
-END$$
+END;
 
-DELIMITER ;
 
-DELIMITER $$
+
+
 
 CREATE PROCEDURE CreateTransfer(
     IN p_source_account_id BIGINT,
@@ -391,12 +387,10 @@ BEGIN
            v_source_new_balance      as source_new_balance,
            v_dest_new_balance        as destination_new_balance;
 
-END$$
-
-DELIMITER ;
+END;
 
 
-DELIMITER $$
+
 
 CREATE PROCEDURE RollbackTransaction(
     IN p_transaction_id BIGINT,
@@ -694,9 +688,8 @@ BEGIN
                                                       v_dest_rollback_id),
               CONCAT('Transaction rolled back successfully. Rollback transaction ID: ', v_rollback_transaction_id)) as result_message;
 
-END$$
+END;
 
-DELIMITER ;
 
 
 -- Insert household members

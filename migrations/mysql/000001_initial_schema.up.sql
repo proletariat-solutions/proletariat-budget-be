@@ -1,5 +1,3 @@
-Create SCHEMA proletariat_budget;
-
 use proletariat_budget;
 
 create table household_members
