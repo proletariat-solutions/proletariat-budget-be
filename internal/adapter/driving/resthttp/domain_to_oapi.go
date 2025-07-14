@@ -3,6 +3,8 @@ package resthttp
 import (
 	"ghorkov32/proletariat-budget-be/internal/core/domain"
 	"ghorkov32/proletariat-budget-be/openapi"
+	openapi_types "github.com/oapi-codegen/runtime/types"
+	"time"
 )
 
 func FromOAPIAccount(a *openapi.Account) *domain.Account {
@@ -147,5 +149,196 @@ func FromOAPIHouseholdMemberListParams(params *openapi.ListHouseholdMembersParam
 	return &domain.HouseholdMemberListParams{
 		Role:   params.Role,
 		Active: params.Active,
+	}
+}
+
+func FromOAPIExpenditure(e *openapi.ExpenditureRequest) *domain.Transaction {
+	return &domain.Transaction{
+		AccountID:       e.AccountId,
+		Amount:          e.Amount,
+		Currency:        *e.Currency,
+		TransactionDate: e.Date.Time,
+		Description:     *e.Description,
+		TransactionType: domain.TransactionTypeExpenditure,
+	}
+}
+
+func FromOAPIExpenditureRequestTransaction(e *openapi.ExpenditureRequest) *domain.Transaction {
+	return &domain.Transaction{
+		AccountID:       e.AccountId,
+		Amount:          e.Amount,
+		Currency:        *e.Currency,
+		TransactionDate: e.Date.Time,
+		Description:     *e.Description,
+		TransactionType: domain.TransactionTypeExpenditure,
+	}
+}
+
+func FromOAPIIngressTransaction(i *openapi.Ingress) *domain.Transaction {
+	return &domain.Transaction{
+		AccountID:       i.AccountId,
+		Amount:          i.Amount,
+		Currency:        i.Currency,
+		TransactionDate: i.Date.Time,
+		Description:     *i.Description,
+		TransactionType: domain.TransactionTypeIngress,
+		CreatedAt:       *i.CreatedAt,
+	}
+}
+
+func FromOAPIIngressRequestTransaction(i *openapi.IngressRequest) *domain.Transaction {
+	return &domain.Transaction{
+		AccountID:       i.AccountId,
+		Amount:          i.Amount,
+		Currency:        i.Currency,
+		TransactionDate: i.Date.Time,
+		Description:     *i.Description,
+		TransactionType: domain.TransactionTypeIngress,
+	}
+}
+
+func FromOAPITransferDebit(t *openapi.Transfer, sourceAccountCurrency string) *domain.Transaction {
+	return &domain.Transaction{
+		AccountID:       t.SourceAccountId,
+		Amount:          *t.SourceAmount,
+		Currency:        sourceAccountCurrency,
+		TransactionDate: t.Date.Time,
+		Description:     *t.Description,
+		TransactionType: domain.TransactionTypeTransfer,
+		CreatedAt:       time.Now(),
+		UpdatedAt:       time.Now(),
+	}
+}
+
+func FromOAPITransferCredit(t *openapi.Transfer, destinationAccountCurrency string) *domain.Transaction {
+	return &domain.Transaction{
+		AccountID:       t.DestinationAccountId,
+		Amount:          *t.DestinationAmount,
+		Currency:        destinationAccountCurrency,
+		TransactionDate: t.Date.Time,
+		Description:     *t.Description,
+		TransactionType: domain.TransactionTypeTransfer,
+		CreatedAt:       time.Now(),
+		UpdatedAt:       time.Now(),
+	}
+}
+
+func FromOAPICategoryRequest(c *openapi.CategoryRequest) *domain.Category {
+	return &domain.Category{
+		Name:            c.Name,
+		Description:     &c.Description,
+		Active:          *c.Active,
+		Color:           *c.Color,
+		BackgroundColor: *c.BackgroundColor,
+	}
+}
+
+func FromOAPICategory(c *openapi.Category) *domain.Category {
+	return &domain.Category{
+		ID:              c.Id,
+		Name:            c.Name,
+		Description:     &c.Description,
+		Active:          *c.Active,
+		Color:           *c.Color,
+		BackgroundColor: *c.BackgroundColor,
+	}
+}
+
+func ToOAPICategory(category *domain.Category) *openapi.Category {
+	return &openapi.Category{
+		Id:              category.ID,
+		Name:            category.Name,
+		Description:     *category.Description,
+		Active:          &category.Active,
+		Color:           &category.Color,
+		BackgroundColor: &category.BackgroundColor,
+	}
+}
+
+func FromOAPITag(tag openapi.Tag) *domain.Tag {
+	return &domain.Tag{
+		ID:              tag.Id,
+		Name:            tag.Name,
+		Description:     tag.Description,
+		Color:           *tag.Color,
+		BackgroundColor: *tag.BackgroundColor,
+	}
+}
+
+func FromOAPITagRequest(tagRequest openapi.TagRequest) *domain.Tag {
+	return &domain.Tag{
+		Name:            tagRequest.Name,
+		Description:     tagRequest.Description,
+		Color:           *tagRequest.Color,
+		BackgroundColor: *tagRequest.BackgroundColor,
+	}
+}
+
+func ToOAPITag(tag *domain.Tag) *openapi.Tag {
+	return &openapi.Tag{
+		Id:              tag.ID,
+		Name:            tag.Name,
+		Description:     tag.Description,
+		Color:           &tag.Color,
+		BackgroundColor: &tag.BackgroundColor,
+	}
+}
+
+func FromOAPIExpenditureRequest(e *openapi.ExpenditureRequest) *domain.Expenditure {
+	var tagList []*domain.Tag
+	if e.Tags != nil {
+		tagList = make([]*domain.Tag, 0, len(*e.Tags))
+		for _, tag := range *e.Tags {
+			tagList = append(tagList, FromOAPITag(tag))
+		}
+	}
+
+	return &domain.Expenditure{
+		Category:    FromOAPICategory(e.Category),
+		Declared:    *e.Declared,
+		Planned:     *e.Planned,
+		Transaction: FromOAPIExpenditureRequestTransaction(e),
+		Tags:        &tagList,
+	}
+}
+
+func ToOAPIExpenditure(e *domain.Expenditure) *openapi.Expenditure {
+	var tagList []openapi.Tag
+	if e.Tags != nil {
+		tagList = make([]openapi.Tag, 0, len(*e.Tags))
+		for _, tag := range *e.Tags {
+			tagList = append(tagList, *ToOAPITag(tag))
+		}
+	}
+
+	return &openapi.Expenditure{
+		AccountId:   e.Transaction.AccountID,
+		Amount:      e.Transaction.Amount,
+		Category:    ToOAPICategory(e.Category),
+		CreatedAt:   e.Transaction.CreatedAt,
+		Currency:    &e.Transaction.Currency,
+		Date:        openapi_types.Date{Time: e.Date},
+		Declared:    &e.Declared,
+		Description: &e.Transaction.Description,
+		Id:          e.ID,
+		Planned:     &e.Planned,
+		Tags:        &tagList,
+		UpdatedAt:   e.Transaction.UpdatedAt,
+	}
+}
+
+func FromOAPIExpienditureListParams(p *openapi.ListExpendituresParams) *domain.ExpenditureListParams {
+	return &domain.ExpenditureListParams{
+		CategoryID:  p.CategoryId,
+		StartDate:   &p.StartDate.Time,
+		EndDate:     &p.EndDate.Time,
+		Declared:    p.Declared,
+		Planned:     p.Planned,
+		Currency:    p.Currency,
+		Description: p.Description,
+		AccountID:   p.AccountId,
+		Tags:        p.Tags,
+		Limit:       p.Limit,
+		Offset:      p.Offset,
 	}
 }

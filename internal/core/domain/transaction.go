@@ -1,7 +1,6 @@
 package domain
 
 import (
-	"ghorkov32/proletariat-budget-be/openapi"
 	"time"
 )
 
@@ -65,79 +64,6 @@ func (s TransactionStatus) IsValid() bool {
 // String returns the string representation of the transaction status
 func (s TransactionStatus) String() string {
 	return string(s)
-}
-
-func FromOAPIExpenditure(e *openapi.Expenditure) *Transaction {
-	return &Transaction{
-		AccountID:       e.AccountId,
-		Amount:          e.Amount,
-		Currency:        *e.Currency,
-		TransactionDate: e.Date.Time,
-		Description:     *e.Description,
-		TransactionType: TransactionTypeExpenditure,
-		CreatedAt:       e.CreatedAt,
-		UpdatedAt:       e.UpdatedAt,
-	}
-}
-
-func FromOAPIExpenditureRequest(e *openapi.ExpenditureRequest) *Transaction {
-	return &Transaction{
-		AccountID:       e.AccountId,
-		Amount:          e.Amount,
-		Currency:        *e.Currency,
-		TransactionDate: e.Date.Time,
-		Description:     *e.Description,
-		TransactionType: TransactionTypeExpenditure,
-	}
-}
-
-func FromOAPIIngress(i *openapi.Ingress) *Transaction {
-	return &Transaction{
-		AccountID:       i.AccountId,
-		Amount:          i.Amount,
-		Currency:        i.Currency,
-		TransactionDate: i.Date.Time,
-		Description:     *i.Description,
-		TransactionType: TransactionTypeIngress,
-		CreatedAt:       *i.CreatedAt,
-	}
-}
-
-func FromOAPIIngressRequest(i *openapi.IngressRequest) *Transaction {
-	return &Transaction{
-		AccountID:       i.AccountId,
-		Amount:          i.Amount,
-		Currency:        i.Currency,
-		TransactionDate: i.Date.Time,
-		Description:     *i.Description,
-		TransactionType: TransactionTypeIngress,
-	}
-}
-
-func FromOAPITransferDebit(t *openapi.Transfer, sourceAccountCurrency string) *Transaction {
-	return &Transaction{
-		AccountID:       t.SourceAccountId,
-		Amount:          *t.SourceAmount,
-		Currency:        sourceAccountCurrency,
-		TransactionDate: t.Date.Time,
-		Description:     *t.Description,
-		TransactionType: TransactionTypeTransfer,
-		CreatedAt:       time.Now(),
-		UpdatedAt:       time.Now(),
-	}
-}
-
-func FromOAPITransferCredit(t *openapi.Transfer, destinationAccountCurrency string) *Transaction {
-	return &Transaction{
-		AccountID:       t.DestinationAccountId,
-		Amount:          *t.DestinationAmount,
-		Currency:        destinationAccountCurrency,
-		TransactionDate: t.Date.Time,
-		Description:     *t.Description,
-		TransactionType: TransactionTypeTransfer,
-		CreatedAt:       time.Now(),
-		UpdatedAt:       time.Now(),
-	}
 }
 
 func RollbackTransaction(t *Transaction) *Transaction {
