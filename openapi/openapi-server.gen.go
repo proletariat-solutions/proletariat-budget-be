@@ -222,7 +222,8 @@ type AccountType string
 
 // AccountList defines model for AccountList.
 type AccountList struct {
-	Accounts *[]Account `json:"accounts,omitempty"`
+	Accounts *[]Account    `json:"accounts,omitempty"`
+	Metadata *ListMetadata `json:"metadata,omitempty"`
 }
 
 // AccountRequest defines model for AccountRequest.
@@ -296,6 +297,15 @@ type BalanceSummary struct {
 
 	// TotalBalance Total balance across all accounts
 	TotalBalance float32 `json:"totalBalance"`
+}
+
+// CanDelete defines model for CanDelete.
+type CanDelete struct {
+	// CanDelete Whether the entity can be deleted
+	CanDelete bool `json:"canDelete"`
+
+	// Reason Explanation when deletion is not allowed
+	Reason *string `json:"reason"`
 }
 
 // Category defines model for Category.
@@ -1178,6 +1188,9 @@ type N400 = Error
 // N404 defines model for 404.
 type N404 = Error
 
+// N409 defines model for 409.
+type N409 = Error
+
 // N500 defines model for 500.
 type N500 = Error
 
@@ -1281,12 +1294,6 @@ type ListHouseholdMembersParams struct {
 
 	// Role Filter by household role
 	Role *string `form:"role,omitempty" json:"role,omitempty"`
-
-	// Limit Limit the number of results
-	Limit *int `form:"limit,omitempty" json:"limit,omitempty"`
-
-	// Offset Offset the result set
-	Offset *int `form:"offset,omitempty" json:"offset,omitempty"`
 }
 
 // ListIngressesParams defines parameters for ListIngresses.
@@ -1458,7 +1465,7 @@ type ListTransfersParams struct {
 type CreateAccountJSONRequestBody = AccountRequest
 
 // UpdateAccountJSONRequestBody defines body for UpdateAccount for application/json ContentType.
-type UpdateAccountJSONRequestBody = AccountRequest
+type UpdateAccountJSONRequestBody = Account
 
 // LoginJSONRequestBody defines body for Login for application/json ContentType.
 type LoginJSONRequestBody = LoginRequest
@@ -1534,6 +1541,15 @@ type ServerInterface interface {
 	// Update account
 	// (PUT /accounts/{id})
 	UpdateAccount(w http.ResponseWriter, r *http.Request, id string)
+	// Activate an account
+	// (PATCH /accounts/{id}/activate)
+	ActivateAccount(w http.ResponseWriter, r *http.Request, id string)
+	// Checks if account can be deleted
+	// (GET /accounts/{id}/can-delete)
+	CanDeleteAccount(w http.ResponseWriter, r *http.Request, id string)
+	// Deactivate an account
+	// (PATCH /accounts/{id}/deactivate)
+	DeactivateAccount(w http.ResponseWriter, r *http.Request, id string)
 	// Login to the system
 	// (POST /auth/login)
 	Login(w http.ResponseWriter, r *http.Request)
@@ -1588,6 +1604,12 @@ type ServerInterface interface {
 	// Update household member
 	// (PUT /household-members/{id})
 	UpdateHouseholdMember(w http.ResponseWriter, r *http.Request, id string)
+	// Activate household member by ID
+	// (PATCH /household-members/{id}/activate)
+	ActivateHouseholdMember(w http.ResponseWriter, r *http.Request, id string)
+	// Deactivate household member by ID
+	// (PATCH /household-members/{id}/deactivate)
+	DeactivateHouseholdMember(w http.ResponseWriter, r *http.Request, id string)
 	// List all ingresses
 	// (GET /ingresses)
 	ListIngresses(w http.ResponseWriter, r *http.Request, params ListIngressesParams)
@@ -1852,6 +1874,99 @@ func (siw *ServerInterfaceWrapper) UpdateAccount(w http.ResponseWriter, r *http.
 
 	handler := http.Handler(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		siw.Handler.UpdateAccount(w, r, id)
+	}))
+
+	for _, middleware := range siw.HandlerMiddlewares {
+		handler = middleware(handler)
+	}
+
+	handler.ServeHTTP(w, r)
+}
+
+// ActivateAccount operation middleware
+func (siw *ServerInterfaceWrapper) ActivateAccount(w http.ResponseWriter, r *http.Request) {
+
+	var err error
+
+	// ------------- Path parameter "id" -------------
+	var id string
+
+	err = runtime.BindStyledParameterWithOptions("simple", "id", r.PathValue("id"), &id, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true})
+	if err != nil {
+		siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "id", Err: err})
+		return
+	}
+
+	ctx := r.Context()
+
+	ctx = context.WithValue(ctx, BearerAuthScopes, []string{})
+
+	r = r.WithContext(ctx)
+
+	handler := http.Handler(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		siw.Handler.ActivateAccount(w, r, id)
+	}))
+
+	for _, middleware := range siw.HandlerMiddlewares {
+		handler = middleware(handler)
+	}
+
+	handler.ServeHTTP(w, r)
+}
+
+// CanDeleteAccount operation middleware
+func (siw *ServerInterfaceWrapper) CanDeleteAccount(w http.ResponseWriter, r *http.Request) {
+
+	var err error
+
+	// ------------- Path parameter "id" -------------
+	var id string
+
+	err = runtime.BindStyledParameterWithOptions("simple", "id", r.PathValue("id"), &id, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true})
+	if err != nil {
+		siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "id", Err: err})
+		return
+	}
+
+	ctx := r.Context()
+
+	ctx = context.WithValue(ctx, BearerAuthScopes, []string{})
+
+	r = r.WithContext(ctx)
+
+	handler := http.Handler(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		siw.Handler.CanDeleteAccount(w, r, id)
+	}))
+
+	for _, middleware := range siw.HandlerMiddlewares {
+		handler = middleware(handler)
+	}
+
+	handler.ServeHTTP(w, r)
+}
+
+// DeactivateAccount operation middleware
+func (siw *ServerInterfaceWrapper) DeactivateAccount(w http.ResponseWriter, r *http.Request) {
+
+	var err error
+
+	// ------------- Path parameter "id" -------------
+	var id string
+
+	err = runtime.BindStyledParameterWithOptions("simple", "id", r.PathValue("id"), &id, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true})
+	if err != nil {
+		siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "id", Err: err})
+		return
+	}
+
+	ctx := r.Context()
+
+	ctx = context.WithValue(ctx, BearerAuthScopes, []string{})
+
+	r = r.WithContext(ctx)
+
+	handler := http.Handler(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		siw.Handler.DeactivateAccount(w, r, id)
 	}))
 
 	for _, middleware := range siw.HandlerMiddlewares {
@@ -2339,22 +2454,6 @@ func (siw *ServerInterfaceWrapper) ListHouseholdMembers(w http.ResponseWriter, r
 		return
 	}
 
-	// ------------- Optional query parameter "limit" -------------
-
-	err = runtime.BindQueryParameter("form", true, false, "limit", r.URL.Query(), &params.Limit)
-	if err != nil {
-		siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "limit", Err: err})
-		return
-	}
-
-	// ------------- Optional query parameter "offset" -------------
-
-	err = runtime.BindQueryParameter("form", true, false, "offset", r.URL.Query(), &params.Offset)
-	if err != nil {
-		siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "offset", Err: err})
-		return
-	}
-
 	handler := http.Handler(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		siw.Handler.ListHouseholdMembers(w, r, params)
 	}))
@@ -2470,6 +2569,68 @@ func (siw *ServerInterfaceWrapper) UpdateHouseholdMember(w http.ResponseWriter, 
 
 	handler := http.Handler(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		siw.Handler.UpdateHouseholdMember(w, r, id)
+	}))
+
+	for _, middleware := range siw.HandlerMiddlewares {
+		handler = middleware(handler)
+	}
+
+	handler.ServeHTTP(w, r)
+}
+
+// ActivateHouseholdMember operation middleware
+func (siw *ServerInterfaceWrapper) ActivateHouseholdMember(w http.ResponseWriter, r *http.Request) {
+
+	var err error
+
+	// ------------- Path parameter "id" -------------
+	var id string
+
+	err = runtime.BindStyledParameterWithOptions("simple", "id", r.PathValue("id"), &id, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true})
+	if err != nil {
+		siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "id", Err: err})
+		return
+	}
+
+	ctx := r.Context()
+
+	ctx = context.WithValue(ctx, BearerAuthScopes, []string{})
+
+	r = r.WithContext(ctx)
+
+	handler := http.Handler(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		siw.Handler.ActivateHouseholdMember(w, r, id)
+	}))
+
+	for _, middleware := range siw.HandlerMiddlewares {
+		handler = middleware(handler)
+	}
+
+	handler.ServeHTTP(w, r)
+}
+
+// DeactivateHouseholdMember operation middleware
+func (siw *ServerInterfaceWrapper) DeactivateHouseholdMember(w http.ResponseWriter, r *http.Request) {
+
+	var err error
+
+	// ------------- Path parameter "id" -------------
+	var id string
+
+	err = runtime.BindStyledParameterWithOptions("simple", "id", r.PathValue("id"), &id, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true})
+	if err != nil {
+		siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "id", Err: err})
+		return
+	}
+
+	ctx := r.Context()
+
+	ctx = context.WithValue(ctx, BearerAuthScopes, []string{})
+
+	r = r.WithContext(ctx)
+
+	handler := http.Handler(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		siw.Handler.DeactivateHouseholdMember(w, r, id)
 	}))
 
 	for _, middleware := range siw.HandlerMiddlewares {
@@ -3792,6 +3953,9 @@ func HandlerWithOptions(si ServerInterface, options StdHTTPServerOptions) http.H
 	m.HandleFunc("DELETE "+options.BaseURL+"/accounts/{id}", wrapper.DeleteAccount)
 	m.HandleFunc("GET "+options.BaseURL+"/accounts/{id}", wrapper.GetAccount)
 	m.HandleFunc("PUT "+options.BaseURL+"/accounts/{id}", wrapper.UpdateAccount)
+	m.HandleFunc("PATCH "+options.BaseURL+"/accounts/{id}/activate", wrapper.ActivateAccount)
+	m.HandleFunc("GET "+options.BaseURL+"/accounts/{id}/can-delete", wrapper.CanDeleteAccount)
+	m.HandleFunc("PATCH "+options.BaseURL+"/accounts/{id}/deactivate", wrapper.DeactivateAccount)
 	m.HandleFunc("POST "+options.BaseURL+"/auth/login", wrapper.Login)
 	m.HandleFunc("POST "+options.BaseURL+"/auth/refresh", wrapper.RefreshToken)
 	m.HandleFunc("POST "+options.BaseURL+"/auth/register", wrapper.RegisterUser)
@@ -3810,6 +3974,8 @@ func HandlerWithOptions(si ServerInterface, options StdHTTPServerOptions) http.H
 	m.HandleFunc("DELETE "+options.BaseURL+"/household-members/{id}", wrapper.DeleteHouseholdMember)
 	m.HandleFunc("GET "+options.BaseURL+"/household-members/{id}", wrapper.GetHouseholdMember)
 	m.HandleFunc("PUT "+options.BaseURL+"/household-members/{id}", wrapper.UpdateHouseholdMember)
+	m.HandleFunc("PATCH "+options.BaseURL+"/household-members/{id}/activate", wrapper.ActivateHouseholdMember)
+	m.HandleFunc("PATCH "+options.BaseURL+"/household-members/{id}/deactivate", wrapper.DeactivateHouseholdMember)
 	m.HandleFunc("GET "+options.BaseURL+"/ingresses", wrapper.ListIngresses)
 	m.HandleFunc("POST "+options.BaseURL+"/ingresses", wrapper.CreateIngress)
 	m.HandleFunc("GET "+options.BaseURL+"/ingresses/{id}", wrapper.GetIngress)
@@ -3842,6 +4008,12 @@ func HandlerWithOptions(si ServerInterface, options StdHTTPServerOptions) http.H
 	return m
 }
 
+type N200Response struct {
+}
+
+type N204Response struct {
+}
+
 type N400JSONResponse Error
 
 type N401Response struct {
@@ -3849,7 +4021,12 @@ type N401Response struct {
 
 type N404JSONResponse Error
 
+type N409JSONResponse Error
+
 type N500JSONResponse Error
+
+type N501Response struct {
+}
 
 type ListAccountsRequestObject struct {
 	Params ListAccountsParams
@@ -3859,7 +4036,7 @@ type ListAccountsResponseObject interface {
 	VisitListAccountsResponse(w http.ResponseWriter) error
 }
 
-type ListAccounts200JSONResponse []AccountList
+type ListAccounts200JSONResponse AccountList
 
 func (response ListAccounts200JSONResponse) VisitListAccountsResponse(w http.ResponseWriter) error {
 	w.Header().Set("Content-Type", "application/json")
@@ -3934,8 +4111,7 @@ type DeleteAccountResponseObject interface {
 	VisitDeleteAccountResponse(w http.ResponseWriter) error
 }
 
-type DeleteAccount204Response struct {
-}
+type DeleteAccount204Response = N204Response
 
 func (response DeleteAccount204Response) VisitDeleteAccountResponse(w http.ResponseWriter) error {
 	w.WriteHeader(204)
@@ -3954,6 +4130,15 @@ type DeleteAccount404JSONResponse struct{ N404JSONResponse }
 func (response DeleteAccount404JSONResponse) VisitDeleteAccountResponse(w http.ResponseWriter) error {
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(404)
+
+	return json.NewEncoder(w).Encode(response)
+}
+
+type DeleteAccount409JSONResponse struct{ N409JSONResponse }
+
+func (response DeleteAccount409JSONResponse) VisitDeleteAccountResponse(w http.ResponseWriter) error {
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(409)
 
 	return json.NewEncoder(w).Encode(response)
 }
@@ -4055,6 +4240,155 @@ func (response UpdateAccount404JSONResponse) VisitUpdateAccountResponse(w http.R
 type UpdateAccount500JSONResponse struct{ N500JSONResponse }
 
 func (response UpdateAccount500JSONResponse) VisitUpdateAccountResponse(w http.ResponseWriter) error {
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(500)
+
+	return json.NewEncoder(w).Encode(response)
+}
+
+type ActivateAccountRequestObject struct {
+	Id string `json:"id"`
+}
+
+type ActivateAccountResponseObject interface {
+	VisitActivateAccountResponse(w http.ResponseWriter) error
+}
+
+type ActivateAccount200Response = N200Response
+
+func (response ActivateAccount200Response) VisitActivateAccountResponse(w http.ResponseWriter) error {
+	w.WriteHeader(200)
+	return nil
+}
+
+type ActivateAccount400JSONResponse struct{ N400JSONResponse }
+
+func (response ActivateAccount400JSONResponse) VisitActivateAccountResponse(w http.ResponseWriter) error {
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(400)
+
+	return json.NewEncoder(w).Encode(response)
+}
+
+type ActivateAccount401Response = N401Response
+
+func (response ActivateAccount401Response) VisitActivateAccountResponse(w http.ResponseWriter) error {
+	w.WriteHeader(401)
+	return nil
+}
+
+type ActivateAccount404JSONResponse struct{ N404JSONResponse }
+
+func (response ActivateAccount404JSONResponse) VisitActivateAccountResponse(w http.ResponseWriter) error {
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(404)
+
+	return json.NewEncoder(w).Encode(response)
+}
+
+type ActivateAccount500JSONResponse struct{ N500JSONResponse }
+
+func (response ActivateAccount500JSONResponse) VisitActivateAccountResponse(w http.ResponseWriter) error {
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(500)
+
+	return json.NewEncoder(w).Encode(response)
+}
+
+type CanDeleteAccountRequestObject struct {
+	Id string `json:"id"`
+}
+
+type CanDeleteAccountResponseObject interface {
+	VisitCanDeleteAccountResponse(w http.ResponseWriter) error
+}
+
+type CanDeleteAccount200JSONResponse CanDelete
+
+func (response CanDeleteAccount200JSONResponse) VisitCanDeleteAccountResponse(w http.ResponseWriter) error {
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(200)
+
+	return json.NewEncoder(w).Encode(response)
+}
+
+type CanDeleteAccount400JSONResponse struct{ N400JSONResponse }
+
+func (response CanDeleteAccount400JSONResponse) VisitCanDeleteAccountResponse(w http.ResponseWriter) error {
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(400)
+
+	return json.NewEncoder(w).Encode(response)
+}
+
+type CanDeleteAccount401Response = N401Response
+
+func (response CanDeleteAccount401Response) VisitCanDeleteAccountResponse(w http.ResponseWriter) error {
+	w.WriteHeader(401)
+	return nil
+}
+
+type CanDeleteAccount404JSONResponse struct{ N404JSONResponse }
+
+func (response CanDeleteAccount404JSONResponse) VisitCanDeleteAccountResponse(w http.ResponseWriter) error {
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(404)
+
+	return json.NewEncoder(w).Encode(response)
+}
+
+type CanDeleteAccount500JSONResponse struct{ N500JSONResponse }
+
+func (response CanDeleteAccount500JSONResponse) VisitCanDeleteAccountResponse(w http.ResponseWriter) error {
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(500)
+
+	return json.NewEncoder(w).Encode(response)
+}
+
+type DeactivateAccountRequestObject struct {
+	Id string `json:"id"`
+}
+
+type DeactivateAccountResponseObject interface {
+	VisitDeactivateAccountResponse(w http.ResponseWriter) error
+}
+
+type DeactivateAccount204Response = N204Response
+
+func (response DeactivateAccount204Response) VisitDeactivateAccountResponse(w http.ResponseWriter) error {
+	w.WriteHeader(204)
+	return nil
+}
+
+type DeactivateAccount400JSONResponse struct{ N400JSONResponse }
+
+func (response DeactivateAccount400JSONResponse) VisitDeactivateAccountResponse(w http.ResponseWriter) error {
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(400)
+
+	return json.NewEncoder(w).Encode(response)
+}
+
+type DeactivateAccount401Response = N401Response
+
+func (response DeactivateAccount401Response) VisitDeactivateAccountResponse(w http.ResponseWriter) error {
+	w.WriteHeader(401)
+	return nil
+}
+
+type DeactivateAccount404JSONResponse struct{ N404JSONResponse }
+
+func (response DeactivateAccount404JSONResponse) VisitDeactivateAccountResponse(w http.ResponseWriter) error {
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(404)
+
+	return json.NewEncoder(w).Encode(response)
+}
+
+type DeactivateAccount500JSONResponse struct{ N500JSONResponse }
+
+func (response DeactivateAccount500JSONResponse) VisitDeactivateAccountResponse(w http.ResponseWriter) error {
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(500)
 
@@ -4187,6 +4521,13 @@ func (response GetBalances500JSONResponse) VisitGetBalancesResponse(w http.Respo
 	return json.NewEncoder(w).Encode(response)
 }
 
+type GetBalances501Response = N501Response
+
+func (response GetBalances501Response) VisitGetBalancesResponse(w http.ResponseWriter) error {
+	w.WriteHeader(501)
+	return nil
+}
+
 type ListCategoriesRequestObject struct {
 }
 
@@ -4274,8 +4615,7 @@ type DeleteCategoryResponseObject interface {
 	VisitDeleteCategoryResponse(w http.ResponseWriter) error
 }
 
-type DeleteCategory204Response struct {
-}
+type DeleteCategory204Response = N204Response
 
 func (response DeleteCategory204Response) VisitDeleteCategoryResponse(w http.ResponseWriter) error {
 	w.WriteHeader(204)
@@ -4552,7 +4892,7 @@ type ListHouseholdMembersResponseObject interface {
 	VisitListHouseholdMembersResponse(w http.ResponseWriter) error
 }
 
-type ListHouseholdMembers200JSONResponse []HouseholdMemberList
+type ListHouseholdMembers200JSONResponse HouseholdMemberList
 
 func (response ListHouseholdMembers200JSONResponse) VisitListHouseholdMembersResponse(w http.ResponseWriter) error {
 	w.Header().Set("Content-Type", "application/json")
@@ -4627,12 +4967,20 @@ type DeleteHouseholdMemberResponseObject interface {
 	VisitDeleteHouseholdMemberResponse(w http.ResponseWriter) error
 }
 
-type DeleteHouseholdMember204Response struct {
-}
+type DeleteHouseholdMember204Response = N204Response
 
 func (response DeleteHouseholdMember204Response) VisitDeleteHouseholdMemberResponse(w http.ResponseWriter) error {
 	w.WriteHeader(204)
 	return nil
+}
+
+type DeleteHouseholdMember400JSONResponse struct{ N400JSONResponse }
+
+func (response DeleteHouseholdMember400JSONResponse) VisitDeleteHouseholdMemberResponse(w http.ResponseWriter) error {
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(400)
+
+	return json.NewEncoder(w).Encode(response)
 }
 
 type DeleteHouseholdMember401Response = N401Response
@@ -4748,6 +5096,104 @@ func (response UpdateHouseholdMember404JSONResponse) VisitUpdateHouseholdMemberR
 type UpdateHouseholdMember500JSONResponse struct{ N500JSONResponse }
 
 func (response UpdateHouseholdMember500JSONResponse) VisitUpdateHouseholdMemberResponse(w http.ResponseWriter) error {
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(500)
+
+	return json.NewEncoder(w).Encode(response)
+}
+
+type ActivateHouseholdMemberRequestObject struct {
+	Id string `json:"id"`
+}
+
+type ActivateHouseholdMemberResponseObject interface {
+	VisitActivateHouseholdMemberResponse(w http.ResponseWriter) error
+}
+
+type ActivateHouseholdMember204Response = N204Response
+
+func (response ActivateHouseholdMember204Response) VisitActivateHouseholdMemberResponse(w http.ResponseWriter) error {
+	w.WriteHeader(204)
+	return nil
+}
+
+type ActivateHouseholdMember400JSONResponse struct{ N400JSONResponse }
+
+func (response ActivateHouseholdMember400JSONResponse) VisitActivateHouseholdMemberResponse(w http.ResponseWriter) error {
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(400)
+
+	return json.NewEncoder(w).Encode(response)
+}
+
+type ActivateHouseholdMember401Response = N401Response
+
+func (response ActivateHouseholdMember401Response) VisitActivateHouseholdMemberResponse(w http.ResponseWriter) error {
+	w.WriteHeader(401)
+	return nil
+}
+
+type ActivateHouseholdMember404JSONResponse struct{ N404JSONResponse }
+
+func (response ActivateHouseholdMember404JSONResponse) VisitActivateHouseholdMemberResponse(w http.ResponseWriter) error {
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(404)
+
+	return json.NewEncoder(w).Encode(response)
+}
+
+type ActivateHouseholdMember500JSONResponse struct{ N500JSONResponse }
+
+func (response ActivateHouseholdMember500JSONResponse) VisitActivateHouseholdMemberResponse(w http.ResponseWriter) error {
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(500)
+
+	return json.NewEncoder(w).Encode(response)
+}
+
+type DeactivateHouseholdMemberRequestObject struct {
+	Id string `json:"id"`
+}
+
+type DeactivateHouseholdMemberResponseObject interface {
+	VisitDeactivateHouseholdMemberResponse(w http.ResponseWriter) error
+}
+
+type DeactivateHouseholdMember204Response = N204Response
+
+func (response DeactivateHouseholdMember204Response) VisitDeactivateHouseholdMemberResponse(w http.ResponseWriter) error {
+	w.WriteHeader(204)
+	return nil
+}
+
+type DeactivateHouseholdMember400JSONResponse struct{ N400JSONResponse }
+
+func (response DeactivateHouseholdMember400JSONResponse) VisitDeactivateHouseholdMemberResponse(w http.ResponseWriter) error {
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(400)
+
+	return json.NewEncoder(w).Encode(response)
+}
+
+type DeactivateHouseholdMember401Response = N401Response
+
+func (response DeactivateHouseholdMember401Response) VisitDeactivateHouseholdMemberResponse(w http.ResponseWriter) error {
+	w.WriteHeader(401)
+	return nil
+}
+
+type DeactivateHouseholdMember404JSONResponse struct{ N404JSONResponse }
+
+func (response DeactivateHouseholdMember404JSONResponse) VisitDeactivateHouseholdMemberResponse(w http.ResponseWriter) error {
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(404)
+
+	return json.NewEncoder(w).Encode(response)
+}
+
+type DeactivateHouseholdMember500JSONResponse struct{ N500JSONResponse }
+
+func (response DeactivateHouseholdMember500JSONResponse) VisitDeactivateHouseholdMemberResponse(w http.ResponseWriter) error {
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(500)
 
@@ -4880,8 +5326,7 @@ type DeleteIngressRecurrencePatternResponseObject interface {
 	VisitDeleteIngressRecurrencePatternResponse(w http.ResponseWriter) error
 }
 
-type DeleteIngressRecurrencePattern204Response struct {
-}
+type DeleteIngressRecurrencePattern204Response = N204Response
 
 func (response DeleteIngressRecurrencePattern204Response) VisitDeleteIngressRecurrencePatternResponse(w http.ResponseWriter) error {
 	w.WriteHeader(204)
@@ -5182,8 +5627,7 @@ type DeleteSavingsGoalResponseObject interface {
 	VisitDeleteSavingsGoalResponse(w http.ResponseWriter) error
 }
 
-type DeleteSavingsGoal204Response struct {
-}
+type DeleteSavingsGoal204Response = N204Response
 
 func (response DeleteSavingsGoal204Response) VisitDeleteSavingsGoalResponse(w http.ResponseWriter) error {
 	w.WriteHeader(204)
@@ -5670,8 +6114,7 @@ type DeleteTagResponseObject interface {
 	VisitDeleteTagResponse(w http.ResponseWriter) error
 }
 
-type DeleteTag204Response struct {
-}
+type DeleteTag204Response = N204Response
 
 func (response DeleteTag204Response) VisitDeleteTagResponse(w http.ResponseWriter) error {
 	w.WriteHeader(204)
@@ -5965,6 +6408,15 @@ type StrictServerInterface interface {
 	// Update account
 	// (PUT /accounts/{id})
 	UpdateAccount(ctx context.Context, request UpdateAccountRequestObject) (UpdateAccountResponseObject, error)
+	// Activate an account
+	// (PATCH /accounts/{id}/activate)
+	ActivateAccount(ctx context.Context, request ActivateAccountRequestObject) (ActivateAccountResponseObject, error)
+	// Checks if account can be deleted
+	// (GET /accounts/{id}/can-delete)
+	CanDeleteAccount(ctx context.Context, request CanDeleteAccountRequestObject) (CanDeleteAccountResponseObject, error)
+	// Deactivate an account
+	// (PATCH /accounts/{id}/deactivate)
+	DeactivateAccount(ctx context.Context, request DeactivateAccountRequestObject) (DeactivateAccountResponseObject, error)
 	// Login to the system
 	// (POST /auth/login)
 	Login(ctx context.Context, request LoginRequestObject) (LoginResponseObject, error)
@@ -6019,6 +6471,12 @@ type StrictServerInterface interface {
 	// Update household member
 	// (PUT /household-members/{id})
 	UpdateHouseholdMember(ctx context.Context, request UpdateHouseholdMemberRequestObject) (UpdateHouseholdMemberResponseObject, error)
+	// Activate household member by ID
+	// (PATCH /household-members/{id}/activate)
+	ActivateHouseholdMember(ctx context.Context, request ActivateHouseholdMemberRequestObject) (ActivateHouseholdMemberResponseObject, error)
+	// Deactivate household member by ID
+	// (PATCH /household-members/{id}/deactivate)
+	DeactivateHouseholdMember(ctx context.Context, request DeactivateHouseholdMemberRequestObject) (DeactivateHouseholdMemberResponseObject, error)
 	// List all ingresses
 	// (GET /ingresses)
 	ListIngresses(ctx context.Context, request ListIngressesRequestObject) (ListIngressesResponseObject, error)
@@ -6269,6 +6727,84 @@ func (sh *strictHandler) UpdateAccount(w http.ResponseWriter, r *http.Request, i
 		sh.options.ResponseErrorHandlerFunc(w, r, err)
 	} else if validResponse, ok := response.(UpdateAccountResponseObject); ok {
 		if err := validResponse.VisitUpdateAccountResponse(w); err != nil {
+			sh.options.ResponseErrorHandlerFunc(w, r, err)
+		}
+	} else if response != nil {
+		sh.options.ResponseErrorHandlerFunc(w, r, fmt.Errorf("unexpected response type: %T", response))
+	}
+}
+
+// ActivateAccount operation middleware
+func (sh *strictHandler) ActivateAccount(w http.ResponseWriter, r *http.Request, id string) {
+	var request ActivateAccountRequestObject
+
+	request.Id = id
+
+	handler := func(ctx context.Context, w http.ResponseWriter, r *http.Request, request interface{}) (interface{}, error) {
+		return sh.ssi.ActivateAccount(ctx, request.(ActivateAccountRequestObject))
+	}
+	for _, middleware := range sh.middlewares {
+		handler = middleware(handler, "ActivateAccount")
+	}
+
+	response, err := handler(r.Context(), w, r, request)
+
+	if err != nil {
+		sh.options.ResponseErrorHandlerFunc(w, r, err)
+	} else if validResponse, ok := response.(ActivateAccountResponseObject); ok {
+		if err := validResponse.VisitActivateAccountResponse(w); err != nil {
+			sh.options.ResponseErrorHandlerFunc(w, r, err)
+		}
+	} else if response != nil {
+		sh.options.ResponseErrorHandlerFunc(w, r, fmt.Errorf("unexpected response type: %T", response))
+	}
+}
+
+// CanDeleteAccount operation middleware
+func (sh *strictHandler) CanDeleteAccount(w http.ResponseWriter, r *http.Request, id string) {
+	var request CanDeleteAccountRequestObject
+
+	request.Id = id
+
+	handler := func(ctx context.Context, w http.ResponseWriter, r *http.Request, request interface{}) (interface{}, error) {
+		return sh.ssi.CanDeleteAccount(ctx, request.(CanDeleteAccountRequestObject))
+	}
+	for _, middleware := range sh.middlewares {
+		handler = middleware(handler, "CanDeleteAccount")
+	}
+
+	response, err := handler(r.Context(), w, r, request)
+
+	if err != nil {
+		sh.options.ResponseErrorHandlerFunc(w, r, err)
+	} else if validResponse, ok := response.(CanDeleteAccountResponseObject); ok {
+		if err := validResponse.VisitCanDeleteAccountResponse(w); err != nil {
+			sh.options.ResponseErrorHandlerFunc(w, r, err)
+		}
+	} else if response != nil {
+		sh.options.ResponseErrorHandlerFunc(w, r, fmt.Errorf("unexpected response type: %T", response))
+	}
+}
+
+// DeactivateAccount operation middleware
+func (sh *strictHandler) DeactivateAccount(w http.ResponseWriter, r *http.Request, id string) {
+	var request DeactivateAccountRequestObject
+
+	request.Id = id
+
+	handler := func(ctx context.Context, w http.ResponseWriter, r *http.Request, request interface{}) (interface{}, error) {
+		return sh.ssi.DeactivateAccount(ctx, request.(DeactivateAccountRequestObject))
+	}
+	for _, middleware := range sh.middlewares {
+		handler = middleware(handler, "DeactivateAccount")
+	}
+
+	response, err := handler(r.Context(), w, r, request)
+
+	if err != nil {
+		sh.options.ResponseErrorHandlerFunc(w, r, err)
+	} else if validResponse, ok := response.(DeactivateAccountResponseObject); ok {
+		if err := validResponse.VisitDeactivateAccountResponse(w); err != nil {
 			sh.options.ResponseErrorHandlerFunc(w, r, err)
 		}
 	} else if response != nil {
@@ -6779,6 +7315,58 @@ func (sh *strictHandler) UpdateHouseholdMember(w http.ResponseWriter, r *http.Re
 		sh.options.ResponseErrorHandlerFunc(w, r, err)
 	} else if validResponse, ok := response.(UpdateHouseholdMemberResponseObject); ok {
 		if err := validResponse.VisitUpdateHouseholdMemberResponse(w); err != nil {
+			sh.options.ResponseErrorHandlerFunc(w, r, err)
+		}
+	} else if response != nil {
+		sh.options.ResponseErrorHandlerFunc(w, r, fmt.Errorf("unexpected response type: %T", response))
+	}
+}
+
+// ActivateHouseholdMember operation middleware
+func (sh *strictHandler) ActivateHouseholdMember(w http.ResponseWriter, r *http.Request, id string) {
+	var request ActivateHouseholdMemberRequestObject
+
+	request.Id = id
+
+	handler := func(ctx context.Context, w http.ResponseWriter, r *http.Request, request interface{}) (interface{}, error) {
+		return sh.ssi.ActivateHouseholdMember(ctx, request.(ActivateHouseholdMemberRequestObject))
+	}
+	for _, middleware := range sh.middlewares {
+		handler = middleware(handler, "ActivateHouseholdMember")
+	}
+
+	response, err := handler(r.Context(), w, r, request)
+
+	if err != nil {
+		sh.options.ResponseErrorHandlerFunc(w, r, err)
+	} else if validResponse, ok := response.(ActivateHouseholdMemberResponseObject); ok {
+		if err := validResponse.VisitActivateHouseholdMemberResponse(w); err != nil {
+			sh.options.ResponseErrorHandlerFunc(w, r, err)
+		}
+	} else if response != nil {
+		sh.options.ResponseErrorHandlerFunc(w, r, fmt.Errorf("unexpected response type: %T", response))
+	}
+}
+
+// DeactivateHouseholdMember operation middleware
+func (sh *strictHandler) DeactivateHouseholdMember(w http.ResponseWriter, r *http.Request, id string) {
+	var request DeactivateHouseholdMemberRequestObject
+
+	request.Id = id
+
+	handler := func(ctx context.Context, w http.ResponseWriter, r *http.Request, request interface{}) (interface{}, error) {
+		return sh.ssi.DeactivateHouseholdMember(ctx, request.(DeactivateHouseholdMemberRequestObject))
+	}
+	for _, middleware := range sh.middlewares {
+		handler = middleware(handler, "DeactivateHouseholdMember")
+	}
+
+	response, err := handler(r.Context(), w, r, request)
+
+	if err != nil {
+		sh.options.ResponseErrorHandlerFunc(w, r, err)
+	} else if validResponse, ok := response.(DeactivateHouseholdMemberResponseObject); ok {
+		if err := validResponse.VisitDeactivateHouseholdMemberResponse(w); err != nil {
 			sh.options.ResponseErrorHandlerFunc(w, r, err)
 		}
 	} else if response != nil {
@@ -7588,145 +8176,150 @@ func (sh *strictHandler) RollbackTransfer(w http.ResponseWriter, r *http.Request
 // Base64 encoded, gzipped, json marshaled Swagger object
 var swaggerSpec = []string{
 
-	"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",
-	"vtz9/wAAAP//bfYtorUDAQA=",
+	"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",
 }
 
 // GetSwagger returns the content of the embedded swagger specification file

@@ -4,12 +4,19 @@ import (
 	"context"
 	"database/sql"
 	"fmt"
+	"ghorkov32/proletariat-budget-be/internal/core/port"
 	"ghorkov32/proletariat-budget-be/openapi"
 	"strings"
 )
 
 type TagsRepoImpl struct {
 	db *sql.DB
+}
+
+func NewTagsRepo(db *sql.DB) port.TagsRepo {
+	return &TagsRepoImpl{
+		db: db,
+	}
 }
 
 func (t TagsRepoImpl) Create(ctx context.Context, tag openapi.Tag, tagType string) (string, error) {

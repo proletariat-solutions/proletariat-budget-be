@@ -59,7 +59,7 @@ delete:
     - Savings
   responses:
     '204':
-      description: Savings goal deleted successfully
+      $ref: ../components/responses/204.yaml
     '401':
       $ref: ../components/responses/401.yaml
     '404':

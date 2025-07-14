@@ -1,4 +1,6 @@
 openapi: 3.0.2
+servers:
+  - url: http://localhost:9091
 info:
   version: 1.0.0
   title: Proletariat Budget API
@@ -34,6 +36,12 @@ paths:
     $ref: paths/accounts.yaml
   /accounts/{id}:
     $ref: paths/accounts_{id}.yaml
+  /accounts/{id}/can-delete:
+    $ref: paths/accounts_{id}_can-delete.yaml
+  /accounts/{id}/deactivate:
+    $ref: paths/accounts_{id}_deactivate.yaml
+  /accounts/{id}/activate:
+    $ref: paths/accounts_{id}_activate.yaml
   /transfers:
     $ref: paths/transfers.yaml
   /transfers/{id}:
@@ -62,6 +70,10 @@ paths:
     $ref: paths/household-members.yaml
   /household-members/{id}:
     $ref: paths/household-members_{id}.yaml
+  /household-members/{id}/deactivate:
+    $ref: paths/household-members_{id}_deactivate.yaml
+  /household-members/{id}/activate:
+    $ref: paths/household-members_{id}_activate.yaml
   /tags:
     $ref: paths/tags.yaml
   /tags/{id}:

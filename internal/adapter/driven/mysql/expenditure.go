@@ -5,7 +5,6 @@ import (
 	"database/sql"
 	"errors"
 	"fmt"
-	"ghorkov32/proletariat-budget-be/internal/core/domain"
 	"ghorkov32/proletariat-budget-be/internal/core/port"
 	"ghorkov32/proletariat-budget-be/openapi"
 	"sort"
@@ -16,6 +15,10 @@ import (
 type ExpenditureRepo struct {
 	db       *sql.DB
 	tagsRepo *port.TagsRepo
+}
+
+func NewExpenditureRepo(db *sql.DB, tagsRepo *port.TagsRepo) port.ExpenditureRepo {
+	return &ExpenditureRepo{db: db, tagsRepo: tagsRepo}
 }
 
 func (r *ExpenditureRepo) Create(ctx context.Context, expenditure openapi.ExpenditureRequest, transactionID string) (string, error) {
@@ -88,7 +91,7 @@ func (r *ExpenditureRepo) GetByID(ctx context.Context, id string) (*openapi.Expe
 		&tagsList,
 	)
 	if errors.Is(err, sql.ErrNoRows) {
-		return nil, domain.ErrEntityNotFound
+		return nil, err // TODO return correct error from domain
 	} else if err != nil {
 		return nil, fmt.Errorf("failed to select expenditure: %w", err)
 	}

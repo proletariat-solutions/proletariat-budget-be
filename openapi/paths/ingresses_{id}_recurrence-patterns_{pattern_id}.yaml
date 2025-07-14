@@ -102,7 +102,7 @@ delete:
         type: string
   responses:
     '204':
-      description: Recurrence pattern deleted successfully
+      $ref: ../components/responses/204.yaml
     '404':
       $ref: '../components/responses/404.yaml'
     '401':

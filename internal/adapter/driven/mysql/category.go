@@ -5,12 +5,16 @@ import (
 	"database/sql"
 	"errors"
 	"fmt"
-	"ghorkov32/proletariat-budget-be/internal/core/domain"
+	"ghorkov32/proletariat-budget-be/internal/core/port"
 	"ghorkov32/proletariat-budget-be/openapi"
 )
 
 type CategoryRepoImpl struct {
 	db *sql.DB
+}
+
+func NewCategoryRepo(db *sql.DB) port.CategoryRepo {
+	return &CategoryRepoImpl{db: db}
 }
 
 func (c CategoryRepoImpl) Create(ctx context.Context, category openapi.Category, categoryType string) (string, error) {
@@ -96,7 +100,7 @@ func (c CategoryRepoImpl) GetByID(ctx context.Context, id string) (*openapi.Cate
 		&category.Active,
 	)
 	if errors.Is(err, sql.ErrNoRows) {
-		return nil, domain.ErrEntityNotFound
+		return nil, err // TODO return correct error from domain
 	} else if err != nil {
 		return nil, fmt.Errorf("failed to select category: %w", err)
 	}

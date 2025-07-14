@@ -1,0 +1,11 @@
+type: object
+properties:
+  canDelete:
+    type: boolean
+    description: Whether the entity can be deleted
+  reason:
+    type: string
+    description: Explanation when deletion is not allowed
+    nullable: true
+required:
+  - canDelete

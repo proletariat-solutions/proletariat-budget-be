@@ -1,5 +1,7 @@
 type: object
 properties:
+  metadata:
+    $ref: "./ListMetadata.yaml"
   accounts:
     type: array
     items:

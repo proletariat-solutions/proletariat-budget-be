@@ -3,6 +3,7 @@ package mysql
 import (
 	"context"
 	"database/sql"
+	"ghorkov32/proletariat-budget-be/internal/core/port"
 	"ghorkov32/proletariat-budget-be/openapi"
 	"strconv"
 	"strings"
@@ -10,6 +11,10 @@ import (
 
 type TransferRepoImpl struct {
 	db *sql.DB
+}
+
+func NewTransferRepo(db *sql.DB) port.TransferRepo {
+	return &TransferRepoImpl{db: db}
 }
 
 func (t TransferRepoImpl) Create(ctx context.Context, transfer openapi.Transfer, incomingTxID, outgoingTxID string) (string, error) {

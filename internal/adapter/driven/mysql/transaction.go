@@ -17,6 +17,10 @@ type TransactionRepoImpl struct {
 	tagsRepo *port.TagsRepo
 }
 
+func NewTransactionRepo(db *sql.DB, tagsRepo port.TagsRepo) port.TransactionRepo {
+	return &TransactionRepoImpl{db: db, tagsRepo: &tagsRepo}
+}
+
 func (t TransactionRepoImpl) Create(ctx context.Context, transaction domain.Transaction) (string, error) {
 	queryInsert := `insert into transactions
 					(account_id,
@@ -81,7 +85,7 @@ func (t TransactionRepoImpl) GetByID(ctx context.Context, id string) (*domain.Tr
 		&transaction.Status,
 	)
 	if errors.Is(err, sql.ErrNoRows) {
-		return nil, domain.ErrEntityNotFound
+		return nil, err // TODO return correct error from domain
 	}
 	if err != nil {
 		return nil, err

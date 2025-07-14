@@ -1,0 +1,24 @@
+parameters:
+  - name: id
+    in: path
+    required: true
+    schema:
+      type: string
+    description: Household member ID
+patch:
+  summary: Deactivate household member by ID
+  description: Deactivate a single household member by ID
+  operationId: deactivateHouseholdMember
+  tags:
+    - Household Members
+  responses:
+    '204':
+      $ref: ../components/responses/204.yaml
+    '400':
+      $ref: ../components/responses/400.yaml
+    '401':
+      $ref: ../components/responses/401.yaml
+    '404':
+      $ref: ../components/responses/404.yaml
+    '500':
+      $ref: ../components/responses/500.yaml

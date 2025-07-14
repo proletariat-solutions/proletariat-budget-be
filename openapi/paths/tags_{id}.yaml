@@ -12,7 +12,7 @@ delete:
         type: string
   responses:
     '204':
-      description: Tag deleted successfully
+      $ref: ../components/responses/204.yaml
     '400':
       $ref: ../components/responses/400.yaml
     '401':
