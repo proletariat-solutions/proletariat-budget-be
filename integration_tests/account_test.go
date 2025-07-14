@@ -45,7 +45,7 @@ func (s *Suite) TestAccount() {
 		apiResponse, err := s.makeAccountRequest(account)
 		s.handleErr(err, "error while making request")
 
-		s.assertHttpError(apiResponse, http.StatusBadRequest, domain.ErrAccountOwnerInactive.Error())
+		s.assertHttpError(apiResponse, http.StatusBadRequest, domain.ErrMemberInactive.Error())
 	})
 
 	s.Run("Create account and get 400 error to non existant member", func() {
@@ -59,7 +59,7 @@ func (s *Suite) TestAccount() {
 		}
 		account := s.createTestAccountRequest(nonExistentMember, "150")
 
-		s.testAccountCreationError(account, http.StatusBadRequest, domain.ErrAccountOwnerNotFound.Error())
+		s.testAccountCreationError(account, http.StatusBadRequest, domain.ErrMemberNotFound.Error())
 	})
 
 	s.Run("Create account and get 400 error to non existant currency", func() {
@@ -319,7 +319,7 @@ func (s *Suite) TestAccount() {
 		}
 		apiResponse, err = s.updateAccountRequest(&updatedAccount)
 		s.handleErr(err, "error while making request")
-		s.assertHttpError(apiResponse, http.StatusBadRequest, domain.ErrAccountOwnerNotFound.Error())
+		s.assertHttpError(apiResponse, http.StatusBadRequest, domain.ErrMemberNotFound.Error())
 
 	})
 

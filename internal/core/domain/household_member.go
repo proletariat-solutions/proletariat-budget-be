@@ -11,6 +11,7 @@ var (
 	ErrMemberAlreadyActive     = errors.New("member is already active")
 	ErrMemberNotFound          = errors.New("member not found")
 	ErrMemberAlreadyInactive   = errors.New("member is already inactive")
+	ErrMemberInactive          = errors.New("member is inactive")
 )
 
 // HouseholdMember represents a household member in the domain

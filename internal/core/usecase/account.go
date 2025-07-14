@@ -24,11 +24,11 @@ func (a *AccountUseCase) Create(ctx context.Context, account domain.Account) (*s
 	householdMember, err := (*a.householdMemberRepo).GetByID(ctx, *account.OwnerID)
 	if err != nil {
 		if errors.Is(err, port.ErrRecordNotFound) {
-			return nil, domain.ErrAccountOwnerNotFound
+			return nil, domain.ErrMemberNotFound
 		}
 		return nil, err
 	} else if !householdMember.Active {
-		return nil, domain.ErrAccountOwnerInactive
+		return nil, domain.ErrMemberInactive
 	}
 	account.Owner = householdMember
 	ID, err := (*a.accountRepo).Create(ctx, account)
@@ -60,7 +60,7 @@ func (a *AccountUseCase) Update(ctx context.Context, account domain.Account) (*d
 				return nil, domain.ErrInvalidCurrency
 			}
 			if strings.Contains(err.Error(), "fk_accounts_owner") {
-				return nil, domain.ErrAccountOwnerNotFound
+				return nil, domain.ErrMemberNotFound
 			}
 		}
 		return nil, err

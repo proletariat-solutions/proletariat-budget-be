@@ -34,9 +34,6 @@ var (
 	ErrAccountAlreadyInactive = errors.New("account is already inactive")
 	ErrInvalidCurrency        = errors.New("invalid currency")
 	ErrNegativeBalance        = errors.New("account balance cannot be negative")
-	ErrInvalidAmount          = errors.New("invalid transaction amount")
-	ErrAccountOwnerNotFound   = errors.New("account owner not found")
-	ErrAccountOwnerInactive   = errors.New("account owner is inactive")
 	ErrDuplicateAccountNumber = errors.New("account number already exists")
 )
 

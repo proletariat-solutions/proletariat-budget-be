@@ -28,7 +28,7 @@ func (c *Controller) CreateAccount(ctx context.Context, request openapi.CreateAc
 	id, err := c.useCases.Account.Create(ctx, *FromOAPIAccountRequest(request.Body))
 	if err != nil {
 		log.Err(err).Msg("Failed to create account")
-		if errors.Is(err, domain.ErrAccountOwnerNotFound) || errors.Is(err, domain.ErrInvalidCurrency) || errors.Is(err, domain.ErrAccountOwnerInactive) {
+		if errors.Is(err, domain.ErrMemberNotFound) || errors.Is(err, domain.ErrInvalidCurrency) || errors.Is(err, domain.ErrMemberInactive) {
 			return openapi.CreateAccount400JSONResponse{
 				N400JSONResponse: openapi.N400JSONResponse{
 					Message: err.Error(),
@@ -113,7 +113,7 @@ func (c *Controller) UpdateAccount(ctx context.Context, request openapi.UpdateAc
 					Message: err.Error(),
 				},
 			}, nil
-		} else if errors.Is(err, domain.ErrAccountOwnerNotFound) ||
+		} else if errors.Is(err, domain.ErrMemberNotFound) ||
 			errors.Is(err, domain.ErrInvalidCurrency) ||
 			errors.Is(err, port.ErrInvalidDataFormat) {
 			return openapi.UpdateAccount400JSONResponse{
