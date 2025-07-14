@@ -85,7 +85,8 @@ func (a *AccountUseCase) Deactivate(ctx context.Context, id string) error {
 	if !*account.Active {
 		return domain.ErrAccountAlreadyInactive
 	}
-	err = (*a.accountRepo).SetActive(ctx, id, false)
+	account.SetActive(false)
+	err = (*a.accountRepo).Update(ctx, *account)
 	if err != nil {
 		return err
 	}
@@ -102,7 +103,8 @@ func (a *AccountUseCase) Activate(ctx context.Context, id string) error {
 	if *account.Active {
 		return domain.ErrAccountAlreadyActive
 	}
-	err = (*a.accountRepo).SetActive(ctx, id, true)
+	account.SetActive(true)
+	err = (*a.accountRepo).Update(ctx, *account)
 	if err != nil {
 		return err
 	}

@@ -33,8 +33,6 @@ var (
 	ErrAccountAlreadyActive   = errors.New("account is already active")
 	ErrAccountAlreadyInactive = errors.New("account is already inactive")
 	ErrInvalidCurrency        = errors.New("invalid currency")
-	ErrNegativeBalance        = errors.New("account balance cannot be negative")
-	ErrDuplicateAccountNumber = errors.New("account number already exists")
 )
 
 type AccountType string
@@ -51,17 +49,6 @@ const (
 func (a AccountType) String() string {
 	return string(a)
 }
-
-// IsValid checks if the account type is valid
-func (a AccountType) IsValid() bool {
-	switch a {
-	case AccountTypeBank, AccountTypeCash, AccountTypeCrypto, AccountTypeInvestment, AccountTypeOther:
-		return true
-	}
-	return false
-}
-
-// FromOAPIAccount converts an OpenAPI Account to domain Account
 
 // UpdateBalance updates the account balance
 func (a *Account) UpdateBalance(amount float32) {
