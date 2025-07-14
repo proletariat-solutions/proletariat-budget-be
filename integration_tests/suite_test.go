@@ -117,7 +117,7 @@ func instantiatePorts(db *sql.DB) *port.Ports {
 }
 
 func instantiateUseCases(ports *port.Ports) *usecase.UseCases {
-	account := usecase.NewAccountUseCase(ports.Account)
+	account := usecase.NewAccountUseCase(ports.Account, ports.HouseholdMembers)
 	auth := usecase.NewAuthUseCase(*ports.Auth)
 	householdMember := usecase.NewHouseholdMemberUseCase(*ports.HouseholdMembers)
 

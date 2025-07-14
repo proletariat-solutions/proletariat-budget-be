@@ -142,3 +142,10 @@ func ToOAPIHouseholdMemberList(members *domain.HouseholdMemberList) *openapi.Hou
 		Members: &oapiMembers,
 	}
 }
+
+func FromOAPIHouseholdMemberListParams(params *openapi.ListHouseholdMembersParams) *domain.HouseholdMemberListParams {
+	return &domain.HouseholdMemberListParams{
+		Role:   params.Role,
+		Active: params.Active,
+	}
+}

@@ -13,7 +13,7 @@ delete:
       description: category ID
   responses:
     '204':
-      description: Category deleted successfully
+      $ref: ../components/responses/204.yaml
     '401':
       $ref: ../components/responses/401.yaml
     '404':

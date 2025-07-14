@@ -40,16 +40,6 @@ get:
       schema:
         type: string
       description: Filter by household role
-    - name: limit
-      in: query
-      schema:
-        type: integer
-      description: Limit the number of results
-    - name: offset
-      in: query
-      schema:
-        type: integer
-      description: Offset the result set
   responses:
     '200':
       description: List of household members

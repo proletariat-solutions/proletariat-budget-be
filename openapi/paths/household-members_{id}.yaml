@@ -59,7 +59,9 @@ delete:
     - Household Members
   responses:
     '204':
-      description: Household member deleted successfully
+      $ref: ../components/responses/204.yaml
+    '400':
+      $ref: ../components/responses/400.yaml
     '401':
       $ref: ../components/responses/401.yaml
     '404':

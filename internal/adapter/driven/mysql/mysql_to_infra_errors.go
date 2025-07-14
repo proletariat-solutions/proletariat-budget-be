@@ -1,6 +1,7 @@
 package mysql
 
 import (
+	"database/sql"
 	"errors"
 	"fmt"
 	"ghorkov32/proletariat-budget-be/internal/core/port"
@@ -10,6 +11,9 @@ import (
 
 // translateError converts MySQL-specific errors to infrastructure errors
 func translateError(err error) error {
+	if errors.Is(err, sql.ErrNoRows) {
+		return port.ErrRecordNotFound
+	}
 	var mysqlErr *mysql.MySQLError
 	if errors.As(err, &mysqlErr) {
 		switch mysqlErr.Number {

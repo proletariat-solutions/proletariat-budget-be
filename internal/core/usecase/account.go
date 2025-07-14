@@ -9,25 +9,32 @@ import (
 )
 
 type AccountUseCase struct {
-	accountRepo *port.AccountRepo
+	accountRepo         *port.AccountRepo
+	householdMemberRepo *port.HouseholdMembersRepo
 }
 
-func NewAccountUseCase(accountRepo *port.AccountRepo) *AccountUseCase {
+func NewAccountUseCase(accountRepo *port.AccountRepo, householdMemberRepo *port.HouseholdMembersRepo) *AccountUseCase {
 	return &AccountUseCase{
-		accountRepo: accountRepo,
+		accountRepo:         accountRepo,
+		householdMemberRepo: householdMemberRepo,
 	}
 }
 
 func (a *AccountUseCase) Create(ctx context.Context, account domain.Account) (*string, error) {
+	householdMember, err := (*a.householdMemberRepo).GetByID(ctx, *account.OwnerID)
+	if err != nil {
+		if errors.Is(err, port.ErrRecordNotFound) {
+			return nil, domain.ErrAccountOwnerNotFound
+		}
+		return nil, err
+	} else if !householdMember.Active {
+		return nil, domain.ErrAccountOwnerInactive
+	}
+	account.Owner = householdMember
 	ID, err := (*a.accountRepo).Create(ctx, account)
 	if err != nil {
 		if errors.Is(err, port.ErrForeignKeyViolation) {
-			if strings.Contains(err.Error(), "currency") {
-				return nil, domain.ErrInvalidCurrency
-			}
-			if strings.Contains(err.Error(), "fk_accounts_owner") {
-				return nil, domain.ErrAccountOwnerNotFound
-			}
+			return nil, domain.ErrInvalidCurrency
 		}
 		return nil, err
 	}

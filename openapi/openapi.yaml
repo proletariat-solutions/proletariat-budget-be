@@ -70,6 +70,10 @@ paths:
     $ref: paths/household-members.yaml
   /household-members/{id}:
     $ref: paths/household-members_{id}.yaml
+  /household-members/{id}/deactivate:
+    $ref: paths/household-members_{id}_deactivate.yaml
+  /household-members/{id}/activate:
+    $ref: paths/household-members_{id}_activate.yaml
   /tags:
     $ref: paths/tags.yaml
   /tags/{id}:

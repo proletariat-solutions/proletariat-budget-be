@@ -8,6 +8,9 @@ import (
 
 var (
 	ErrMemberHasActiveAccounts = errors.New("member has active accounts")
+	ErrMemberAlreadyActive     = errors.New("member is already active")
+	ErrMemberNotFound          = errors.New("member not found")
+	ErrMemberAlreadyInactive   = errors.New("member is already inactive")
 )
 
 // HouseholdMember represents a household member in the domain

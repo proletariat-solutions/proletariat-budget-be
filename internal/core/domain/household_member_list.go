@@ -1,23 +1,13 @@
 package domain
 
-import "ghorkov32/proletariat-budget-be/openapi"
-
 // HouseholdMemberList represents a paginated list of household members
 type HouseholdMemberList struct {
 	HouseholdMembers []HouseholdMember `json:"household_members"`
 }
 
-// ToOAPIHouseholdMemberList converts domain HouseholdMemberList to OpenAPI HouseholdMemberList
-func (hml *HouseholdMemberList) ToOAPIHouseholdMemberList() *openapi.HouseholdMemberList {
-	oapiMembers := make([]openapi.HouseholdMember, len(hml.HouseholdMembers))
-
-	for i, member := range hml.HouseholdMembers {
-		oapiMembers[i] = *member.ToOAPIHouseholdMember()
-	}
-
-	return &openapi.HouseholdMemberList{
-		Members: &oapiMembers,
-	}
+type HouseholdMemberListParams struct {
+	Active *bool   `json:"active,omitempty"`
+	Role   *string `json:"role,omitempty"`
 }
 
 // IsEmpty returns true if the household member list is empty

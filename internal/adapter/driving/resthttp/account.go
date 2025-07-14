@@ -28,7 +28,7 @@ func (c *Controller) CreateAccount(ctx context.Context, request openapi.CreateAc
 	id, err := c.useCases.Account.Create(ctx, *FromOAPIAccountRequest(request.Body))
 	if err != nil {
 		log.Err(err).Msg("Failed to create account")
-		if errors.Is(err, domain.ErrAccountOwnerNotFound) || errors.Is(err, domain.ErrInvalidCurrency) {
+		if errors.Is(err, domain.ErrAccountOwnerNotFound) || errors.Is(err, domain.ErrInvalidCurrency) || errors.Is(err, domain.ErrAccountOwnerInactive) {
 			return openapi.CreateAccount400JSONResponse{
 				N400JSONResponse: openapi.N400JSONResponse{
 					Message: err.Error(),
@@ -140,13 +140,6 @@ func (c *Controller) GetBalances(ctx context.Context, request openapi.GetBalance
 func (c *Controller) CanDeleteAccount(ctx context.Context, request openapi.CanDeleteAccountRequestObject) (openapi.CanDeleteAccountResponseObject, error) {
 	hasTransactions, err := c.useCases.Account.HasTransactions(ctx, request.Id)
 	if err != nil {
-		if errors.Is(err, domain.ErrAccountNotFound) {
-			return openapi.CanDeleteAccount404JSONResponse{
-				N404JSONResponse: openapi.N404JSONResponse{
-					Message: err.Error(),
-				},
-			}, nil
-		}
 		log.Err(err).Msg("Failed to check if account has transactions")
 		return openapi.CanDeleteAccount500JSONResponse{ // coverage-ignore
 			N500JSONResponse: openapi.N500JSONResponse{

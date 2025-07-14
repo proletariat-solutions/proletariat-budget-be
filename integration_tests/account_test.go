@@ -36,6 +36,18 @@ func (s *Suite) TestAccount() {
 		s.Equal(account.Currency, createdAccount.Currency)
 	})
 
+	s.Run("Create account with inactive member", func() {
+		householdMember := s.createTestHouseholdMember()
+		_, errDeactivate := s.deactivateHouseholdMember(householdMember.Id)
+		s.handleErr(errDeactivate, "error while deactivating member")
+		account := s.createTestAccountRequest(&householdMember, "150")
+
+		apiResponse, err := s.makeAccountRequest(account)
+		s.handleErr(err, "error while making request")
+
+		s.assertHttpError(apiResponse, http.StatusBadRequest, domain.ErrAccountOwnerInactive.Error())
+	})
+
 	s.Run("Create account and get 400 error to non existant member", func() {
 		nonExistentMember := &openapi.HouseholdMember{
 			Id:        "0",
@@ -75,7 +87,32 @@ func (s *Suite) TestAccount() {
 	})
 
 	s.Run("Delete an account with transactions", func() {
-		// TODO: implement after implementing something that creates a transaction
+		apiResponse, err := s.deleteAccountRequest("1")
+		s.handleErr(err, "error while making request")
+
+		s.assertHttpError(apiResponse, http.StatusConflict, domain.ErrAccountHasTransactions.Error())
+	})
+
+	s.Run("Check if account can be deleted OK", func() {
+		apiResponse, err := s.checkCanDeleteAccount("6")
+		s.handleErr(err, "error while making request")
+
+		var response openapi.CanDelete
+		s.decodeResponse(apiResponse, &response)
+		s.Equal(http.StatusOK, apiResponse.StatusCode)
+		s.Equal(true, response.CanDelete)
+		s.Equal("", *response.Reason)
+	})
+
+	s.Run("Check if account can be deleted - false due having transactions", func() {
+		apiResponse, err := s.checkCanDeleteAccount("1")
+		s.handleErr(err, "error while making request")
+
+		var response openapi.CanDelete
+		s.decodeResponse(apiResponse, &response)
+		s.Equal(http.StatusOK, apiResponse.StatusCode)
+		s.Equal(false, response.CanDelete)
+		s.Equal("Account has transactions", *response.Reason)
 	})
 
 	s.Run("Delete an account that does not exist", func() {
@@ -101,6 +138,27 @@ func (s *Suite) TestAccount() {
 		s.handleErr(err, "error while making request")
 
 		s.Equal(http.StatusNoContent, apiResponse.StatusCode)
+	})
+
+	s.Run("Deactivate an already deactivated account", func() {
+
+		householdMember := s.createTestHouseholdMember()
+		account := s.createTestAccountRequest(&householdMember, "150")
+
+		apiResponse, err := s.makeAccountRequest(account)
+		s.handleErr(err, "error while making request")
+		defer apiResponse.Body.Close()
+
+		var createdAccount openapi.Account
+		s.decodeResponse(apiResponse, &createdAccount)
+
+		apiResponse, err = s.deactivateAccountRequest(createdAccount.Id)
+		s.handleErr(err, "error while making request")
+
+		apiResponse, err = s.deactivateAccountRequest(createdAccount.Id)
+		s.handleErr(err, "error while making request")
+
+		s.assertHttpError(apiResponse, http.StatusBadRequest, domain.ErrAccountAlreadyInactive.Error())
 	})
 
 	s.Run("Deactivate an account that does not exist", func() {
@@ -376,6 +434,23 @@ func (s *Suite) TestAccount() {
 		}
 	})
 
+	s.Run("Empty account list", func() {
+		filters := openapi.ListAccountsParams{
+			Type:     nil,
+			Currency: utils.StringPtr("151"),
+			Active:   nil,
+			Limit:    utils.IntPtr(5),
+			Offset:   utils.IntPtr(0),
+		}
+		apiResponse := s.listAccountRequest(filters)
+
+		var accounts openapi.AccountList
+		s.decodeResponse(apiResponse, &accounts)
+
+		s.Equal(http.StatusOK, apiResponse.StatusCode)
+		s.Equal(len(*accounts.Accounts), 0)
+	})
+
 	s.Run("List active accounts", func() {
 
 		filters := openapi.ListAccountsParams{
@@ -412,15 +487,12 @@ func (s *Suite) TestAccount() {
 		s.decodeResponse(apiResponse, &accounts)
 
 		s.Equal(http.StatusOK, apiResponse.StatusCode)
-		s.Equal(len(*accounts.Accounts), 1)
+		s.Equal(2, len(*accounts.Accounts))
 		for _, account := range *accounts.Accounts {
 			s.Equal(*filters.Active, *account.Active)
 		}
 	})
 
-	s.Run("List accounts with wrong filter", func() {
-
-	})
 }
 
 func (s *Suite) assertAccountsEquals(expected, actual *openapi.Account) {
@@ -501,6 +573,23 @@ func (s *Suite) deleteAccountRequest(id string) (*http.Response, error) {
 		s.ctx,
 		http.MethodDelete,
 		accountResourceURL+"/"+url.PathEscape(id),
+		http.NoBody,
+	)
+	if err != nil {
+		return nil, err
+	}
+
+	req.Header.Set("Content-Type", "application/json")
+
+	client := &http.Client{}
+	return client.Do(req)
+}
+
+func (s *Suite) checkCanDeleteAccount(id string) (*http.Response, error) {
+	req, err := http.NewRequestWithContext(
+		s.ctx,
+		http.MethodGet,
+		accountResourceURL+"/"+path.Join(url.PathEscape(id), "can-delete"),
 		http.NoBody,
 	)
 	if err != nil {

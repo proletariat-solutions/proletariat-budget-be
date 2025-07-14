@@ -1,15 +1,16 @@
-delete:
-  summary: Delete tag
-  operationId: deleteTag
-  description: Delete an tag by ID
+parameters:
+  - name: id
+    in: path
+    required: true
+    schema:
+      type: string
+    description: Household member ID
+patch:
+  summary: Activate household member by ID
+  description: Activate a single household member by ID
+  operationId: activateHouseholdMember
   tags:
-    - Tags
-  parameters:
-    - name: id
-      in: path
-      required: true
-      schema:
-        type: string
+    - Household Members
   responses:
     '204':
       $ref: ../components/responses/204.yaml
