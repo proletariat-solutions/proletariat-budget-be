@@ -1,15 +1,16 @@
-parameters:
-  - name: id
-    in: path
-    required: true
-    schema:
-      type: string
-delete:
-  summary: Delete tag
-  operationId: deleteTag
-  description: Delete an tag by ID
+patch:
+  summary: Activate a category
+  operationId: activateCategory
+  description: Activate a category by ID
   tags:
-    - Tags
+    - Categories
+  parameters:
+    - name: id
+      in: path
+      required: true
+      schema:
+        type: string
+      description: category ID
   responses:
     '204':
       $ref: ../components/responses/204.yaml

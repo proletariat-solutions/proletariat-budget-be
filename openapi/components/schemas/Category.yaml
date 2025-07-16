@@ -6,5 +6,9 @@ allOf:
         type: string
         description: Unique identifier for the category
         example: cat123
+      active:
+        type: boolean
+        description: Whether the category is active
+        example: true
     required:
       - id

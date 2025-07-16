@@ -22,6 +22,10 @@ paths:
     $ref: paths/categories.yaml
   /categories/{id}:
     $ref: paths/categories_{id}.yaml
+  /categories/{id}/activate:
+    $ref: paths/categories_{id}_activate.yaml
+  /categories/{id}/deactivate:
+    $ref: paths/categories_{id}_deactivate.yaml
   /ingresses:
     $ref: paths/ingresses.yaml
   /ingresses/{id}:
@@ -78,8 +82,8 @@ paths:
     $ref: paths/tags.yaml
   /tags/{id}:
     $ref: paths/tags_{id}.yaml
-  /tags/{type}:
-    $ref: paths/tags_{type}.yaml
+  /tags/type/{type}:
+    $ref: paths/tags_type_{type}.yaml
 
 components:
   securitySchemes:

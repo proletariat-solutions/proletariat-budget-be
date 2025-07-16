@@ -12,7 +12,7 @@ type Transaction struct {
 	TransactionDate time.Time          `json:"transaction_date"`
 	Description     string             `json:"description"`
 	TransactionType TransactionType    `json:"transaction_type"`
-	BalanceAfter    *float64           `json:"balance_after"`
+	BalanceAfter    *float32           `json:"balance_after"`
 	Status          *TransactionStatus `json:"status"`
 	CreatedAt       time.Time          `json:"created_at"`
 	UpdatedAt       time.Time          `json:"updated_at"`
@@ -68,7 +68,7 @@ func (s TransactionStatus) String() string {
 
 func RollbackTransaction(t *Transaction) *Transaction {
 	statusCompleted := TransactionStatusCompleted
-	balanceAfter := *t.BalanceAfter + float64(t.Amount)
+	balanceAfter := *t.BalanceAfter + t.Amount
 	return &Transaction{
 		ID:              t.ID,
 		AccountID:       t.AccountID,

@@ -18,7 +18,7 @@ type Account struct {
 	AccountInformation *string          `json:"account_information"`
 	OwnerID            *string          `json:"owner_id"`
 	Owner              *HouseholdMember `json:"owner,omitempty"`
-	Active             *bool            `json:"active"`
+	Active             bool             `json:"active"`
 	CreatedAt          time.Time        `json:"created_at"`
 	UpdatedAt          time.Time        `json:"updated_at"`
 }
@@ -68,15 +68,23 @@ func (a *Account) CreditBalance(amount float32) {
 	a.UpdatedAt = time.Now()
 }
 
-// IsActive returns true if the account is active
-func (a *Account) IsActive() bool {
-	return a.Active == nil || *a.Active
+// SetActive sets the account active status
+func (a *Account) SetActive() error {
+	if a.Active {
+		return ErrAccountAlreadyActive
+	}
+	a.Active = true
+	a.UpdatedAt = time.Now()
+	return nil
 }
 
-// SetActive sets the account active status
-func (a *Account) SetActive(active bool) {
-	a.Active = &active
+func (a *Account) SetInactive() error {
+	if !a.Active {
+		return ErrAccountAlreadyInactive
+	}
+	a.Active = false
 	a.UpdatedAt = time.Now()
+	return nil
 }
 
 // HasSufficientBalance checks if the account has sufficient balance for a transaction

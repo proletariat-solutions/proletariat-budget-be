@@ -19,8 +19,7 @@ properties:
     description: Description of the tag
     example: Regular monthly expenses
   tagType:
-    type: string
-    description: Type of the tag (e.g., expenditure, transaction, etc.)
+    $ref: ./TagType.yaml
 required:
   - name
   - tagType
