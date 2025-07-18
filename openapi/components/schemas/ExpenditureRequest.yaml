@@ -45,6 +45,8 @@ properties:
         backgroundColor: "#00FF00"
 required:
   - amount
-  - categoryId
+  - category
+  - currency
+  - description
   - accountId
   - date

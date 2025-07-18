@@ -33,7 +33,7 @@ func (r *ExpenditureRepo) Create(
 ) {
 	queryInsert := `insert into expenditures
 						(category_id, declared, planned, transaction_id, created_at)
-					VALUES (?, ?, ?, ?, NOW())`
+					VALUES (?, ?, ?, ?, ?)`
 	result, errInsert := r.db.ExecContext(
 		ctx,
 		queryInsert,
@@ -90,6 +90,7 @@ func (r *ExpenditureRepo) GetByID(
 							 inner join categories c ON e.category_id = c.id
 							 inner join transactions t ON e.transaction_id = t.id
 							 left join expenditure_tags et on e.id = et.expenditure_id
+					where e.id =?
 					group by e.id, e.declared, e.planned, e.transaction_id, e.created_at, t.account_id, t.amount, t.currency,
 							 t.transaction_date, t.description, c.id, c.name, c.description, c.color, c.background_color, c.active,
 							 c.category_type`
@@ -97,7 +98,7 @@ func (r *ExpenditureRepo) GetByID(
 	var expenditure domain.Expenditure
 	transaction := domain.Transaction{}
 	category := domain.Category{}
-	var tagsList string
+	var tagsList *string
 	err := r.db.QueryRowContext(
 		ctx,
 		querySelect,
@@ -134,20 +135,28 @@ func (r *ExpenditureRepo) GetByID(
 	expenditure.Transaction = &transaction
 	expenditure.Category = &category
 
-	tags, err := (*r.tagsRepo).GetByIDs(
-		ctx,
-		strings.Split(
-			tagsList,
-			",",
-		),
-	)
-	if err != nil {
-		return nil, fmt.Errorf(
-			"failed to fetch tags: %w",
-			err,
+	if tagsList != nil && *tagsList != "" {
+		tags, err := (*r.tagsRepo).GetByIDs(
+			ctx,
+			strings.Split(
+				*tagsList,
+				",",
+			),
 		)
+		if err != nil {
+			return nil, fmt.Errorf(
+				"failed to fetch tags: %w",
+				err,
+			)
+		}
+		expenditure.Tags = tags
+	} else {
+		tags := make(
+			[]*domain.Tag,
+			0,
+		)
+		expenditure.Tags = &tags
 	}
-	expenditure.Tags = tags
 
 	return &expenditure, nil
 }

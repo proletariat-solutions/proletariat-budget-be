@@ -15,7 +15,7 @@ func (s *Suite) TestTags() {
 		"Create a tag successfully",
 		func() {
 			tagRequest := &openapi.TagRequest{
-				Name:            "Test Tag",
+				Name:            "Test Tag A",
 				Description:     utils.StringPtr("A test tag for integration testing"),
 				TagType:         openapi.TagTypeExpenditure,
 				Color:           utils.StringPtr("#FF0000"),

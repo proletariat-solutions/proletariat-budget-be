@@ -375,8 +375,8 @@ func (t TagsRepoImpl) LinkTagsToType(
 	// Recreating the relationships
 	queryInsert := fmt.Sprintf(
 		"INSERT INTO %s (tag_id, %s) VALUES (?,?)",
-		junctionTable,
-		junctionForeignKey,
+		*junctionTable,
+		*junctionForeignKey,
 	)
 	for _, tag := range *tags {
 		_, err = t.db.ExecContext(

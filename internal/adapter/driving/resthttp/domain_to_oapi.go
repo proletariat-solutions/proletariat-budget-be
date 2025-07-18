@@ -170,20 +170,23 @@ func FromOAPIExpenditure(e *openapi.ExpenditureRequest) *domain.Transaction {
 	return &domain.Transaction{
 		AccountID:       e.AccountId,
 		Amount:          e.Amount,
-		Currency:        *e.Currency,
+		Currency:        e.Currency,
 		TransactionDate: e.Date.Time,
-		Description:     *e.Description,
+		Description:     e.Description,
 		TransactionType: domain.TransactionTypeExpenditure,
 	}
 }
 
 func FromOAPIExpenditureRequestTransaction(e *openapi.ExpenditureRequest) *domain.Transaction {
+	if e.Date.Time.IsZero() {
+		e.Date.Time = time.Now() // Set transaction date to current time if not provided in the request
+	}
 	return &domain.Transaction{
 		AccountID:       e.AccountId,
 		Amount:          e.Amount,
-		Currency:        *e.Currency,
+		Currency:        e.Currency,
 		TransactionDate: e.Date.Time,
-		Description:     *e.Description,
+		Description:     e.Description,
 		TransactionType: domain.TransactionTypeExpenditure,
 	}
 }
@@ -301,6 +304,7 @@ func FromOAPITag(tag openapi.Tag) *domain.Tag {
 		Description:     tag.Description,
 		Color:           tag.Color,
 		BackgroundColor: tag.BackgroundColor,
+		TagType:         *FromOAPITagType(&tag.TagType),
 	}
 }
 
@@ -404,12 +408,33 @@ func FromOAPIExpenditureRequest(e *openapi.ExpenditureRequest) *domain.Expenditu
 		}
 	}
 
+	var date time.Time
+	if e.Date.Time.IsZero() {
+		date = time.Now()
+	} else {
+		date = e.Date.Time
+	}
+	var declared bool
+	if e.Declared == nil {
+		declared = false
+	} else {
+		declared = *e.Declared
+	}
+
+	var planned bool
+	if e.Planned == nil {
+		planned = false
+	} else {
+		planned = *e.Planned
+	}
+
 	return &domain.Expenditure{
-		Category:    FromOAPICategory(e.Category),
-		Declared:    *e.Declared,
-		Planned:     *e.Planned,
+		Category:    FromOAPICategory(&e.Category),
+		Declared:    declared,
+		Planned:     planned,
 		Transaction: FromOAPIExpenditureRequestTransaction(e),
 		Tags:        &tagList,
+		Date:        date,
 	}
 }
 
@@ -432,12 +457,12 @@ func ToOAPIExpenditure(e *domain.Expenditure) *openapi.Expenditure {
 	return &openapi.Expenditure{
 		AccountId:   e.Transaction.AccountID,
 		Amount:      e.Transaction.Amount,
-		Category:    ToOAPICategory(e.Category),
+		Category:    *ToOAPICategory(e.Category),
 		CreatedAt:   e.Transaction.CreatedAt,
-		Currency:    &e.Transaction.Currency,
+		Currency:    e.Transaction.Currency,
 		Date:        openapi_types.Date{Time: e.Date},
 		Declared:    &e.Declared,
-		Description: &e.Transaction.Description,
+		Description: e.Transaction.Description,
 		Id:          e.ID,
 		Planned:     &e.Planned,
 		Tags:        &tagList,

@@ -82,12 +82,14 @@ func (u *ExpenditureUseCase) Create(
 	statusCompleted := domain.TransactionStatusCompleted
 	expenditure.Transaction.Status = &statusCompleted
 
-	_, err = (*u.transactionRepo).Create(
+	txID, err := (*u.transactionRepo).Create(
 		ctx,
 		*expenditure.Transaction,
 	)
 	if err != nil {
 		return nil, err
+	} else {
+		expenditure.Transaction.ID = &txID
 	}
 
 	// Update account balance
@@ -108,21 +110,23 @@ func (u *ExpenditureUseCase) Create(
 		return nil, err
 	}
 
-	// Update tags
-	err = (*u.tagsRepo).LinkTagsToType(
-		ctx,
-		expID,
-		expenditure.Tags,
-	)
+	if expenditure.Tags != nil && len(*expenditure.Tags) > 0 {
+		// Update tags
+		err = (*u.tagsRepo).LinkTagsToType(
+			ctx,
+			expID,
+			expenditure.Tags,
+		)
 
-	if err != nil {
-		if errors.Is(
-			err,
-			port.ErrForeignKeyViolation,
-		) {
-			return nil, domain.ErrTagNotFound
+		if err != nil {
+			if errors.Is(
+				err,
+				port.ErrForeignKeyViolation,
+			) {
+				return nil, domain.ErrTagNotFound
+			}
+			return nil, err
 		}
-		return nil, err
 	}
 
 	return (*u.expenditureRepo).GetByID(
