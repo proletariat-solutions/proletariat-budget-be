@@ -97,6 +97,7 @@ The API is fully documented using OpenAPI 3.0.2 specifications:
 
 - **Contributing Guide**: Guidelines for contributing to the project in [CONTRIBUTING.md](./CONTRIBUTING.md)
 - **Code Style**: Go code style conventions in [docs/code-style.md](./docs/code-style.md)
+- **Error handling**: Common error handling on this project [docs/error-handling.md](docs/error-handling.md)
 - **Testing Strategy**: Overview of testing approach in [docs/testing.md](./docs/testing.md)
 
 ### Database
