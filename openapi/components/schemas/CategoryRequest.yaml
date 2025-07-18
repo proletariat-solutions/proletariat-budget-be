@@ -18,10 +18,8 @@ properties:
     description: Background color code for UI representation (hex format)
     example: '#E8F5E9'
     pattern: ^#([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})$
-  active:
-    type: boolean
-    description: Whether the category is active
-    example: true
+  categoryType:
+    $ref: './CategoryType.yaml'
 required:
   - name
   - description

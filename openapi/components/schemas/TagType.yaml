@@ -1,0 +1,9 @@
+type: string
+enum:
+  - expenditure
+  - transaction
+  - ingress
+  - transfer
+  - saving_goal
+  - savings_withdrawal
+  - savings_contribution

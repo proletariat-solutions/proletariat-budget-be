@@ -43,7 +43,10 @@ func main() {
 
 	controller := resthttp.NewController(useCases)
 
-	handler := openapi.NewStrictHandler(controller, nil)
+	handler := openapi.NewStrictHandler(
+		controller,
+		nil,
+	)
 
 	oapiSpecs, errSw := openapi.GetSwagger()
 	if errSw != nil {
@@ -66,7 +69,13 @@ func main() {
 		}
 	}(appCtx)
 
-	ctx, stop := signal.NotifyContext(appCtx, os.Interrupt, os.Kill, syscall.SIGTERM, syscall.SIGINT)
+	ctx, stop := signal.NotifyContext(
+		appCtx,
+		os.Interrupt,
+		os.Kill,
+		syscall.SIGTERM,
+		syscall.SIGINT,
+	)
 	defer stop()
 	log.Info().Msg("waiting for app exiting conditions")
 
@@ -86,17 +95,29 @@ func runMigrations(configs *config.Configs) error {
 	}
 
 	if err := mysql.RunMigrations(migrationConfig); err != nil {
-		return fmt.Errorf("failed to run database migrations: %w", err)
+		return fmt.Errorf(
+			"failed to run database migrations: %w",
+			err,
+		)
 	}
 	return nil
 }
 
 func initDB(configs *config.Configs) *sql.DB {
 	// Initialize MySQL connection
-	dsn := fmt.Sprintf("%s:%s@tcp(%s:%s)/%s?parseTime=true",
-		configs.MySQL.User, configs.MySQL.Password, configs.MySQL.Host, configs.MySQL.Port, configs.MySQL.Database)
+	dsn := fmt.Sprintf(
+		"%s:%s@tcp(%s:%s)/%s?parseTime=true",
+		configs.MySQL.User,
+		configs.MySQL.Password,
+		configs.MySQL.Host,
+		configs.MySQL.Port,
+		configs.MySQL.Database,
+	)
 
-	db, err := sql.Open("mysql", dsn)
+	db, err := sql.Open(
+		"mysql",
+		dsn,
+	)
 	if err != nil {
 		log.Fatal().Err(err).Msg("Failed to connect to MySQL")
 	}
@@ -110,14 +131,29 @@ func initDB(configs *config.Configs) *sql.DB {
 
 func instantiatePorts(db *sql.DB) *port.Ports {
 	accountRepo := mysql.NewAccountRepo(db)
-	authRepo := mysql.NewAuthRepository(db, os.Getenv("JWT_SECRET"))
+	authRepo := mysql.NewAuthRepository(
+		db,
+		os.Getenv("JWT_SECRET"),
+	)
 	categoryRepo := mysql.NewCategoryRepo(db)
 	tagsRepo := mysql.NewTagsRepo(db)
-	expenditureRepo := mysql.NewExpenditureRepo(db, &tagsRepo)
+	expenditureRepo := mysql.NewExpenditureRepo(
+		db,
+		&tagsRepo,
+	)
 	householdMembersRepo := mysql.NewHouseholdMemberRepository(db)
-	ingressRepo := mysql.NewIngressRepo(db, &tagsRepo)
-	savingsGoalRepo := mysql.NewSavingGoalRepo(db, &tagsRepo)
-	transactionRepo := mysql.NewTransactionRepo(db, tagsRepo)
+	ingressRepo := mysql.NewIngressRepo(
+		db,
+		&tagsRepo,
+	)
+	savingsGoalRepo := mysql.NewSavingGoalRepo(
+		db,
+		&tagsRepo,
+	)
+	transactionRepo := mysql.NewTransactionRepo(
+		db,
+		tagsRepo,
+	)
 	return &port.Ports{
 		Account:          &accountRepo,
 		Auth:             &authRepo,
@@ -132,14 +168,29 @@ func instantiatePorts(db *sql.DB) *port.Ports {
 }
 
 func instantiateUseCases(ports *port.Ports) *usecase.UseCases {
-	account := usecase.NewAccountUseCase(ports.Account, ports.HouseholdMembers)
+	account := usecase.NewAccountUseCase(
+		ports.Account,
+		ports.HouseholdMembers,
+	)
 	auth := usecase.NewAuthUseCase(*ports.Auth)
 	householdMember := usecase.NewHouseholdMemberUseCase(*ports.HouseholdMembers)
+	category := usecase.NewCategoryUseCase(ports.Category)
+	expenditure := usecase.NewExpenditureUseCase(
+		ports.Expenditure,
+		ports.Account,
+		ports.Tags,
+		ports.Category,
+		ports.Transaction,
+	)
+	tags := usecase.NewTagsUseCase(ports.Tags)
 
 	return &usecase.UseCases{
 		Account:         account,
 		Auth:            auth,
 		HouseholdMember: householdMember,
+		Category:        category,
+		Expenditure:     expenditure,
+		Tags:            tags,
 		// TODO:  Instantiate other use cases
 	}
 }

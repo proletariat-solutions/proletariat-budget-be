@@ -6,16 +6,24 @@ import (
 	"fmt"
 	"ghorkov32/proletariat-budget-be/internal/core/port"
 	"github.com/go-sql-driver/mysql"
+	"github.com/rs/zerolog/log"
 	"regexp"
 )
 
 // translateError converts MySQL-specific errors to infrastructure errors
 func translateError(err error) error {
-	if errors.Is(err, sql.ErrNoRows) {
+	log.Error().Err(err).Msg("Receiving MySQL error")
+	if errors.Is(
+		err,
+		sql.ErrNoRows,
+	) {
 		return port.ErrRecordNotFound
 	}
 	var mysqlErr *mysql.MySQLError
-	if errors.As(err, &mysqlErr) {
+	if errors.As(
+		err,
+		&mysqlErr,
+	) {
 		switch mysqlErr.Number {
 		case 1048: // Column cannot be null
 			return port.ErrNotNullViolation
@@ -41,7 +49,11 @@ func translateError(err error) error {
 			return port.ErrInvalidDataFormat
 		case 1451:
 		case 1452: // Foreign key constraint fails
-			return fmt.Errorf("%w: %s", port.ErrForeignKeyViolation, extractConstraintName(mysqlErr.Message))
+			return fmt.Errorf(
+				"%w: %s",
+				port.ErrForeignKeyViolation,
+				extractConstraintName(mysqlErr.Message),
+			)
 		case 1525: // Incorrect DECIMAL value
 			return port.ErrInvalidDataFormat
 		case 1644: // Unhandled user-defined exception condition (SIGNAL)

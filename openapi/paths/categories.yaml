@@ -4,6 +4,13 @@ get:
   description: Retrieve a list of all categories
   tags:
     - Categories
+  parameters:
+    - name: type
+      in: query
+      description: Filter categories by type
+      required: false
+      schema:
+        $ref: '../components/schemas/CategoryType.yaml'
   responses:
     '200':
       description: Successfully retrieved categories

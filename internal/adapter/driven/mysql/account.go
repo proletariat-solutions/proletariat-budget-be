@@ -4,7 +4,6 @@ import (
 	"context"
 	"database/sql"
 	"errors"
-	"fmt"
 	"ghorkov32/proletariat-budget-be/internal/core/domain"
 	"ghorkov32/proletariat-budget-be/internal/core/port"
 	"strconv"
@@ -137,27 +136,6 @@ func (r *AccountRepoImpl) Update(ctx context.Context, account domain.Account) er
 
 	if err != nil {
 		return translateError(err)
-	}
-	return nil
-}
-
-func (r *AccountRepoImpl) SetActive(ctx context.Context, id string, active bool) error {
-	query := `UPDATE accounts SET active = ?, updated_at = NOW() WHERE id =?`
-	result, err := r.db.ExecContext(
-		ctx,
-		query,
-		active,
-		id,
-	)
-	if err != nil {
-		return translateError(err)
-	}
-	rowsAffected, errRowsAffected := result.RowsAffected()
-	if errRowsAffected != nil {
-		return fmt.Errorf("failed to delete account: %w", errRowsAffected)
-	}
-	if rowsAffected == 0 {
-		return port.ErrRecordNotFound
 	}
 	return nil
 }

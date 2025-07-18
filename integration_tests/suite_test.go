@@ -37,7 +37,10 @@ func TestIntegrationSuite(t *testing.T) {
 	}
 
 	// run all integration tests with IntegrationSuite as receiver
-	suite.Run(t, &Suite{})
+	suite.Run(
+		t,
+		&Suite{},
+	)
 }
 func (s *Suite) SetupSuite() {
 	var err error
@@ -48,19 +51,37 @@ func (s *Suite) SetupSuite() {
 		s.config.MySQL, err = s.dbContainer.InitContainer(s.config.MySQL)
 
 	}
-	s.handleErr(err, "failed to initialize MySQL container")
+	s.handleErr(
+		err,
+		"failed to initialize MySQL container",
+	)
 
-	dsn := fmt.Sprintf("%s:%s@tcp(%s:%s)/%s?parseTime=true&multiStatements=true",
-		s.config.MySQL.User, s.config.MySQL.Password, s.config.MySQL.Host, s.config.MySQL.Port, s.config.MySQL.Database)
+	dsn := fmt.Sprintf(
+		"%s:%s@tcp(%s:%s)/%s?parseTime=true&multiStatements=true",
+		s.config.MySQL.User,
+		s.config.MySQL.Password,
+		s.config.MySQL.Host,
+		s.config.MySQL.Port,
+		s.config.MySQL.Database,
+	)
 
-	db, err := sql.Open("mysql", dsn)
-	s.handleErr(err, "failed to connect to MySQL")
+	db, err := sql.Open(
+		"mysql",
+		dsn,
+	)
+	s.handleErr(
+		err,
+		"failed to connect to MySQL",
+	)
 	s.db = db
 
 	s.ctx = context.Background()
 
 	err = s.runMigrations()
-	s.handleErr(err, "failed to run migrations")
+	s.handleErr(
+		err,
+		"failed to run migrations",
+	)
 
 	ports := instantiatePorts(db)
 
@@ -68,7 +89,10 @@ func (s *Suite) SetupSuite() {
 
 	controller := resthttp.NewController(useCases)
 
-	handler := openapi.NewStrictHandler(controller, nil)
+	handler := openapi.NewStrictHandler(
+		controller,
+		nil,
+	)
 
 	oapiSpecs, errSw := openapi.GetSwagger()
 	if errSw != nil {
@@ -87,22 +111,46 @@ func (s *Suite) SetupSuite() {
 	time.Sleep(1 * time.Second)
 }
 
-func (s *Suite) handleErr(err error, msg string) {
+func (s *Suite) handleErr(
+	err error,
+	msg string,
+) {
 	if err != nil {
-		s.FailNow(fmt.Sprintf("%v: %v", msg, err))
+		s.FailNow(
+			fmt.Sprintf(
+				"%v: %v",
+				msg,
+				err,
+			),
+		)
 	}
 }
 
 func instantiatePorts(db *sql.DB) *port.Ports {
 	accountRepo := mysql.NewAccountRepo(db)
-	authRepo := mysql.NewAuthRepository(db, os.Getenv("JWT_SECRET"))
+	authRepo := mysql.NewAuthRepository(
+		db,
+		os.Getenv("JWT_SECRET"),
+	)
 	categoryRepo := mysql.NewCategoryRepo(db)
 	tagsRepo := mysql.NewTagsRepo(db)
-	expenditureRepo := mysql.NewExpenditureRepo(db, &tagsRepo)
+	expenditureRepo := mysql.NewExpenditureRepo(
+		db,
+		&tagsRepo,
+	)
 	householdMembersRepo := mysql.NewHouseholdMemberRepository(db)
-	ingressRepo := mysql.NewIngressRepo(db, &tagsRepo)
-	savingsGoalRepo := mysql.NewSavingGoalRepo(db, &tagsRepo)
-	transactionRepo := mysql.NewTransactionRepo(db, tagsRepo)
+	ingressRepo := mysql.NewIngressRepo(
+		db,
+		&tagsRepo,
+	)
+	savingsGoalRepo := mysql.NewSavingGoalRepo(
+		db,
+		&tagsRepo,
+	)
+	transactionRepo := mysql.NewTransactionRepo(
+		db,
+		tagsRepo,
+	)
 	return &port.Ports{
 		Account:          &accountRepo,
 		Auth:             &authRepo,
@@ -117,14 +165,29 @@ func instantiatePorts(db *sql.DB) *port.Ports {
 }
 
 func instantiateUseCases(ports *port.Ports) *usecase.UseCases {
-	account := usecase.NewAccountUseCase(ports.Account, ports.HouseholdMembers)
+	account := usecase.NewAccountUseCase(
+		ports.Account,
+		ports.HouseholdMembers,
+	)
 	auth := usecase.NewAuthUseCase(*ports.Auth)
 	householdMember := usecase.NewHouseholdMemberUseCase(*ports.HouseholdMembers)
+	category := usecase.NewCategoryUseCase(ports.Category)
+	expenditure := usecase.NewExpenditureUseCase(
+		ports.Expenditure,
+		ports.Account,
+		ports.Tags,
+		ports.Category,
+		ports.Transaction,
+	)
+	tags := usecase.NewTagsUseCase(ports.Tags)
 
 	return &usecase.UseCases{
 		Account:         account,
 		Auth:            auth,
 		HouseholdMember: householdMember,
+		Category:        category,
+		Expenditure:     expenditure,
+		Tags:            tags,
 		// TODO:  Instantiate other use cases
 	}
 }
@@ -141,10 +204,17 @@ func (s *Suite) runMigrations() error {
 	}
 
 	if err := mysql.RunMigrations(migrationConfig); err != nil {
-		return fmt.Errorf("failed to run database migrations: %w", err)
+		return fmt.Errorf(
+			"failed to run database migrations: %w",
+			err,
+		)
 	}
 
-	err := utils.ExecuteSQLFile(s.ctx, s.db, "./mock_data/mock-data.sql")
+	err := utils.ExecuteSQLFile(
+		s.ctx,
+		s.db,
+		"./mock_data/mock-data.sql",
+	)
 	if err != nil {
 		return err
 	}
@@ -155,15 +225,24 @@ func (s *Suite) TearDownSuite() {
 	s.ClearTables()
 	err := s.server.Shutdown(s.ctx)
 	if err != nil {
-		s.handleErr(err, "failed to shutdown http server")
+		s.handleErr(
+			err,
+			"failed to shutdown http server",
+		)
 	}
 	err = s.db.Close()
 	if err != nil {
-		s.handleErr(err, "failed to close database connection")
+		s.handleErr(
+			err,
+			"failed to close database connection",
+		)
 	}
 	err = s.server.Shutdown(context.Background())
 	if err != nil {
-		s.handleErr(err, "failed to shutdown http server")
+		s.handleErr(
+			err,
+			"failed to shutdown http server",
+		)
 	}
 }
 
@@ -200,12 +279,27 @@ func (s *Suite) ClearTables() {
 		_, err := s.db.Exec(stmt)
 		if err != nil {
 			mysqlError := &mysql2.MySQLError{}
-			if errors.As(err, &mysqlError) {
+			if errors.As(
+				err,
+				&mysqlError,
+			) {
 				if mysqlError.Number != 1146 {
-					s.handleErr(err, fmt.Sprintf("failed to execute: %s", stmt))
+					s.handleErr(
+						err,
+						fmt.Sprintf(
+							"failed to execute: %s",
+							stmt,
+						),
+					)
 				}
 			} else {
-				s.handleErr(err, fmt.Sprintf("failed to execute: %s", stmt))
+				s.handleErr(
+					err,
+					fmt.Sprintf(
+						"failed to execute: %s",
+						stmt,
+					),
+				)
 			}
 		}
 	}

@@ -2,17 +2,67 @@ package port
 
 import (
 	"context"
-	"ghorkov32/proletariat-budget-be/openapi"
+	"ghorkov32/proletariat-budget-be/internal/core/domain"
 )
 
 type TagsRepo interface {
-	Create(ctx context.Context, tag openapi.Tag, tagType string) (string, error)
-	Update(ctx context.Context, id string, tag openapi.Tag, tagType string) error
-	Delete(ctx context.Context, id string) error
-	GetByID(ctx context.Context, id string) (*openapi.Tag, error)
-	GetByIDs(ctx context.Context, ids []string) (*[]openapi.Tag, error)
+	Create(
+		ctx context.Context,
+		tag domain.Tag,
+	) (
+		string,
+		error,
+	)
+	Update(
+		ctx context.Context,
+		id string,
+		tag domain.Tag,
+	) error
+	Delete(
+		ctx context.Context,
+		id string,
+	) error
+	GetByID(
+		ctx context.Context,
+		id string,
+	) (
+		*domain.Tag,
+		error,
+	)
+	GetByIDs(
+		ctx context.Context,
+		ids []string,
+	) (
+		*[]*domain.Tag,
+		error,
+	)
 
-	ListByType(ctx context.Context, tagType string, ids *[]string) ([]openapi.Tag, error)
+	ListByType(
+		ctx context.Context,
+		tagType domain.TagType,
+		ids *[]string,
+	) (
+		*[]*domain.Tag,
+		error,
+	)
 
-	LinkTagsToType(ctx context.Context, tagType, foreignID string, tags []openapi.Tag) error
+	LinkTagsToType(
+		ctx context.Context,
+		foreignID string,
+		tags *[]*domain.Tag,
+	) error
+
+	List(ctx context.Context) (
+		*[]*domain.Tag,
+		error,
+	)
+
+	GetByNameAndType(
+		ctx context.Context,
+		name string,
+		tagType domain.TagType,
+	) (
+		*domain.Tag,
+		error,
+	)
 }

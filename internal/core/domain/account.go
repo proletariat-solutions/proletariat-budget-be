@@ -18,7 +18,7 @@ type Account struct {
 	AccountInformation *string          `json:"account_information"`
 	OwnerID            *string          `json:"owner_id"`
 	Owner              *HouseholdMember `json:"owner,omitempty"`
-	Active             *bool            `json:"active"`
+	Active             bool             `json:"active"`
 	CreatedAt          time.Time        `json:"created_at"`
 	UpdatedAt          time.Time        `json:"updated_at"`
 }
@@ -33,11 +33,6 @@ var (
 	ErrAccountAlreadyActive   = errors.New("account is already active")
 	ErrAccountAlreadyInactive = errors.New("account is already inactive")
 	ErrInvalidCurrency        = errors.New("invalid currency")
-	ErrNegativeBalance        = errors.New("account balance cannot be negative")
-	ErrInvalidAmount          = errors.New("invalid transaction amount")
-	ErrAccountOwnerNotFound   = errors.New("account owner not found")
-	ErrAccountOwnerInactive   = errors.New("account owner is inactive")
-	ErrDuplicateAccountNumber = errors.New("account number already exists")
 )
 
 type AccountType string
@@ -54,17 +49,6 @@ const (
 func (a AccountType) String() string {
 	return string(a)
 }
-
-// IsValid checks if the account type is valid
-func (a AccountType) IsValid() bool {
-	switch a {
-	case AccountTypeBank, AccountTypeCash, AccountTypeCrypto, AccountTypeInvestment, AccountTypeOther:
-		return true
-	}
-	return false
-}
-
-// FromOAPIAccount converts an OpenAPI Account to domain Account
 
 // UpdateBalance updates the account balance
 func (a *Account) UpdateBalance(amount float32) {
@@ -84,15 +68,23 @@ func (a *Account) CreditBalance(amount float32) {
 	a.UpdatedAt = time.Now()
 }
 
-// IsActive returns true if the account is active
-func (a *Account) IsActive() bool {
-	return a.Active == nil || *a.Active
+// SetActive sets the account active status
+func (a *Account) SetActive() error {
+	if a.Active {
+		return ErrAccountAlreadyActive
+	}
+	a.Active = true
+	a.UpdatedAt = time.Now()
+	return nil
 }
 
-// SetActive sets the account active status
-func (a *Account) SetActive(active bool) {
-	a.Active = &active
+func (a *Account) SetInactive() error {
+	if !a.Active {
+		return ErrAccountAlreadyInactive
+	}
+	a.Active = false
 	a.UpdatedAt = time.Now()
+	return nil
 }
 
 // HasSufficientBalance checks if the account has sufficient balance for a transaction

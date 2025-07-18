@@ -1,0 +1,6 @@
+type: string
+enum:
+  - "ingress"
+  - "expenditure"
+  - "transfer"
+  - "savingGoal"
