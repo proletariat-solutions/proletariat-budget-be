@@ -25,14 +25,16 @@ type Account struct {
 
 // Account domain errors
 var (
-	ErrAccountNotFound        = errors.New("account not found")
-	ErrAccountInactive        = errors.New("account is inactive")
-	ErrInsufficientBalance    = errors.New("insufficient account balance")
-	ErrInvalidAccountType     = errors.New("invalid account type")
-	ErrAccountHasTransactions = errors.New("cannot delete account with existing transactions")
-	ErrAccountAlreadyActive   = errors.New("account is already active")
-	ErrAccountAlreadyInactive = errors.New("account is already inactive")
-	ErrInvalidCurrency        = errors.New("invalid currency")
+	ErrAccountNotFound                    = errors.New("account not found")
+	ErrAccountInactive                    = errors.New("account is inactive")
+	ErrInsufficientBalance                = errors.New("insufficient account balance")
+	ErrInvalidAccountType                 = errors.New("invalid account type")
+	ErrAccountHasTransactions             = errors.New("cannot delete account with existing transactions")
+	ErrAccountAlreadyActive               = errors.New("account is already active")
+	ErrAccountAlreadyInactive             = errors.New("account is already inactive")
+	ErrInvalidCurrency                    = errors.New("invalid currency")
+	ErrAccountHasActiveRecurrencePatterns = errors.New("account has active recurrence patterns")
+	ErrAccountHasActiveSavingsGoals       = errors.New("account has active savings goals")
 )
 
 type AccountType string

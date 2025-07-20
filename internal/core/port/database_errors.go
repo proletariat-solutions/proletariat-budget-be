@@ -1,6 +1,9 @@
 package port
 
-import "errors"
+import (
+	"errors"
+	"fmt"
+)
 
 var (
 	ErrRecordNotFound      = errors.New("record not found")
@@ -14,8 +17,26 @@ var (
 	ErrDataTooLong         = errors.New("data too long for column")
 	ErrInvalidDataFormat   = errors.New("invalid data format")
 	ErrDataTruncated       = errors.New("data truncated")
+	ErrForeignKeyNotFound  = errors.New("foreign key not found")
+	ErrDependingForeignKey = errors.New("dependent foreign key constraint")
 	ErrConstraintViolation = errors.New("constraint violation")
 )
+
+type EntityRelationshipError struct {
+	Type                string
+	Message             string
+	OffendingConstraint string
+	Cause               error
+}
+
+func (e EntityRelationshipError) Error() string {
+	return fmt.Sprintf(
+		"%s: %s (offending constraint: %s)",
+		e.Type,
+		e.Message,
+		e.OffendingConstraint,
+	)
+}
 
 type InfrastructureError struct {
 	Type    string
@@ -34,8 +55,20 @@ func (e *InfrastructureError) Unwrap() error {
 func IsInfrastructureError(err error) bool {
 	var infraErr *InfrastructureError
 	return err != nil &&
-		(errors.As(err, &infraErr) ||
-			errors.Is(err, ErrConnectionFailed) ||
-			errors.Is(err, ErrSyntaxError) ||
-			errors.Is(err, ErrUnknownError))
+		(errors.As(
+			err,
+			&infraErr,
+		) ||
+			errors.Is(
+				err,
+				ErrConnectionFailed,
+			) ||
+			errors.Is(
+				err,
+				ErrSyntaxError,
+			) ||
+			errors.Is(
+				err,
+				ErrUnknownError,
+			))
 }

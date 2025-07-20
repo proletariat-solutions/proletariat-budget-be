@@ -38,10 +38,7 @@ func (t TagsRepoImpl) Create(
 		tag.TagType,
 	)
 	if errInsert != nil {
-		return "", fmt.Errorf(
-			"failed to create tag: %w",
-			errInsert,
-		)
+		return "", translateError(errInsert)
 	}
 	lastID, err := result.LastInsertId()
 	if err != nil {

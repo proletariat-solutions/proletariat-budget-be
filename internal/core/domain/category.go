@@ -2,6 +2,20 @@ package domain
 
 import "errors"
 
+// Category domain errors
+var (
+	ErrCategoryNotFound              = errors.New("category not found")
+	ErrCategoryHasActiveSavingsGoals = errors.New("category has active savings goals and cannot be deleted")
+	ErrCategoryInactive              = errors.New("category is inactive")
+	ErrCategoryAlreadyActive         = errors.New("category is already active")
+	ErrCategoryAlreadyInactive       = errors.New("category is already inactive")
+	ErrCategoryUsedInExpenditure     = errors.New("category is used in expenditures")
+	ErrCategoryUsedInTransfer        = errors.New("category is used in transfers")
+	ErrCategoryUsedInSavingGoal      = errors.New("category is used in saving goals")
+	ErrCategoryUsedInIngress         = errors.New("category is used in ingresses")
+	ErrCategoryUsedInEntity          = errors.New("category is used in entity")
+)
+
 type Category struct {
 	ID              string       `json:"id"`
 	Name            string       `json:"name"`
@@ -11,18 +25,6 @@ type Category struct {
 	Active          bool         `json:"active"`
 	CategoryType    CategoryType `json:"type"`
 }
-
-var (
-	ErrCategoryNotFound          = errors.New("category not found")
-	ErrCategoryInactive          = errors.New("category is inactive")
-	ErrCategoryAlreadyActive     = errors.New("category is already active")
-	ErrCategoryAlreadyInactive   = errors.New("category is already inactive")
-	ErrCategoryUsedInExpenditure = errors.New("category is used in expenditures")
-	ErrCategoryUsedInTransfer    = errors.New("category is used in transfers")
-	ErrCategoryUsedInSavingGoal  = errors.New("category is used in saving goals")
-	ErrCategoryUsedInIngress     = errors.New("category is used in ingresses")
-	ErrCategoryUsedInEntity      = errors.New("category is used in entity")
-)
 
 type CategoryType string
 

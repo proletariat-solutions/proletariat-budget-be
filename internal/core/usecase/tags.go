@@ -50,19 +50,17 @@ func (u *TagsUseCase) CreateTag(
 	if err := tag.Validate(); err != nil {
 		return nil, err
 	}
-	_, err := (*u.tagsRepo).GetByNameAndType(
-		ctx,
-		(*tag).Name,
-		(*tag).TagType,
-	)
-	if err == nil {
-		return nil, domain.ErrTagAlreadyExists
-	}
 	id, err := (*u.tagsRepo).Create(
 		ctx,
 		*tag,
 	)
 	if err != nil {
+		if errors.Is(
+			err,
+			port.ErrDuplicateKey,
+		) {
+			return nil, domain.ErrTagAlreadyExists
+		}
 		return nil, err
 	}
 	tag.ID = id

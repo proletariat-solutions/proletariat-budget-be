@@ -55,7 +55,17 @@ func (a *AccountUseCase) Create(
 			err,
 			port.ErrForeignKeyViolation,
 		) {
-			return nil, domain.ErrInvalidCurrency
+			if strings.Contains(
+				err.Error(),
+				"currencies",
+			) {
+				return nil, domain.ErrInvalidCurrency
+			} else if strings.Contains(
+				err.Error(),
+				"household_members",
+			) {
+				return nil, domain.ErrMemberNotFound
+			}
 		}
 		return nil, err
 	}

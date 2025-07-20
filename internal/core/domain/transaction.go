@@ -1,7 +1,12 @@
 package domain
 
 import (
+	"errors"
 	"time"
+)
+
+var (
+	ErrTransactionNotFound = errors.New("transaction not found")
 )
 
 type Transaction struct {

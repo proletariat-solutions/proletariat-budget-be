@@ -400,9 +400,9 @@ CREATE TABLE accounts
 );
 
 alter table accounts
-    add constraint fk_accounts_owner FOREIGN KEY (owner) REFERENCES household_members (id);
+    add constraint fk_account_owner FOREIGN KEY (owner) REFERENCES household_members (id);
 alter table accounts
-    add constraint fk_accounts_currency FOREIGN KEY (currency) REFERENCES currencies (id);
+    add constraint fk_account_currency FOREIGN KEY (currency) REFERENCES currencies (id);
 
 
 CREATE INDEX idx_accounts_type ON accounts (type);
@@ -452,12 +452,13 @@ CREATE TABLE expenditures
     category_id    BIGINT    NOT NULL,
     declared       BOOLEAN   NOT NULL DEFAULT FALSE,
     planned        BOOLEAN   NOT NULL DEFAULT FALSE,
-    transaction_id BIGINT    NOT NULL unique REFERENCES transactions (id),
+    transaction_id BIGINT    NOT NULL unique,
     created_at     TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
     INDEX idx_category (category_id),
     INDEX idx_declared (declared),
     INDEX idx_planned (planned),
-    FOREIGN KEY (category_id) REFERENCES categories (id)
+    constraint fk_expenditure_category FOREIGN KEY (category_id) REFERENCES categories (id),
+    constraint fk_expenditure_transaction FOREIGN KEY (transaction_id) REFERENCES transactions (id)
 );
 
 CREATE TABLE expenditure_tags
@@ -470,37 +471,12 @@ CREATE TABLE expenditure_tags
 );
 
 ALTER TABLE expenditure_tags
-    ADD CONSTRAINT fk_expenditure_id FOREIGN KEY (expenditure_id) REFERENCES expenditures (id);
+    ADD CONSTRAINT fk_expenditure_tags_expenditure_id FOREIGN KEY (expenditure_id) REFERENCES expenditures (id);
 
 ALTER TABLE expenditure_tags
-    ADD CONSTRAINT fk_tag_id FOREIGN KEY (tag_id) REFERENCES tags (id);
+    ADD CONSTRAINT fk_expenditure_tags_tag_id FOREIGN KEY (tag_id) REFERENCES tags (id);
 
 
--- Create ingresses table
-CREATE TABLE ingresses
-(
-    id             BIGINT auto_increment PRIMARY KEY,
-    category_id    bigint    NOT NULL,
-    source         VARCHAR(255),
-    from_recurrency_pattern_id   BIGINT references ingress_recurrence_patterns (id),
-    transaction_id BIGINT    NOT NULL unique REFERENCES transactions (id),
-    created_at     TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    INDEX idx_category (category_id),
-    INDEX idx_source (source),
-    index idx_from_recurrency_pattern_id (from_recurrency_pattern_id),
-    index idx_transaction_id (transaction_id),
-    foreign key (category_id) REFERENCES categories (id)
-);
-
--- Create table for ingress tags junction with ingresses
-Create table ingress_tags
-(
-    ingress_id BIGINT NOT NULL,
-    tag_id     BIGINT NOT NULL,
-    index (ingress_id, tag_id),
-    FOREIGN KEY (ingress_id) REFERENCES ingresses (id),
-    FOREIGN KEY (tag_id) REFERENCES tags (id)
-);
 
 -- Create table for recurrence patterns
 CREATE TABLE ingress_recurrence_patterns
@@ -509,9 +485,47 @@ CREATE TABLE ingress_recurrence_patterns
     frequency      ENUM ('daily', 'weekly', 'monthly', 'yearly') NOT NULL DEFAULT 'monthly',
     interval_value INT                                           NOT NULL DEFAULT 1,
     amount         DECIMAL(15, 2),
-    to_account_id  BIGINT                                        NOT NULL references accounts (id),
+    to_account_id  BIGINT                                        NOT NULL,
     description    TEXT                                          NOT NULL,
     end_date       DATE
+);
+
+ALTER TABLE ingress_recurrence_patterns
+    ADD CONSTRAINT fk_ingress_recurrence_pattern_account foreign key (to_account_id) references accounts (id);
+
+
+-- Create ingresses table
+CREATE TABLE ingresses
+(
+    id                         BIGINT auto_increment PRIMARY KEY,
+    category_id                bigint    NOT NULL,
+    source                     VARCHAR(255),
+    from_recurrency_pattern_id BIGINT,
+    transaction_id             BIGINT    NOT NULL unique,
+    created_at                 TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    INDEX idx_category (category_id),
+    INDEX idx_source (source),
+    index idx_from_recurrency_pattern_id (from_recurrency_pattern_id),
+    index idx_transaction_id (transaction_id)
+);
+
+ALTER TABLE ingresses
+    ADD CONSTRAINT fk_ingress_category foreign key (category_id) REFERENCES categories (id);
+
+ALTER TABLE ingresses
+    ADD CONSTRAINT fk_ingress_recurrency_pattern foreign key (from_recurrency_pattern_id) references ingress_recurrence_patterns (id);
+
+alter table ingresses
+    add constraint fk_ingress_transaction foreign key (transaction_id) references transactions (id);
+
+-- Create table for ingress tags junction with ingresses
+Create table ingress_tags
+(
+    ingress_id BIGINT NOT NULL,
+    tag_id     BIGINT NOT NULL,
+    index (ingress_id, tag_id),
+    constraint fk_ingress FOREIGN KEY (ingress_id) REFERENCES ingresses (id),
+    constraint fk_tag FOREIGN KEY (tag_id) REFERENCES tags (id)
 );
 
 -- Create savings goals table
@@ -535,11 +549,17 @@ CREATE TABLE savings_goals
     status                    ENUM ('active', 'completed', 'abandoned', 'inactive') NOT NULL DEFAULT 'active',
     projected_completion_date DATE,
     created_at                TIMESTAMP                                             NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    updated_at                TIMESTAMP                                             NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-    FOREIGN KEY (account_id) REFERENCES accounts (id),
-    FOREIGN KEY (category_id) REFERENCES categories (id),
-    foreign key (currency) REFERENCES currencies (id)
+    updated_at                TIMESTAMP                                             NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 );
+
+ALTER TABLE savings_goals
+    ADD CONSTRAINT fk_savings_goal_account FOREIGN KEY (account_id) REFERENCES accounts (id);
+
+ALTER TABLE savings_goals
+    ADD CONSTRAINT fk_savings_goal_category_id FOREIGN KEY (category_id) REFERENCES categories (id);
+
+ALTER TABLE savings_goals
+    ADD CONSTRAINT fk_savings_goal_currency foreign key (currency) REFERENCES currencies (id);
 
 
 -- Create savings goal tags junction table
@@ -548,9 +568,33 @@ CREATE TABLE savings_goal_tags
     savings_goal_id BIGINT NOT NULL,
     tag_id          BIGINT NOT NULL,
     PRIMARY KEY (savings_goal_id, tag_id),
-    FOREIGN KEY (tag_id) REFERENCES tags (id) ON DELETE CASCADE,
-    FOREIGN KEY (savings_goal_id) REFERENCES savings_goals (id) ON DELETE CASCADE,
     INDEX (savings_goal_id, tag_id)
+);
+alter table savings_goal_tags
+    ADD CONSTRAINT fk_savings_goal_tags_tag_id
+        FOREIGN KEY (tag_id) REFERENCES tags (id) ON DELETE CASCADE;
+
+ALTER TABLE savings_goal_tags
+    ADD CONSTRAINT fk_savings_goal_tags_savings_goal_id
+        FOREIGN KEY (savings_goal_id) REFERENCES savings_goals (id) ON DELETE CASCADE;
+
+
+-- Link to transfers (assuming a transfers table exists or will be created)
+CREATE TABLE transfers
+(
+    id                       BIGINT PRIMARY KEY auto_increment,
+    source_account_id        BIGINT    NOT NULL,
+    destination_account_id   BIGINT    NOT NULL,
+    exchange_rate_multiplier DECIMAL(15, 6),
+    fees                     DECIMAL(15, 2),
+    outgoing_transaction_id  BIGINT    NOT NULL unique,
+    incoming_transaction_id  BIGINT    NOT NULL unique,
+    created_at               TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+
+    CONSTRAINT fk_transfer_source_account FOREIGN KEY (source_account_id) REFERENCES accounts (id),
+    CONSTRAINT fk_transfer_destination_account FOREIGN KEY (destination_account_id) REFERENCES accounts (id),
+    constraint fk_transfer_outgoing_transaction FOREIGN KEY (outgoing_transaction_id) REFERENCES transactions (id),
+    CONSTRAINT fk_transfer_incoming_transaction FOREIGN KEY (incoming_transaction_id) REFERENCES transactions (id)
 );
 
 -- Create savings contributions table
@@ -559,10 +603,11 @@ CREATE TABLE savings_contributions
     id              BIGINT PRIMARY KEY auto_increment,
     savings_goal_id BIGINT    NOT NULL,
     date            DATE      NOT NULL,
-    transfer_id     BIGINT    NOT NULL unique REFERENCES transfers (id),
+    transfer_id     BIGINT    NOT NULL unique,
     created_at      TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
     updated_at      TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-    FOREIGN KEY (savings_goal_id) REFERENCES savings_goals (id) ON DELETE CASCADE
+    FOREIGN KEY (savings_goal_id) REFERENCES savings_goals (id) ON DELETE CASCADE,
+    constraint fk_savings_contribution_transfer FOREIGN KEY (transfer_id) REFERENCES transfers (id)
 );
 
 -- Create savings contribution tags table
@@ -571,8 +616,9 @@ CREATE TABLE savings_contribution_tags
     contribution_id BIGINT NOT NULL,
     tag_id          BIGINT NOT NULL,
     PRIMARY KEY (contribution_id, tag_id),
-    FOREIGN KEY (contribution_id) REFERENCES savings_contributions (id),
-    foreign key (tag_id) REFERENCES tags (id)
+    constraint fk_savings_contribution_tag_saving_contribution
+        FOREIGN KEY (contribution_id) REFERENCES savings_contributions (id),
+    constraint fk_savings_contribution_tag_tag FOREIGN KEY (tag_id) REFERENCES tags (id)
 );
 
 -- Create savings withdrawals table
@@ -582,10 +628,11 @@ CREATE TABLE savings_withdrawals
     savings_goal_id BIGINT       NOT NULL,
     date            DATE         NOT NULL,
     reason          VARCHAR(255) NOT NULL,
-    transfer_id     BIGINT       NOT NULL unique REFERENCES transfers (id),
+    transfer_id     BIGINT       NOT NULL unique,
     created_at      TIMESTAMP    NOT NULL DEFAULT CURRENT_TIMESTAMP,
     updated_at      TIMESTAMP    NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-    FOREIGN KEY (savings_goal_id) REFERENCES savings_goals (id) ON DELETE CASCADE
+    constraint fk_savings_withdrawal_savings_goal FOREIGN KEY (savings_goal_id) REFERENCES savings_goals (id) ON DELETE CASCADE,
+    constraint fk_savings_withdrawal_transfer FOREIGN KEY (transfer_id) REFERENCES transfers (id)
 );
 
 -- Create savings withdrawal tags table
@@ -594,8 +641,10 @@ CREATE TABLE savings_withdrawal_tags
     withdrawal_id BIGINT NOT NULL,
     tag_id        BIGINT NOT NULL,
     PRIMARY KEY (withdrawal_id, tag_id),
-    FOREIGN KEY (withdrawal_id) REFERENCES savings_withdrawals (id) ON DELETE CASCADE,
-    FOREIGN KEY (tag_id) REFERENCES tags (id)
+    constraint fk_savings_withdrawal_tag_withdrawal
+        FOREIGN KEY (withdrawal_id) REFERENCES savings_withdrawals (id) ON DELETE CASCADE,
+    constraint fk_savings_withdrawal_tag_tag
+        FOREIGN KEY (tag_id) REFERENCES tags (id)
 );
 
 -- Create indexes for common query patterns
@@ -621,28 +670,10 @@ CREATE TABLE exchange_rates
     INDEX idx_base_currency (base_currency),
     INDEX idx_target_currency (target_currency),
     INDEX idx_date (date),
-    -- Unique constraint to prevent duplicate entries for the same currency pair on the same date
-    UNIQUE KEY uk_currency_pair_date (base_currency, target_currency, date),
-    foreign key (base_currency) REFERENCES currencies (id),
-    foreign key (target_currency) REFERENCES currencies (id)
+
+    constraint fk_exchange_rate_currency_base foreign key (base_currency) REFERENCES currencies (id),
+    constraint fk_exchange_rate_currency_target foreign key (target_currency) REFERENCES currencies (id)
 );
-
--- Link to transfers (assuming a transfers table exists or will be created)
-CREATE TABLE transfers
-(
-    id                       BIGINT PRIMARY KEY auto_increment,
-    source_account_id        BIGINT    NOT NULL,
-    destination_account_id   BIGINT    NOT NULL,
-    exchange_rate_multiplier DECIMAL(15, 6),
-    fees                     DECIMAL(15, 2),
-    outgoing_transaction_id  BIGINT    NOT NULL unique REFERENCES transactions (id),
-    incoming_transaction_id  BIGINT    NOT NULL unique REFERENCES transactions (id),
-    created_at               TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
-
-    CONSTRAINT fk_transfer_source_account FOREIGN KEY (source_account_id) REFERENCES accounts (id),
-    CONSTRAINT fk_transfer_destination_account FOREIGN KEY (destination_account_id) REFERENCES accounts (id)
-);
-
 create table users
 (
     id            BIGINT PRIMARY KEY AUTO_INCREMENT,
@@ -676,12 +707,14 @@ create table user_roles
 
 create table transaction_rollbacks
 (
-    transaction_id          BIGINT NOT NULL references transactions (id),
-    rollback_transaction_id BIGINT NOT NULL references transactions (id),
+    transaction_id          BIGINT NOT NULL,
+    rollback_transaction_id BIGINT NOT NULL,
     rollback_reason         TEXT,
     rollback_timestamp      TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     created_at              TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     index idx_transaction_rollbacks_transaction_id (transaction_id),
     index idx_transaction_rollbacks_rollback_transaction_id (rollback_transaction_id),
-    unique KEY uk_transaction_rollbacks_transaction_id_rollback_transaction_id (transaction_id, rollback_transaction_id)
+    unique KEY uk_transaction_rollbacks_transaction_id_rollback_transaction_id (transaction_id, rollback_transaction_id),
+    constraint fk_transaction_rollbacks_rollback_transaction FOREIGN KEY (rollback_transaction_id) REFERENCES transactions (id),
+    constraint fk_transaction_rollbacks_transaction FOREIGN KEY (transaction_id) REFERENCES transactions (id)
 );
