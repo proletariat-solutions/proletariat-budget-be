@@ -3,6 +3,7 @@ package resthttp
 import (
 	"context"
 	"errors"
+
 	"ghorkov32/proletariat-budget-be/internal/core/domain"
 	"ghorkov32/proletariat-budget-be/openapi"
 	"github.com/rs/zerolog/log"
@@ -26,7 +27,7 @@ func (c *Controller) ListTags(
 			},
 		}, nil
 	}
-	var tagList []openapi.Tag
+	tagList := make([]openapi.Tag, 0, len(tags))
 	for _, tag := range tags {
 		tagList = append(
 			tagList,
@@ -74,6 +75,7 @@ func (c *Controller) CreateTag(
 			}, nil
 		}
 		log.Err(err).Msg("Failed to create tag")
+
 		return openapi.CreateTag500JSONResponse{
 			N500JSONResponse: openapi.N500JSONResponse{
 				Message: "Failed to create tag",
@@ -107,6 +109,7 @@ func (c *Controller) DeleteTag(
 			}, nil
 		} else {
 			log.Err(err).Msg("Failed to delete tag")
+
 			return openapi.DeleteTag500JSONResponse{
 				N500JSONResponse: openapi.N500JSONResponse{
 					Message: "Failed to delete tag",
@@ -114,6 +117,7 @@ func (c *Controller) DeleteTag(
 			}, nil
 		}
 	}
+
 	return openapi.DeleteTag204Response{}, nil
 }
 
@@ -135,12 +139,13 @@ func (c *Controller) ListTagsByType(
 			},
 		}, nil
 	}
-	var tagList []openapi.Tag
+	tagList := make([]openapi.Tag, 0, len(tags))
 	for _, tag := range tags {
 		tagList = append(
 			tagList,
 			*ToOAPITag(tag),
 		)
 	}
+
 	return openapi.ListTagsByType200JSONResponse(tagList), nil
 }

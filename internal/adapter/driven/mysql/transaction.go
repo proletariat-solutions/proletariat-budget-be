@@ -4,11 +4,11 @@ import (
 	"context"
 	"database/sql"
 	"errors"
-	"fmt"
+	"strconv"
+
 	"ghorkov32/proletariat-budget-be/internal/core/domain"
 	"ghorkov32/proletariat-budget-be/internal/core/port"
 	"ghorkov32/proletariat-budget-be/openapi"
-	"strconv"
 )
 
 type TransactionRepoImpl struct {
@@ -66,6 +66,7 @@ func (t TransactionRepoImpl) Create(
 	if err != nil {
 		return "", translateError(errInsert)
 	}
+
 	return strconv.FormatInt(
 		lastID,
 		10,
@@ -109,13 +110,13 @@ func (t TransactionRepoImpl) GetByID(
 		err,
 		sql.ErrNoRows,
 	) {
-		return nil, port.ErrRecordNotFound // TODO return correct error from domain
+		return nil, port.ErrRecordNotFound
 	}
 	if err != nil {
 		return nil, translateError(err)
 	}
-	return &transaction, nil
 
+	return &transaction, nil
 }
 
 func (t TransactionRepoImpl) List(
@@ -125,6 +126,7 @@ func (t TransactionRepoImpl) List(
 	*openapi.TransactionList,
 	error,
 ) {
+	//nolint:gocritic // NO, just no
 	/*// Holy shit this was a big fucking query to make.
 		querySelect := `WITH transaction_details AS (
 					SELECT
@@ -358,8 +360,8 @@ func (t TransactionRepoImpl) List(
 		}
 		for i, clause := range whereClause {
 			if i > 0 {
-				querySelect += " AND "
-				queryCount += " AND "
+				querySelect += AND_CLAUSE
+				queryCount += AND_CLAUSE
 			}
 			querySelect += clause
 			queryCount += clause
@@ -432,5 +434,5 @@ func (t TransactionRepoImpl) List(
 		}, nil
 	*/
 
-	return nil, fmt.Errorf("not implemented") // Placeholder for actual implementation of the function.
+	return nil, port.ErrUnimplementedError // Placeholder for actual implementation of the function.
 }

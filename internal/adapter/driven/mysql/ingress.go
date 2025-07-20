@@ -3,20 +3,21 @@ package mysql
 import (
 	"context"
 	"database/sql"
-	"errors"
 	"fmt"
+	"strconv"
+
 	"ghorkov32/proletariat-budget-be/internal/core/port"
 	"ghorkov32/proletariat-budget-be/openapi"
 )
 
 type IngressRepo struct {
 	db       *sql.DB
-	tagsRepo *port.TagsRepo
+	tagsRepo port.TagsRepo
 }
 
 func NewIngressRepo(
 	db *sql.DB,
-	tagsRepo *port.TagsRepo,
+	tagsRepo port.TagsRepo,
 ) port.IngressRepo {
 	return &IngressRepo{
 		db:       db,
@@ -67,10 +68,11 @@ func (i IngressRepo) CreateRecurrencePattern(
 			err,
 		)
 	}
-	lastIDStr := fmt.Sprintf(
-		"%d",
+	lastIDStr := strconv.FormatInt(
 		lastID,
+		10,
 	)
+
 	return lastIDStr, nil
 }
 
@@ -97,6 +99,7 @@ func (i IngressRepo) UpdateRecurrencePattern(
 			err,
 		)
 	}
+
 	return nil
 }
 
@@ -104,7 +107,6 @@ func (i IngressRepo) DeleteRecurrencePattern(
 	ctx context.Context,
 	id string,
 ) error {
-
 	queryDelete := `DELETE FROM ingress_recurrence_patterns WHERE id=?`
 	_, err := i.db.ExecContext(
 		ctx,
@@ -117,6 +119,7 @@ func (i IngressRepo) DeleteRecurrencePattern(
 			err,
 		)
 	}
+
 	return nil
 }
 
@@ -150,17 +153,9 @@ func (i IngressRepo) GetRecurrencePattern(
 		&recurrencePattern.EndDate,
 	)
 	if err != nil {
-		if errors.Is(
-			err,
-			sql.ErrNoRows,
-		) {
-			return nil, err // TODO return correct error from domain
-		}
-		return nil, fmt.Errorf(
-			"failed to select recurrence pattern: %w",
-			err,
-		)
+		return nil, translateError(err)
 	}
+
 	return &recurrencePattern, nil
 }
 
@@ -199,10 +194,11 @@ func (i IngressRepo) Create(
 			err,
 		)
 	}
-	lastIDStr := fmt.Sprintf(
-		"%d",
+	lastIDStr := strconv.FormatInt(
 		ingressID,
+		10,
 	)
+
 	return lastIDStr, nil
 }
 
@@ -289,24 +285,12 @@ func (i IngressRepo) GetByID(
 		&tags,
 	)
 	if err != nil {
-		if errors.Is(
-			err,
-			sql.ErrNoRows,
-		) {
-			return nil, err // TODO return correct error from domain
-		}
-		return nil, fmt.Errorf(
-			"failed to select ingress: %w",
-			err,
-		)
+		return nil, translateError(err)
 	}
 	if ingressRecurrencePattern.Id != "" {
 		ingress.RecurrencePattern = &ingressRecurrencePattern
 	}
-	/*ingress.Tags, err = (*i.tagsRepo).GetByIDs(ctx, strings.Split(tags, ","))
-	if err != nil {
-		return nil, fmt.Errorf("failed to fetch tags: %w", err)
-	}*/
+
 	return &ingress, nil
 }
 
@@ -487,8 +471,8 @@ func (i IngressRepo) List(
 	}
 	for i, clause := range whereClause {
 		if i > 0 {
-			querySelect += " AND "
-			queryCount += " AND "
+			querySelect += AND_CLAUSE
+			queryCount += AND_CLAUSE
 		}
 		querySelect += clause
 		queryCount += clause
@@ -529,12 +513,11 @@ func (i IngressRepo) List(
 		)
 	}
 	defer rows.Close()
-	/*var ids []string*/
 	for rows.Next() {
 		var ingress openapi.Ingress
 		var recurrencePattern openapi.RecurrencePattern
 		var tags string
-		err := rows.Scan(
+		errScan := rows.Scan(
 			&ingress.Id,
 			&ingress.Source,
 			&ingress.CreatedAt,
@@ -557,10 +540,10 @@ func (i IngressRepo) List(
 			&recurrencePattern.Description,
 			&tags,
 		)
-		if err != nil {
+		if errScan != nil {
 			return nil, fmt.Errorf(
 				"failed to scan row: %w",
-				err,
+				errScan,
 			)
 		}
 		if recurrencePattern.Id != "" {
@@ -570,30 +553,8 @@ func (i IngressRepo) List(
 			ingresses,
 			ingress,
 		)
-
-	}
-	/*tags, err := (*i.tagsRepo).ListByType(
-		ctx,
-		"ingress",
-		&ids,
-	)
-	if err != nil {
-		return nil, fmt.Errorf(
-			"failed to get tags: %w",
-			err,
-		)
 	}
 
-	for _, ingress := range ingresses {
-		ingressTags := make([]openapi.Tag, 0, len(tagsByID[ingress.Id]))
-		for _, tagID := range tagsByID[ingress.Id] {
-			idx := sort.Search(len(tags), func(i int) bool { return tags[i].Id == tagID })
-			if idx >= 0 {
-				ingressTags = append(ingressTags, tags[idx])
-			}
-		}
-		ingress.Tags = &ingressTags
-	}*/
 	return &openapi.IngressList{
 		Metadata: &openapi.ListMetadata{
 			Total:  count,
@@ -602,5 +563,4 @@ func (i IngressRepo) List(
 		},
 		Incomes: &ingresses,
 	}, nil
-
 }

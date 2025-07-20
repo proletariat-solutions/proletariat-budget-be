@@ -2,9 +2,9 @@ package middleware
 
 import (
 	"encoding/json"
-	"ghorkov32/proletariat-budget-be/openapi"
 	"net/http"
 
+	"ghorkov32/proletariat-budget-be/openapi"
 	"github.com/getkin/kin-openapi/openapi3"
 	"github.com/getkin/kin-openapi/openapi3filter"
 	nethttpmiddleware "github.com/oapi-codegen/nethttp-middleware"

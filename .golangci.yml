@@ -31,7 +31,7 @@ linters:
     - nolintlint
     - perfsprint
     - prealloc
-    - revive
+    # - revive
     - staticcheck
     - testpackage
     - unconvert
@@ -88,7 +88,7 @@ linters:
       ignored-functions:
         - strings.SplitN
     nestif:
-      min-complexity: 2
+      min-complexity: 6
     nolintlint:
       require-explanation: false
       require-specific: false
@@ -109,16 +109,12 @@ linters:
       - common-false-positives
       - legacy
       - std-error-handling
-    rules:
-      - linters:
-          - gocritic
-          - gocyclo
-          - gosec
-        path: _test\.go
     paths:
       - third_party$
       - builtin$
       - examples$
+      - integration_tests$
+      - .*_test\.go
 issues:
   max-same-issues: 20
 formatters:

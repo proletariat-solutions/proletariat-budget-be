@@ -1,11 +1,12 @@
-package integration_tests
+package integration_test
 
 import (
 	"fmt"
-	"ghorkov32/proletariat-budget-be/integration_tests/utils"
+	"net/http"
+
+	"ghorkov32/proletariat-budget-be/integration_test/utils"
 	"ghorkov32/proletariat-budget-be/internal/core/domain"
 	"ghorkov32/proletariat-budget-be/openapi"
-	"net/http"
 )
 
 func (s *Suite) TestTags() {
@@ -603,10 +604,7 @@ func (s *Suite) TestTags() {
 				_, err = s.deleteTag(tagId)
 				s.handleErr(
 					err,
-					fmt.Sprintf(
-						"error deleting tag %s",
-						tagId,
-					),
+					"error deleting tag "+tagId,
 				)
 			}
 		},
@@ -708,18 +706,12 @@ func (s *Suite) TestTags() {
 			_, err = s.deleteTag(createdExpTag.Id)
 			s.handleErr(
 				err,
-				fmt.Sprintf(
-					"error deleting tag %s",
-					createdExpTag.Id,
-				),
+				"error deleting tag "+createdExpTag.Id,
 			)
 			_, err = s.deleteTag(createdIngTag.Id)
 			s.handleErr(
 				err,
-				fmt.Sprintf(
-					"error deleting tag %s",
-					createdIngTag.Id,
-				),
+				"error deleting tag "+createdIngTag.Id,
 			)
 		},
 	)
@@ -797,10 +789,7 @@ func (s *Suite) TestTags() {
 			_, err = s.deleteTag(createdTag.Id)
 			s.handleErr(
 				err,
-				fmt.Sprintf(
-					"error deleting tag %s",
-					createdTag.Id,
-				),
+				"error deleting tag "+createdTag.Id,
 			)
 		},
 	)
@@ -919,15 +908,11 @@ func (s *Suite) TestTags() {
 				_, err := s.deleteTag(tagId)
 				s.handleErr(
 					err,
-					fmt.Sprintf(
-						"error deleting tag %s",
-						tagId,
-					),
+					"error deleting tag "+tagId,
 				)
 			}
 		},
 	)
-
 }
 
 func (s *Suite) createTag(tagRequest *openapi.TagRequest) (
@@ -974,10 +959,7 @@ func (s *Suite) deleteTag(tagId string) (
 	req, errReq := http.NewRequestWithContext(
 		s.ctx,
 		http.MethodDelete,
-		fmt.Sprintf(
-			"http://localhost:9091/tags/%s",
-			tagId,
-		),
+		"http://localhost:9091/tags/"+tagId,
 		nil,
 	)
 	s.handleErr(

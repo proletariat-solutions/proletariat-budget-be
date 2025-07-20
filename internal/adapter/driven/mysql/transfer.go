@@ -3,10 +3,11 @@ package mysql
 import (
 	"context"
 	"database/sql"
-	"ghorkov32/proletariat-budget-be/internal/core/port"
-	"ghorkov32/proletariat-budget-be/openapi"
 	"strconv"
 	"strings"
+
+	"ghorkov32/proletariat-budget-be/internal/core/port"
+	"ghorkov32/proletariat-budget-be/openapi"
 )
 
 type TransferRepoImpl struct {
@@ -17,7 +18,14 @@ func NewTransferRepo(db *sql.DB) port.TransferRepo {
 	return &TransferRepoImpl{db: db}
 }
 
-func (t TransferRepoImpl) Create(ctx context.Context, transfer openapi.Transfer, incomingTxID, outgoingTxID string) (string, error) {
+func (t TransferRepoImpl) Create(
+	ctx context.Context,
+	transfer openapi.Transfer,
+	incomingTxID, outgoingTxID string,
+) (
+	string,
+	error,
+) {
 	queryInsert := `Insert into transfers (source_account_id,
 										   destination_account_id,
 										   exchange_rate_multiplier,
@@ -43,10 +51,20 @@ func (t TransferRepoImpl) Create(ctx context.Context, transfer openapi.Transfer,
 	if err != nil {
 		return "", err
 	}
-	return strconv.FormatInt(lastID, 10), nil
+
+	return strconv.FormatInt(
+		lastID,
+		10,
+	), nil
 }
 
-func (t TransferRepoImpl) GetByID(ctx context.Context, id string) (*openapi.Transfer, error) {
+func (t TransferRepoImpl) GetByID(
+	ctx context.Context,
+	id string,
+) (
+	*openapi.Transfer,
+	error,
+) {
 	query := `select tr.created_at,
 					   tinc.description,
 					   tr.destination_account_id,
@@ -63,7 +81,11 @@ func (t TransferRepoImpl) GetByID(ctx context.Context, id string) (*openapi.Tran
 						 inner join transactions tinc on tr.incoming_transaction_id = tinc.id
 						 inner join transactions tout on tr.outgoing_transaction_id = tout.id
 				where tr.id = ?`
-	row := t.db.QueryRowContext(ctx, query, id)
+	row := t.db.QueryRowContext(
+		ctx,
+		query,
+		id,
+	)
 	var transfer openapi.Transfer
 	err := row.Scan(
 		&transfer.Date,
@@ -82,11 +104,17 @@ func (t TransferRepoImpl) GetByID(ctx context.Context, id string) (*openapi.Tran
 	if err != nil {
 		return nil, err
 	}
-	return &transfer, nil
 
+	return &transfer, nil
 }
 
-func (t TransferRepoImpl) List(ctx context.Context, params openapi.ListTransfersParams) (*openapi.TransferList, error) {
+func (t TransferRepoImpl) List(
+	ctx context.Context,
+	params openapi.ListTransfersParams,
+) (
+	*openapi.TransferList,
+	error,
+) {
 	selectQuery := `select tr.created_at,
 					   tinc.description,
 					   tr.destination_account_id,
@@ -104,38 +132,89 @@ func (t TransferRepoImpl) List(ctx context.Context, params openapi.ListTransfers
 						 inner join transactions tout on tr.outgoing_transaction_id = tout.id`
 	countQuery := `SELECT COUNT(*) FROM transfers`
 
-	whereClause := make([]string, 0)
-	args := make([]any, 0)
+	whereClause := make(
+		[]string,
+		0,
+	)
+	args := make(
+		[]any,
+		0,
+	)
 
 	if params.SourceAccountId != nil {
-		whereClause = append(whereClause, "tr.source_account_id =?")
-		args = append(args, *params.SourceAccountId)
+		whereClause = append(
+			whereClause,
+			"tr.source_account_id =?",
+		)
+		args = append(
+			args,
+			*params.SourceAccountId,
+		)
 	}
 	if params.DestinationAccountId != nil {
-		whereClause = append(whereClause, "tr.destination_account_id =?")
-		args = append(args, *params.DestinationAccountId)
+		whereClause = append(
+			whereClause,
+			"tr.destination_account_id =?",
+		)
+		args = append(
+			args,
+			*params.DestinationAccountId,
+		)
 	}
 	if params.StartDate != nil && params.EndDate != nil {
-		whereClause = append(whereClause, "tr.created_at BETWEEN? AND?")
-		args = append(args, *params.StartDate, *params.EndDate)
+		whereClause = append(
+			whereClause,
+			"tr.created_at BETWEEN? AND?",
+		)
+		args = append(
+			args,
+			*params.StartDate,
+			*params.EndDate,
+		)
 	} else if params.StartDate != nil {
-		whereClause = append(whereClause, "tr.created_at >=?")
-		args = append(args, *params.StartDate)
+		whereClause = append(
+			whereClause,
+			"tr.created_at >=?",
+		)
+		args = append(
+			args,
+			*params.StartDate,
+		)
 	} else if params.EndDate != nil {
-		whereClause = append(whereClause, "tr.created_at <=?")
-		args = append(args, *params.EndDate)
+		whereClause = append(
+			whereClause,
+			"tr.created_at <=?",
+		)
+		args = append(
+			args,
+			*params.EndDate,
+		)
 	}
 	limitOffset := ` LIMIT? OFFSET?`
-	args = append(args, params.Limit, params.Offset)
+	args = append(
+		args,
+		params.Limit,
+		params.Offset,
+	)
 
 	if len(whereClause) > 0 {
-		selectQuery += " WHERE " + strings.Join(whereClause, " AND ")
-		countQuery += " WHERE " + strings.Join(whereClause, " AND ")
+		selectQuery += " WHERE " + strings.Join(
+			whereClause,
+			AND_CLAUSE,
+		)
+		countQuery += " WHERE " + strings.Join(
+			whereClause,
+			AND_CLAUSE,
+		)
 	}
 	query := selectQuery + limitOffset
 	countQuery += limitOffset
 
-	rows, err := t.db.QueryContext(ctx, query, args...)
+	rows, err := t.db.QueryContext(
+		ctx,
+		query,
+		args...,
+	)
 	if err != nil {
 		return nil, err
 	}
@@ -143,7 +222,7 @@ func (t TransferRepoImpl) List(ctx context.Context, params openapi.ListTransfers
 	var transfers []openapi.Transfer
 	for rows.Next() {
 		var transfer openapi.Transfer
-		err := rows.Scan(
+		errScan := rows.Scan(
 			&transfer.Date,
 			&transfer.Description,
 			&transfer.DestinationAccountId,
@@ -157,19 +236,27 @@ func (t TransferRepoImpl) List(ctx context.Context, params openapi.ListTransfers
 			&transfer.SourceCurrencyId,
 			&transfer.Status,
 		)
-		if err != nil {
-			return nil, err
+		if errScan != nil {
+			return nil, errScan
 		}
-		transfers = append(transfers, transfer)
+		transfers = append(
+			transfers,
+			transfer,
+		)
 	}
-	if err := rows.Err(); err != nil {
-		return nil, err
+	if errScan := rows.Err(); errScan != nil {
+		return nil, errScan
 	}
 	var totalCount int
-	err = t.db.QueryRowContext(ctx, countQuery, args...).Scan(&totalCount)
+	err = t.db.QueryRowContext(
+		ctx,
+		countQuery,
+		args...,
+	).Scan(&totalCount)
 	if err != nil {
 		return nil, err
 	}
+
 	return &openapi.TransferList{
 		Transfers: &transfers,
 		Metadata: &openapi.ListMetadata{

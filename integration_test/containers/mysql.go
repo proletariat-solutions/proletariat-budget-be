@@ -2,9 +2,9 @@ package containers
 
 import (
 	"context"
-	"ghorkov32/proletariat-budget-be/config"
 	"strconv"
 
+	"ghorkov32/proletariat-budget-be/config"
 	"github.com/rs/zerolog/log"
 	"github.com/testcontainers/testcontainers-go"
 	"github.com/testcontainers/testcontainers-go/wait"
@@ -25,17 +25,20 @@ func NewMysqlContainer() *MysqlContainer {
 }
 
 // InitContainer initializes the container and return the config needed to connect with it
-func (m *MysqlContainer) InitContainer(config *config.MySQL) (*config.MySQL, error) {
+func (m *MysqlContainer) InitContainer(sqlConfig *config.MySQL) (
+	*config.MySQL,
+	error,
+) {
 	log.Info().Msg("initializing mysql container...")
 	// create the container request
 	containerReq := testcontainers.ContainerRequest{
 		Image:        mysqlImage,
 		ExposedPorts: []string{mysqlPort + "/tcp"},
 		Env: map[string]string{
-			"MYSQL_USER":          config.User,
-			"MYSQL_PASSWORD":      config.Password,
-			"MYSQL_ROOT_PASSWORD": config.Password,
-			"MYSQL_DATABASE":      config.Database,
+			"MYSQL_USER":          sqlConfig.User,
+			"MYSQL_PASSWORD":      sqlConfig.Password,
+			"MYSQL_ROOT_PASSWORD": sqlConfig.Password,
+			"MYSQL_DATABASE":      sqlConfig.Database,
 			// you can add more environment variables here
 		},
 		SkipReaper: true,
@@ -46,7 +49,8 @@ func (m *MysqlContainer) InitContainer(config *config.MySQL) (*config.MySQL, err
 
 	// creates a new container
 	mySQLContainer, err := testcontainers.GenericContainer(
-		ctx, testcontainers.GenericContainerRequest{
+		ctx,
+		testcontainers.GenericContainerRequest{
 			ContainerRequest: containerReq,
 			Started:          true,
 		},
@@ -57,20 +61,26 @@ func (m *MysqlContainer) InitContainer(config *config.MySQL) (*config.MySQL, err
 	}
 
 	host, _ := mySQLContainer.Host(ctx)
-	config.Host = host
+	sqlConfig.Host = host
 
 	//  testcontainers map his port to an random external port, so we grab the port with this method
-	port, _ := mySQLContainer.MappedPort(ctx, mysqlPort+"/tcp")
+	port, _ := mySQLContainer.MappedPort(
+		ctx,
+		mysqlPort+"/tcp",
+	)
 	portNumber := port.Int()
 
 	m.container = mySQLContainer
 
 	// create a new mongoConfig with testcontainer information
-	config.Port = strconv.Itoa(portNumber)
+	sqlConfig.Port = strconv.Itoa(portNumber)
 
-	log.Info().Interface("mysql container initialized successfully", *config)
+	log.Info().Interface(
+		"mysql container initialized successfully",
+		*sqlConfig,
+	)
 
-	return config, nil
+	return sqlConfig, nil
 }
 
 // DestroyContainer destroys the container.

@@ -5,9 +5,11 @@ import (
 	"database/sql"
 	"errors"
 	"fmt"
+	"strconv"
+	"strings"
+
 	"ghorkov32/proletariat-budget-be/internal/core/domain"
 	"ghorkov32/proletariat-budget-be/internal/core/port"
-	"strings"
 )
 
 type TagsRepoImpl struct {
@@ -38,10 +40,7 @@ func (t TagsRepoImpl) Create(
 		tag.TagType,
 	)
 	if errInsert != nil {
-		return "", fmt.Errorf(
-			"failed to create tag: %w",
-			errInsert,
-		)
+		return "", translateError(errInsert)
 	}
 	lastID, err := result.LastInsertId()
 	if err != nil {
@@ -50,10 +49,11 @@ func (t TagsRepoImpl) Create(
 			err,
 		)
 	}
-	lastIDStr := fmt.Sprintf(
-		"%d",
+	lastIDStr := strconv.FormatInt(
 		lastID,
+		10,
 	)
+
 	return lastIDStr, nil
 }
 
@@ -90,6 +90,7 @@ func (t TagsRepoImpl) GetByNameAndType(
 	if err != nil {
 		return nil, translateError(err)
 	}
+
 	return &tag, nil
 }
 func (t TagsRepoImpl) Update(
@@ -111,6 +112,7 @@ func (t TagsRepoImpl) Update(
 	if err != nil {
 		return translateError(err)
 	}
+
 	return nil
 }
 
@@ -132,17 +134,18 @@ func (t TagsRepoImpl) Delete(
 	}
 	if junctionTable != nil {
 		// Deleting linked records first
+		//nolint:gosec // static strings injected here only
 		queryDeleteLinked := fmt.Sprintf(
 			`DELETE FROM %s WHERE tag_id=?`,
 			*junctionTable,
 		)
-		_, err := t.db.ExecContext(
+		_, errExec := t.db.ExecContext(
 			ctx,
 			queryDeleteLinked,
 			id,
 		)
-		if err != nil {
-			return translateError(err)
+		if errExec != nil {
+			return translateError(errExec)
 		}
 	}
 
@@ -155,8 +158,8 @@ func (t TagsRepoImpl) Delete(
 	if err != nil {
 		return translateError(err)
 	}
-	return nil
 
+	return nil
 }
 
 func (t TagsRepoImpl) GetByID(
@@ -183,6 +186,7 @@ func (t TagsRepoImpl) GetByID(
 	if err != nil {
 		return nil, translateError(err)
 	}
+
 	return &tag, nil
 }
 
@@ -229,6 +233,7 @@ func (t TagsRepoImpl) GetByIDs(
 			&tag,
 		)
 	}
+
 	return &tags, nil
 }
 
@@ -266,8 +271,8 @@ func (t TagsRepoImpl) List(
 			&tag,
 		)
 	}
-	return &tags, nil
 
+	return &tags, nil
 }
 
 func (t TagsRepoImpl) ListByType(
@@ -278,7 +283,6 @@ func (t TagsRepoImpl) ListByType(
 	*[]*domain.Tag,
 	error,
 ) {
-
 	// We'll assume that all the tags are the same type
 	junctionTable, junctionForeignKey, err := t.getJunctionTableByType(tagType)
 	if err != nil {
@@ -303,7 +307,7 @@ func (t TagsRepoImpl) ListByType(
 				from %s jt
 				where jt.tag_id = t.id
 				)`,
-			junctionTable,
+			*junctionTable,
 		)
 		query += fmt.Sprintf(
 			` and jt.%s IN (%s)`,
@@ -327,7 +331,7 @@ func (t TagsRepoImpl) ListByType(
 	var tags []*domain.Tag
 	for rows.Next() {
 		var tag domain.Tag
-		err := rows.Scan(
+		errScan := rows.Scan(
 			&tag.ID,
 			&tag.Name,
 			&tag.Description,
@@ -335,14 +339,15 @@ func (t TagsRepoImpl) ListByType(
 			&tag.BackgroundColor,
 			&tag.TagType,
 		)
-		if err != nil {
-			return nil, translateError(err)
+		if errScan != nil {
+			return nil, translateError(errScan)
 		}
 		tags = append(
 			tags,
 			&tag,
 		)
 	}
+
 	return &tags, nil
 }
 
@@ -358,6 +363,7 @@ func (t TagsRepoImpl) LinkTagsToType(
 	}
 
 	// Clearing records first
+	//nolint:gosec // static strings injected here only
 	queryDelete := fmt.Sprintf(
 		"DELETE FROM %s WHERE %s=?",
 		*junctionTable,
@@ -373,6 +379,7 @@ func (t TagsRepoImpl) LinkTagsToType(
 	}
 
 	// Recreating the relationships
+	//nolint:gosec // static strings injected here only
 	queryInsert := fmt.Sprintf(
 		"INSERT INTO %s (tag_id, %s) VALUES (?,?)",
 		*junctionTable,
@@ -382,20 +389,21 @@ func (t TagsRepoImpl) LinkTagsToType(
 		_, err = t.db.ExecContext(
 			ctx,
 			queryInsert,
-			(*tag).ID,
+			tag.ID,
 			foreignID,
 		)
 		if err != nil {
 			return translateError(err)
 		}
 	}
+
 	return nil
 }
 
 func (t TagsRepoImpl) getJunctionTableByType(tagType domain.TagType) (
-	*string,
-	*string,
-	error,
+	jtable *string,
+	fk *string,
+	err error,
 ) {
 	var foreignKey string
 	var junctionTable string
@@ -403,25 +411,21 @@ func (t TagsRepoImpl) getJunctionTableByType(tagType domain.TagType) (
 	case "expenditure":
 		junctionTable = "expenditure_tags"
 		foreignKey = "expenditure_id"
-		break
 	case "ingress":
 		junctionTable = "ingress_tags"
 		foreignKey = "ingress_id"
-		break
 	case "saving_goal":
 		junctionTable = "savings_goal_tags"
 		foreignKey = "savings_goal_id"
-		break
 	case "savings_withdrawal":
 		junctionTable = "saving_withdrawal_tags"
 		foreignKey = "saving_withdrawal_id"
-		break
 	case "savings_contribution":
 		junctionTable = "savings_contribution_tags"
 		foreignKey = "savings_contribution_id"
-		break
 	default:
 		return nil, nil, domain.ErrUnknownTagType
 	}
+
 	return &junctionTable, &foreignKey, nil
 }

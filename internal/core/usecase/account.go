@@ -3,19 +3,20 @@ package usecase
 import (
 	"context"
 	"errors"
+	"strings"
+
 	"ghorkov32/proletariat-budget-be/internal/core/domain"
 	"ghorkov32/proletariat-budget-be/internal/core/port"
-	"strings"
 )
 
 type AccountUseCase struct {
-	accountRepo         *port.AccountRepo
-	householdMemberRepo *port.HouseholdMembersRepo
+	accountRepo         port.AccountRepo
+	householdMemberRepo port.HouseholdMembersRepo
 }
 
 func NewAccountUseCase(
-	accountRepo *port.AccountRepo,
-	householdMemberRepo *port.HouseholdMembersRepo,
+	accountRepo port.AccountRepo,
+	householdMemberRepo port.HouseholdMembersRepo,
 ) *AccountUseCase {
 	return &AccountUseCase{
 		accountRepo:         accountRepo,
@@ -30,7 +31,7 @@ func (a *AccountUseCase) Create(
 	*string,
 	error,
 ) {
-	householdMember, err := (*a.householdMemberRepo).GetByID(
+	householdMember, err := a.householdMemberRepo.GetByID(
 		ctx,
 		*account.OwnerID,
 	)
@@ -41,12 +42,13 @@ func (a *AccountUseCase) Create(
 		) {
 			return nil, domain.ErrMemberNotFound
 		}
+
 		return nil, err
 	} else if !householdMember.Active {
 		return nil, domain.ErrMemberInactive
 	}
 	account.Owner = householdMember
-	ID, err := (*a.accountRepo).Create(
+	ID, err := a.accountRepo.Create(
 		ctx,
 		account,
 	)
@@ -55,10 +57,22 @@ func (a *AccountUseCase) Create(
 			err,
 			port.ErrForeignKeyViolation,
 		) {
-			return nil, domain.ErrInvalidCurrency
+			if strings.Contains(
+				err.Error(),
+				"currencies",
+			) {
+				return nil, domain.ErrInvalidCurrency
+			} else if strings.Contains(
+				err.Error(),
+				"household_members",
+			) {
+				return nil, domain.ErrMemberNotFound
+			}
 		}
+
 		return nil, err
 	}
+
 	return ID, nil
 }
 
@@ -69,7 +83,7 @@ func (a *AccountUseCase) GetByID(
 	*domain.Account,
 	error,
 ) {
-	account, err := (*a.accountRepo).GetByID(
+	account, err := a.accountRepo.GetByID(
 		ctx,
 		id,
 	)
@@ -80,8 +94,10 @@ func (a *AccountUseCase) GetByID(
 		) {
 			return nil, domain.ErrAccountNotFound
 		}
+
 		return nil, err
 	}
+
 	return account, nil
 }
 
@@ -92,7 +108,7 @@ func (a *AccountUseCase) Update(
 	*domain.Account,
 	error,
 ) {
-	err := (*a.accountRepo).Update(
+	err := a.accountRepo.Update(
 		ctx,
 		account,
 	)
@@ -114,9 +130,10 @@ func (a *AccountUseCase) Update(
 				return nil, domain.ErrMemberNotFound
 			}
 		}
+
 		return nil, err
 	}
-	updatedAccount, errGet := (*a.accountRepo).GetByID(
+	updatedAccount, errGet := a.accountRepo.GetByID(
 		ctx,
 		*account.ID,
 	)
@@ -127,8 +144,10 @@ func (a *AccountUseCase) Update(
 		) {
 			return nil, domain.ErrAccountNotFound
 		}
+
 		return nil, errGet
 	}
+
 	return updatedAccount, nil
 }
 
@@ -136,7 +155,7 @@ func (a *AccountUseCase) Deactivate(
 	ctx context.Context,
 	id string,
 ) error {
-	account, err := (*a.accountRepo).GetByID(
+	account, err := a.accountRepo.GetByID(
 		ctx,
 		id,
 	)
@@ -148,16 +167,17 @@ func (a *AccountUseCase) Deactivate(
 			return domain.ErrAccountNotFound
 		}
 	}
-	if err = account.SetInactive(); err != nil {
-		return err
+	if errInactive := account.SetInactive(); errInactive != nil {
+		return errInactive
 	}
-	err = (*a.accountRepo).Update(
+	errUpdate := a.accountRepo.Update(
 		ctx,
 		*account,
 	)
-	if err != nil {
-		return err
+	if errUpdate != nil {
+		return errUpdate
 	}
+
 	return nil
 }
 
@@ -165,7 +185,7 @@ func (a *AccountUseCase) Activate(
 	ctx context.Context,
 	id string,
 ) error {
-	account, err := (*a.accountRepo).GetByID(
+	account, err := a.accountRepo.GetByID(
 		ctx,
 		id,
 	)
@@ -177,16 +197,17 @@ func (a *AccountUseCase) Activate(
 			return domain.ErrAccountNotFound
 		}
 	}
-	if err = account.SetActive(); err != nil {
-		return err
+	if errActive := account.SetActive(); errActive != nil {
+		return errActive
 	}
-	err = (*a.accountRepo).Update(
+	errUpdate := a.accountRepo.Update(
 		ctx,
 		*account,
 	)
-	if err != nil {
-		return err
+	if errUpdate != nil {
+		return errUpdate
 	}
+
 	return nil
 }
 
@@ -194,7 +215,7 @@ func (a *AccountUseCase) Delete(
 	ctx context.Context,
 	id string,
 ) error {
-	hasTransactions, errHasTransactions := (*a.accountRepo).HasTransactions(
+	hasTransactions, errHasTransactions := a.accountRepo.HasTransactions(
 		ctx,
 		id,
 	)
@@ -204,7 +225,7 @@ func (a *AccountUseCase) Delete(
 	if hasTransactions {
 		return domain.ErrAccountHasTransactions
 	}
-	err := (*a.accountRepo).Delete(
+	err := a.accountRepo.Delete(
 		ctx,
 		id,
 	)
@@ -215,8 +236,10 @@ func (a *AccountUseCase) Delete(
 		) {
 			return domain.ErrAccountNotFound
 		}
+
 		return err
 	}
+
 	return nil
 }
 
@@ -227,13 +250,14 @@ func (a *AccountUseCase) List(
 	*domain.AccountList,
 	error,
 ) {
-	accounts, err := (*a.accountRepo).List(
+	accounts, err := a.accountRepo.List(
 		ctx,
 		params,
 	)
 	if err != nil {
 		return nil, err
 	}
+
 	return accounts, nil
 }
 
@@ -244,12 +268,13 @@ func (a *AccountUseCase) HasTransactions(
 	bool,
 	error,
 ) {
-	hasTransactions, err := (*a.accountRepo).HasTransactions(
+	hasTransactions, err := a.accountRepo.HasTransactions(
 		ctx,
 		id,
 	)
 	if err != nil {
 		return false, err
 	}
+
 	return hasTransactions, nil
 }

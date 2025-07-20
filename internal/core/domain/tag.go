@@ -2,6 +2,15 @@ package domain
 
 import "errors"
 
+// Tag domain errors
+var (
+	ErrTagNotFound      = errors.New("tag not found")
+	ErrTagInUse         = errors.New("tag is in use and cannot be deleted")
+	ErrUnknownTagType   = errors.New("unknown tag type")
+	ErrTagAlreadyExists = errors.New("tag with this name and type already exists")
+	ErrTagNameEmpty     = errors.New("tag name cannot be empty")
+)
+
 type Tag struct {
 	ID              string  `json:"id"`
 	Name            string  `json:"name"`
@@ -10,13 +19,6 @@ type Tag struct {
 	BackgroundColor *string `json:"background_color"`
 	TagType         TagType `json:"type"`
 }
-
-var (
-	ErrTagNotFound      = errors.New("tag not found")
-	ErrUnknownTagType   = errors.New("unknown tag type")
-	ErrTagAlreadyExists = errors.New("tag with this name and type already exists")
-	ErrTagNameEmpty     = errors.New("tag name cannot be empty")
-)
 
 // TagType represents the typeof a tag (e.g., expenditure, Transfer, etc.)
 type TagType string
@@ -37,8 +39,9 @@ func (t Tag) Validate() error {
 	default:
 		return ErrUnknownTagType
 	}
-	if len(t.Name) == 0 {
+	if t.Name == "" {
 		return ErrTagNameEmpty
 	}
+
 	return nil
 }

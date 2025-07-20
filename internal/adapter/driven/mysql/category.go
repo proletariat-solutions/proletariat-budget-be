@@ -5,6 +5,8 @@ import (
 	"database/sql"
 	"errors"
 	"fmt"
+	"strconv"
+
 	"ghorkov32/proletariat-budget-be/internal/core/domain"
 	"ghorkov32/proletariat-budget-be/internal/core/port"
 )
@@ -46,10 +48,11 @@ func (c CategoryRepoImpl) Create(
 			err,
 		)
 	}
-	lastIDStr := fmt.Sprintf(
-		"%d",
+	lastIDStr := strconv.FormatInt(
 		lastID,
+		10,
 	)
+
 	return lastIDStr, nil
 }
 
@@ -81,8 +84,9 @@ func (c CategoryRepoImpl) Update(
 		return translateError(err)
 	}
 	if rowsAffected == 0 {
-		return fmt.Errorf("category not found")
+		return port.ErrRecordNotFound
 	}
+
 	return nil
 }
 
@@ -107,6 +111,7 @@ func (c CategoryRepoImpl) Delete(
 	if rowsAffected == 0 {
 		return port.ErrRecordNotFound
 	}
+
 	return nil
 }
 
@@ -141,6 +146,7 @@ func (c CategoryRepoImpl) GetByID(
 	} else if err != nil {
 		return nil, translateError(err)
 	}
+
 	return &category, nil
 }
 
@@ -182,6 +188,7 @@ func (c CategoryRepoImpl) List(ctx context.Context) (
 			category,
 		)
 	}
+
 	return categories, nil
 }
 
@@ -226,6 +233,7 @@ func (c CategoryRepoImpl) FindByType(
 			category,
 		)
 	}
+
 	return categories, nil
 }
 
@@ -268,5 +276,6 @@ func (c CategoryRepoImpl) FindByIDs(
 			category,
 		)
 	}
+
 	return categories, nil
 }

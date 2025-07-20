@@ -1,10 +1,11 @@
-package integration_tests
+package integration_test
 
 import (
-	"ghorkov32/proletariat-budget-be/integration_tests/utils"
+	"net/http"
+
+	"ghorkov32/proletariat-budget-be/integration_test/utils"
 	"ghorkov32/proletariat-budget-be/internal/core/domain"
 	"ghorkov32/proletariat-budget-be/openapi"
-	"net/http"
 )
 
 func (s *Suite) TestCategory() {
@@ -24,11 +25,7 @@ func (s *Suite) TestCategory() {
 				BackgroundColor: utils.StringPtr("#00FF00"),
 			}
 
-			apiResponse, err := s.createCategory(categoryReq)
-			s.handleErr(
-				err,
-				"error while making request",
-			)
+			apiResponse := s.createCategory(categoryReq)
 
 			s.Equal(
 				http.StatusCreated,
@@ -74,11 +71,7 @@ func (s *Suite) TestCategory() {
 				BackgroundColor: utils.StringPtr("#00FF00"),
 			}
 
-			apiResponse, err := s.createCategory(categoryReq)
-			s.handleErr(
-				err,
-				"error while making request",
-			)
+			apiResponse := s.createCategory(categoryReq)
 
 			s.Equal(
 				http.StatusCreated,
@@ -431,7 +424,6 @@ func (s *Suite) TestCategory() {
 					s.Fail("Deleted category still exists in the list")
 				}
 			}
-
 		},
 	)
 
@@ -492,10 +484,7 @@ func (s *Suite) createTestCategory(categoryType openapi.CategoryType) openapi.Ca
 }
 
 // Function to create a category and return the response
-func (s *Suite) createCategory(categoryReq *openapi.CategoryRequest) (
-	*http.Response,
-	error,
-) {
+func (s *Suite) createCategory(categoryReq *openapi.CategoryRequest) *http.Response {
 	body, errBodyPrepare := utils.PrepareRequestBody(categoryReq)
 	s.handleErr(
 		errBodyPrepare,
@@ -525,7 +514,7 @@ func (s *Suite) createCategory(categoryReq *openapi.CategoryRequest) (
 		"error while making request",
 	)
 
-	return apiResponse, nil
+	return apiResponse
 }
 
 // Function to create a category and return the created category object
@@ -533,10 +522,7 @@ func (s *Suite) createCategoryAndReturn(categoryReq *openapi.CategoryRequest) (
 	openapi.Category,
 	error,
 ) {
-	apiResponse, err := s.createCategory(categoryReq)
-	if err != nil {
-		return openapi.Category{}, err
-	}
+	apiResponse := s.createCategory(categoryReq)
 	defer apiResponse.Body.Close()
 
 	var category openapi.Category

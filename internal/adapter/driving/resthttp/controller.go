@@ -6,9 +6,9 @@ import (
 )
 
 type Controller struct {
-	useCases *usecase.UseCases
+	useCases usecase.UseCases
 }
 
-func NewController(useCases *usecase.UseCases) openapi.StrictServerInterface {
+func NewController(useCases usecase.UseCases) openapi.StrictServerInterface {
 	return &Controller{useCases: useCases}
 }

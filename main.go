@@ -4,17 +4,17 @@ import (
 	"context"
 	"database/sql"
 	"fmt"
-	"ghorkov32/proletariat-budget-be/internal/adapter/driven/mysql"
-	"ghorkov32/proletariat-budget-be/internal/adapter/driving/middleware"
-	"ghorkov32/proletariat-budget-be/internal/core/port"
 	"os"
 	"os/signal"
 	"syscall"
 	"time"
 
 	"ghorkov32/proletariat-budget-be/config"
+	"ghorkov32/proletariat-budget-be/internal/adapter/driven/mysql"
+	"ghorkov32/proletariat-budget-be/internal/adapter/driving/middleware"
 	"ghorkov32/proletariat-budget-be/internal/adapter/driving/resthttp"
 	"ghorkov32/proletariat-budget-be/internal/common"
+	"ghorkov32/proletariat-budget-be/internal/core/port"
 	"ghorkov32/proletariat-budget-be/internal/core/usecase"
 	"ghorkov32/proletariat-budget-be/openapi"
 	"github.com/rs/zerolog/log"
@@ -34,14 +34,15 @@ func main() {
 	err := runMigrations(configs)
 
 	if err != nil {
-		log.Fatal().Err(err).Msg("failed to run migrations")
+		db.Close()
+		log.Fatal().Err(err).Msg("failed to run migrations") //nolint:gocritic // already closing before fatal
 	}
 
 	ports := instantiatePorts(db)
 
 	useCases := instantiateUseCases(ports)
 
-	controller := resthttp.NewController(useCases)
+	controller := resthttp.NewController(*useCases)
 
 	handler := openapi.NewStrictHandler(
 		controller,
@@ -59,7 +60,6 @@ func main() {
 		resthttp.MetricsCollector,
 		middleware.DetailedRequestLogger,
 		middleware.OpenAPIValidationMiddleware(oapiSpecs),
-		// TODO:  Middlewares
 	)
 	go httpServer.Start()
 	defer func(ctx context.Context) {
@@ -100,6 +100,7 @@ func runMigrations(configs *config.Configs) error {
 			err,
 		)
 	}
+
 	return nil
 }
 
@@ -126,6 +127,7 @@ func initDB(configs *config.Configs) *sql.DB {
 	db.SetMaxOpenConns(configs.MySQL.MaxOpenConns)
 	db.SetMaxIdleConns(configs.MySQL.MaxIdleConns)
 	db.SetConnMaxLifetime(time.Duration(configs.MySQL.ConnMaxLife) * time.Second)
+
 	return db
 }
 
@@ -139,21 +141,22 @@ func instantiatePorts(db *sql.DB) *port.Ports {
 	tagsRepo := mysql.NewTagsRepo(db)
 	expenditureRepo := mysql.NewExpenditureRepo(
 		db,
-		&tagsRepo,
+		tagsRepo,
 	)
 	householdMembersRepo := mysql.NewHouseholdMemberRepository(db)
 	ingressRepo := mysql.NewIngressRepo(
 		db,
-		&tagsRepo,
+		tagsRepo,
 	)
 	savingsGoalRepo := mysql.NewSavingGoalRepo(
 		db,
-		&tagsRepo,
+		tagsRepo,
 	)
 	transactionRepo := mysql.NewTransactionRepo(
 		db,
 		tagsRepo,
 	)
+
 	return &port.Ports{
 		Account:          &accountRepo,
 		Auth:             &authRepo,
@@ -169,20 +172,20 @@ func instantiatePorts(db *sql.DB) *port.Ports {
 
 func instantiateUseCases(ports *port.Ports) *usecase.UseCases {
 	account := usecase.NewAccountUseCase(
-		ports.Account,
-		ports.HouseholdMembers,
+		*ports.Account,
+		*ports.HouseholdMembers,
 	)
 	auth := usecase.NewAuthUseCase(*ports.Auth)
 	householdMember := usecase.NewHouseholdMemberUseCase(*ports.HouseholdMembers)
-	category := usecase.NewCategoryUseCase(ports.Category)
+	category := usecase.NewCategoryUseCase(*ports.Category)
 	expenditure := usecase.NewExpenditureUseCase(
-		ports.Expenditure,
-		ports.Account,
-		ports.Tags,
-		ports.Category,
-		ports.Transaction,
+		*ports.Expenditure,
+		*ports.Account,
+		*ports.Tags,
+		*ports.Category,
+		*ports.Transaction,
 	)
-	tags := usecase.NewTagsUseCase(ports.Tags)
+	tags := usecase.NewTagsUseCase(*ports.Tags)
 
 	return &usecase.UseCases{
 		Account:         account,
@@ -191,6 +194,6 @@ func instantiateUseCases(ports *port.Ports) *usecase.UseCases {
 		Category:        category,
 		Expenditure:     expenditure,
 		Tags:            tags,
-		// TODO:  Instantiate other use cases
+		// Instantiate other use cases
 	}
 }

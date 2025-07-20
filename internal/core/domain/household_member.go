@@ -2,8 +2,9 @@ package domain
 
 import (
 	"errors"
-	"ghorkov32/proletariat-budget-be/openapi"
 	"time"
+
+	"ghorkov32/proletariat-budget-be/openapi"
 )
 
 var (
@@ -71,6 +72,7 @@ func (hm *HouseholdMember) DisplayName() string {
 	if hm.Nickname != nil && *hm.Nickname != "" {
 		return *hm.Nickname
 	}
+
 	return hm.FullName()
 }
 

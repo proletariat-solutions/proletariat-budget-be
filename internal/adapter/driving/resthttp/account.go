@@ -3,6 +3,7 @@ package resthttp
 import (
 	"context"
 	"errors"
+
 	"ghorkov32/proletariat-budget-be/internal/core/domain"
 	"ghorkov32/proletariat-budget-be/internal/core/port"
 	"ghorkov32/proletariat-budget-be/openapi"
@@ -13,12 +14,14 @@ func (c *Controller) ListAccounts(ctx context.Context, request openapi.ListAccou
 	accounts, err := c.useCases.Account.List(ctx, *FromOAPIAccountListParams(&request.Params))
 	if err != nil {
 		log.Err(err).Msg("Failed to list accounts")
+
 		return openapi.ListAccounts500JSONResponse{
 			N500JSONResponse: openapi.N500JSONResponse{
 				Message: "Failed to list accounts",
 			},
 		}, nil
 	}
+
 	return openapi.ListAccounts200JSONResponse(
 		*ToOAPIAccountList(accounts),
 	), nil
@@ -35,6 +38,7 @@ func (c *Controller) CreateAccount(ctx context.Context, request openapi.CreateAc
 				},
 			}, nil
 		}
+
 		return openapi.CreateAccount500JSONResponse{ // coverage-ignore
 			N500JSONResponse: openapi.N500JSONResponse{
 				Message: "Failed to create account",
@@ -45,14 +49,15 @@ func (c *Controller) CreateAccount(ctx context.Context, request openapi.CreateAc
 	account, err := c.useCases.Account.GetByID(ctx, *id)
 	if err != nil {
 		log.Err(err).Msg("Failed to get created account")
+
 		return openapi.CreateAccount500JSONResponse{ // coverage-ignore
 			N500JSONResponse: openapi.N500JSONResponse{
 				Message: "Failed to get created account",
 			},
 		}, nil
 	}
-	return openapi.CreateAccount201JSONResponse(*ToOAPIAccount(*account)), nil
 
+	return openapi.CreateAccount201JSONResponse(*ToOAPIAccount(*account)), nil
 }
 
 func (c *Controller) DeleteAccount(ctx context.Context, request openapi.DeleteAccountRequestObject) (openapi.DeleteAccountResponseObject, error) {
@@ -72,6 +77,7 @@ func (c *Controller) DeleteAccount(ctx context.Context, request openapi.DeleteAc
 			}, nil
 		} else {
 			log.Err(err).Msg("Failed to delete account")
+
 			return openapi.DeleteAccount500JSONResponse{ // coverage-ignore
 				N500JSONResponse: openapi.N500JSONResponse{
 					Message: "Failed to delete account",
@@ -79,11 +85,11 @@ func (c *Controller) DeleteAccount(ctx context.Context, request openapi.DeleteAc
 			}, nil
 		}
 	}
+
 	return openapi.DeleteAccount204Response{}, nil
 }
 
 func (c *Controller) GetAccount(ctx context.Context, request openapi.GetAccountRequestObject) (openapi.GetAccountResponseObject, error) {
-
 	account, err := c.useCases.Account.GetByID(ctx, request.Id)
 	if err != nil {
 		if errors.Is(err, domain.ErrAccountNotFound) {
@@ -94,6 +100,7 @@ func (c *Controller) GetAccount(ctx context.Context, request openapi.GetAccountR
 			}, nil
 		} else {
 			log.Err(err).Msg("Failed to get account")
+
 			return openapi.GetAccount500JSONResponse{ // coverage-ignore
 				N500JSONResponse: openapi.N500JSONResponse{
 					Message: "Failed to get account",
@@ -101,6 +108,7 @@ func (c *Controller) GetAccount(ctx context.Context, request openapi.GetAccountR
 			}, nil
 		}
 	}
+
 	return openapi.GetAccount200JSONResponse(*ToOAPIAccount(*account)), nil
 }
 
@@ -123,6 +131,7 @@ func (c *Controller) UpdateAccount(ctx context.Context, request openapi.UpdateAc
 			}, nil
 		} else {
 			log.Err(err).Msg("Failed to update account")
+
 			return openapi.UpdateAccount500JSONResponse{ // coverage-ignore
 				N500JSONResponse: openapi.N500JSONResponse{
 					Message: "Failed to update account",
@@ -130,6 +139,7 @@ func (c *Controller) UpdateAccount(ctx context.Context, request openapi.UpdateAc
 			}, nil
 		}
 	}
+
 	return openapi.UpdateAccount200JSONResponse(*ToOAPIAccount(*account)), nil
 }
 
@@ -141,6 +151,7 @@ func (c *Controller) CanDeleteAccount(ctx context.Context, request openapi.CanDe
 	hasTransactions, err := c.useCases.Account.HasTransactions(ctx, request.Id)
 	if err != nil {
 		log.Err(err).Msg("Failed to check if account has transactions")
+
 		return openapi.CanDeleteAccount500JSONResponse{ // coverage-ignore
 			N500JSONResponse: openapi.N500JSONResponse{
 				Message: "Failed to check if account has transactions",
@@ -151,6 +162,7 @@ func (c *Controller) CanDeleteAccount(ctx context.Context, request openapi.CanDe
 	if hasTransactions {
 		reason = "Account has transactions"
 	}
+
 	return openapi.CanDeleteAccount200JSONResponse{
 		CanDelete: !hasTransactions,
 		Reason:    &reason,
@@ -174,12 +186,14 @@ func (c *Controller) ActivateAccount(ctx context.Context, request openapi.Activa
 			}, nil
 		}
 		log.Err(err).Msg("Failed to activate account")
+
 		return openapi.ActivateAccount500JSONResponse{ // coverage-ignore
 			N500JSONResponse: openapi.N500JSONResponse{
 				Message: "Failed to activate account",
 			},
 		}, nil
 	}
+
 	return openapi.ActivateAccount200Response{}, nil
 }
 
@@ -200,11 +214,13 @@ func (c *Controller) DeactivateAccount(ctx context.Context, request openapi.Deac
 			}, nil
 		}
 		log.Err(err).Msg("Failed to deactivate account")
+
 		return openapi.DeactivateAccount500JSONResponse{ // coverage-ignore
 			N500JSONResponse: openapi.N500JSONResponse{
 				Message: "Failed to deactivate account",
 			},
 		}, nil
 	}
+
 	return openapi.DeactivateAccount204Response{}, nil
 }

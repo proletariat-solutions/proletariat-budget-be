@@ -1,10 +1,11 @@
 package resthttp
 
 import (
+	"time"
+
 	"ghorkov32/proletariat-budget-be/internal/core/domain"
 	"ghorkov32/proletariat-budget-be/openapi"
-	openapi_types "github.com/oapi-codegen/runtime/types"
-	"time"
+	openapitypes "github.com/oapi-codegen/runtime/types"
 )
 
 func FromOAPIAccount(a *openapi.Account) *domain.Account {
@@ -86,6 +87,7 @@ func ToOAPIAccountList(al *domain.AccountList) *openapi.AccountList {
 			*ToOAPIAccount(account),
 		)
 	}
+
 	return &openapi.AccountList{
 		Accounts: &oapiAccounts,
 		Metadata: &openapi.ListMetadata{
@@ -154,6 +156,7 @@ func ToOAPIHouseholdMemberList(members *domain.HouseholdMemberList) *openapi.Hou
 			*ToOAPIHouseholdMember(&member),
 		)
 	}
+
 	return &openapi.HouseholdMemberList{
 		Members: &oapiMembers,
 	}
@@ -178,9 +181,10 @@ func FromOAPIExpenditure(e *openapi.ExpenditureRequest) *domain.Transaction {
 }
 
 func FromOAPIExpenditureRequestTransaction(e *openapi.ExpenditureRequest) *domain.Transaction {
-	if e.Date.Time.IsZero() {
+	if e.Date.IsZero() {
 		e.Date.Time = time.Now() // Set transaction date to current time if not provided in the request
 	}
+
 	return &domain.Transaction{
 		AccountID:       e.AccountId,
 		Amount:          e.Amount,
@@ -263,19 +267,15 @@ func ToOAPICategoryCategoryType(categoryType *domain.CategoryType) *openapi.Cate
 	switch *categoryType {
 	case domain.CategoryTypeIngress:
 		categoryTypeStr = openapi.CategoryTypeIngress
-		break
 	case domain.CategoryTypeExpenditure:
 		categoryTypeStr = openapi.CategoryTypeExpenditure
-		break
 	case domain.CategoryTypeTransfer:
 		categoryTypeStr = openapi.CategoryTypeTransfer
-		break
 	case domain.CategoryTypeSavingGoal:
 		categoryTypeStr = openapi.CategoryTypeSavingGoal
-		break
 	default:
-		break
 	}
+
 	return &categoryTypeStr
 }
 
@@ -294,6 +294,7 @@ func ToOAPICategoryList(categories *[]domain.Category) *[]openapi.Category {
 			*ToOAPICategory(&category),
 		)
 	}
+
 	return &oapiCategories
 }
 
@@ -317,27 +318,20 @@ func FromOAPITagType(tagType *openapi.TagType) *domain.TagType {
 	switch *tagType {
 	case openapi.TagTypeIngress:
 		tagTypeDomain = domain.TagTypeIngress
-		break
 	case openapi.TagTypeExpenditure:
 		tagTypeDomain = domain.TagTypeExpenditure
-		break
 	case openapi.TagTypeTransfer:
 		tagTypeDomain = domain.TagTypeTransfer
-		break
 	case openapi.TagTypeSavingGoal:
 		tagTypeDomain = domain.TagTypeSavingsGoal
-		break
 	case openapi.TagTypeSavingsContribution:
 		tagTypeDomain = domain.TagTypeSavingsContribution
-		break
 	case openapi.TagTypeSavingsWithdrawal:
 		tagTypeDomain = domain.TagTypeSavingsWithdrawal
-		break
 	case openapi.TagTypeTransaction:
-		break
 	default:
-		break
 	}
+
 	return &tagTypeDomain
 }
 
@@ -349,25 +343,20 @@ func ToOAPITagType(tagType *domain.TagType) *openapi.TagType {
 	switch *tagType {
 	case domain.TagTypeIngress:
 		tagTypeStr = openapi.TagTypeIngress
-		break
 	case domain.TagTypeExpenditure:
 		tagTypeStr = openapi.TagTypeExpenditure
-		break
 	case domain.TagTypeTransfer:
 		tagTypeStr = openapi.TagTypeTransfer
-		break
 	case domain.TagTypeSavingsContribution:
 		tagTypeStr = openapi.TagTypeSavingsContribution
-		break
 	case domain.TagTypeSavingsWithdrawal:
 		tagTypeStr = openapi.TagTypeSavingsWithdrawal
-		break
 	case domain.TagTypeSavingsGoal:
 		tagTypeStr = openapi.TagTypeSavingGoal
-		break
 	default:
 		break
 	}
+
 	return &tagTypeStr
 }
 
@@ -409,7 +398,7 @@ func FromOAPIExpenditureRequest(e *openapi.ExpenditureRequest) *domain.Expenditu
 	}
 
 	var date time.Time
-	if e.Date.Time.IsZero() {
+	if e.Date.IsZero() {
 		date = time.Now()
 	} else {
 		date = e.Date.Time
@@ -460,7 +449,7 @@ func ToOAPIExpenditure(e *domain.Expenditure) *openapi.Expenditure {
 		Category:    *ToOAPICategory(e.Category),
 		CreatedAt:   e.Transaction.CreatedAt,
 		Currency:    e.Transaction.Currency,
-		Date:        openapi_types.Date{Time: e.Date},
+		Date:        openapitypes.Date{Time: e.Date},
 		Declared:    &e.Declared,
 		Description: e.Transaction.Description,
 		Id:          e.ID,
@@ -487,7 +476,11 @@ func FromOAPIExpenditureListParams(p *openapi.ListExpendituresParams) *domain.Ex
 }
 
 func ToOAPIExpenditureList(p *domain.ExpenditureList) *openapi.ExpenditureList {
-	var expenditures []openapi.Expenditure
+	expenditures := make(
+		[]openapi.Expenditure,
+		0,
+		len(p.Expenditures),
+	)
 	for _, e := range p.Expenditures {
 		expenditures = append(
 			expenditures,
@@ -513,15 +506,19 @@ func FromOAPICategoryType(c *openapi.CategoryType) *domain.CategoryType {
 	switch *c {
 	case openapi.CategoryTypeExpenditure:
 		categoryType = domain.CategoryTypeExpenditure
+
 		return &categoryType
 	case openapi.CategoryTypeIngress:
 		categoryType = domain.CategoryTypeIngress
+
 		return &categoryType
 	case openapi.CategoryTypeTransfer:
 		categoryType = domain.CategoryTypeTransfer
+
 		return &categoryType
 	case openapi.CategoryTypeSavingGoal:
 		categoryType = domain.CategoryTypeSavingGoal
+
 		return &categoryType
 	default:
 		return &categoryType
@@ -539,6 +536,7 @@ func ToOAPICategoryType(c *domain.CategoryType) openapi.CategoryType {
 	case domain.CategoryTypeSavingGoal:
 		return openapi.CategoryTypeSavingGoal
 	}
+
 	return openapi.CategoryTypeExpenditure
 }
 
@@ -547,17 +545,14 @@ func FromOAPICategoryTypeType(c openapi.CategoryType) *domain.CategoryType {
 	switch c {
 	case openapi.CategoryTypeExpenditure:
 		categoryType = domain.CategoryTypeExpenditure
-		break
 	case openapi.CategoryTypeIngress:
 		categoryType = domain.CategoryTypeIngress
-		break
 	case openapi.CategoryTypeTransfer:
 		categoryType = domain.CategoryTypeTransfer
-		break
 	case openapi.CategoryTypeSavingGoal:
 		categoryType = domain.CategoryTypeSavingGoal
-		break
 	}
+
 	return &categoryType
 }
 
@@ -569,6 +564,7 @@ func FromOAPICategoryRequest(
 	if id != nil {
 		categoryID = *id
 	}
+
 	return &domain.Category{
 		ID:              categoryID,
 		Name:            c.Name,
@@ -582,6 +578,7 @@ func FromOAPICategoryRequest(
 
 func FromOAPICategory(c *openapi.Category) *domain.Category {
 	category := FromOAPICategoryTypeType(*c.CategoryType)
+
 	return &domain.Category{
 		ID:              c.Id,
 		Name:            c.Name,

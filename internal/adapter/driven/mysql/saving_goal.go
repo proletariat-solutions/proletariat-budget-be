@@ -3,21 +3,22 @@ package mysql
 import (
 	"context"
 	"database/sql"
-	"errors"
 	"fmt"
+	"strconv"
+	"strings"
+
 	"ghorkov32/proletariat-budget-be/internal/core/port"
 	"ghorkov32/proletariat-budget-be/openapi"
-	"strings"
 )
 
 type SavingGoalRepoImpl struct {
 	db       *sql.DB
-	tagsRepo *port.TagsRepo
+	tagsRepo port.TagsRepo
 }
 
 func NewSavingGoalRepo(
 	db *sql.DB,
-	tagsRepo *port.TagsRepo,
+	tagsRepo port.TagsRepo,
 ) port.SavingsGoalRepo {
 	return &SavingGoalRepoImpl{db: db, tagsRepo: tagsRepo}
 }
@@ -81,9 +82,10 @@ func (s SavingGoalRepoImpl) Create(
 	if err != nil {
 		return "", err
 	}
-	return fmt.Sprintf(
-		"%d",
+
+	return strconv.FormatInt(
 		id,
+		10,
 	), nil
 }
 
@@ -129,6 +131,7 @@ func (s SavingGoalRepoImpl) Update(
 	if err != nil {
 		return err
 	}
+
 	return nil
 }
 
@@ -150,6 +153,7 @@ func (s SavingGoalRepoImpl) Delete(
 			err,
 		)
 	}
+
 	return nil
 }
 
@@ -228,22 +232,9 @@ func (s SavingGoalRepoImpl) GetByID(
 		&savingsGoal.Category.BackgroundColor,
 		&savingsGoal.Category.Active,
 	)
-	if errors.Is(
-		err,
-		sql.ErrNoRows,
-	) {
-		return nil, fmt.Errorf("savings goal not found")
-	} else if err != nil {
-		return nil, fmt.Errorf(
-			"failed to select savings goal: %w",
-			err,
-		)
+	if err != nil {
+		return nil, translateError(err)
 	}
-
-	/*	savingsGoal.Tags, err = (*s.tagsRepo).GetByIDs(ctx, strings.Split(tags, ","))
-		if err != nil {
-			return nil, fmt.Errorf("failed to get tags: %w", err)
-		}*/
 
 	return &savingsGoal, nil
 }
@@ -288,7 +279,7 @@ func (s SavingGoalRepoImpl) List(ctx context.Context) (
 						 sg.created_at, sg.updated_at
 `
 	var savingsGoals []openapi.SavingsGoal
-	var ids []string
+
 	tagsByID := make(map[string][]string)
 	rows, err := s.db.QueryContext(
 		ctx,
@@ -304,7 +295,7 @@ func (s SavingGoalRepoImpl) List(ctx context.Context) (
 	for rows.Next() {
 		var savingsGoal openapi.SavingsGoal
 		var tags string
-		err := rows.Scan(
+		errScan := rows.Scan(
 			&savingsGoal.Id,
 			&savingsGoal.Name,
 			&savingsGoal.Description,
@@ -337,39 +328,13 @@ func (s SavingGoalRepoImpl) List(ctx context.Context) (
 			",",
 		)
 
-		if err != nil {
+		if errScan != nil {
 			return nil, fmt.Errorf(
 				"failed to scan row: %w",
-				err,
+				errScan,
 			)
 		}
-		ids = append(
-			ids,
-			*savingsGoal.Id,
-		)
 	}
-	/*
-		tags, err := (*s.tagsRepo).ListByType(
-			ctx,
-			"savings_goal",
-			&ids,
-		)
-		if err != nil {
-			return nil, fmt.Errorf(
-				"failed to get tags: %w",
-				err,
-			)
-		}
-			for _, goal := range savingsGoals {
-			goalTags := make([]openapi.Tag, 0, len(tagsByID[*goal.Id]))
-			for _, tagID := range tagsByID[*goal.Id] {
-				idx := sort.Search(len(tags), func(i int) bool { return tags[i].Id == tagID })
-				if idx >= 0 {
-					goalTags = append(goalTags, tags[idx])
-				}
-			}
-			goal.Tags = &goalTags
-		}*/
 
 	return savingsGoals, nil
 }
@@ -397,6 +362,7 @@ func (s SavingGoalRepoImpl) MarkAsCompleted(
 			err,
 		)
 	}
+
 	return nil
 }
 
@@ -423,6 +389,7 @@ func (s SavingGoalRepoImpl) MarkAsAbandoned(
 			err,
 		)
 	}
+
 	return nil
 }
 
@@ -459,9 +426,9 @@ func (s SavingGoalRepoImpl) CreateWithdrawal(
 		)
 	}
 
-	return fmt.Sprintf(
-		"%d",
+	return strconv.FormatInt(
 		withdrawalID,
+		10,
 	), nil
 }
 
@@ -481,6 +448,7 @@ func (s SavingGoalRepoImpl) DeleteWithdrawal(
 			errDelete,
 		)
 	}
+
 	return nil
 }
 
@@ -533,10 +501,6 @@ func (s SavingGoalRepoImpl) GetWithdrawalByID(
 		)
 	}
 
-	/*	withdrawal.Tags, err = (*s.tagsRepo).GetByIDs(ctx, strings.Split(tags, ","))
-		if err != nil {
-			return nil, fmt.Errorf("failed to get tags: %w", err)
-		}*/
 	return &withdrawal, nil
 }
 
@@ -569,9 +533,10 @@ func (s SavingGoalRepoImpl) CreateContribution(
 			err,
 		)
 	}
-	return fmt.Sprintf(
-		"%d",
+
+	return strconv.FormatInt(
 		contributionID,
+		10,
 	), nil
 }
 
@@ -591,6 +556,7 @@ func (s SavingGoalRepoImpl) DeleteContribution(
 			errDelete,
 		)
 	}
+
 	return nil
 }
 
@@ -644,10 +610,7 @@ func (s SavingGoalRepoImpl) GetContributionByID(
 			err,
 		)
 	}
-	/*	contribution.Tags, err = (*s.tagsRepo).GetByIDs(ctx, strings.Split(tags, ","))
-		if err != nil {
-			return nil, fmt.Errorf("failed to get tags: %w", err)
-		}*/
+
 	return &contribution, nil
 }
 
@@ -779,8 +742,8 @@ func (s SavingGoalRepoImpl) ListSavingsTransactions(
 
 	for i, clause := range whereClause {
 		if i > 0 {
-			querySelect += " AND "
-			queryCount += " AND "
+			querySelect += AND_CLAUSE
+			queryCount += AND_CLAUSE
 		}
 		querySelect += clause
 		queryCount += clause
@@ -804,7 +767,7 @@ func (s SavingGoalRepoImpl) ListSavingsTransactions(
 	for rows.Next() {
 		var transaction openapi.SavingsTransaction
 		var tags string
-		err := rows.Scan(
+		errScan := rows.Scan(
 			&transaction.AccountId,
 			&transaction.Amount,
 			&transaction.Date,
@@ -814,17 +777,13 @@ func (s SavingGoalRepoImpl) ListSavingsTransactions(
 			&transaction.Type,
 			&transaction.TransactionId,
 		)
-		if err != nil {
+		if errScan != nil {
 			return nil, fmt.Errorf(
 				"failed to scan row: %w",
-				err,
+				errScan,
 			)
 		}
 		transaction.SavingsGoalId = savingGoalID
-		/*		transaction.Tags, err = (*s.tagsRepo).GetByIDs(ctx, strings.Split(tags, ","))
-				if err != nil {
-					return nil, fmt.Errorf("failed to get tags: %w", err)
-				}*/
 		transactions = append(
 			transactions,
 			transaction,
