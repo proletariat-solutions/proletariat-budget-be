@@ -45,6 +45,7 @@ func (t TransactionType) IsValid() bool {
 	case TransactionTypeExpenditure, TransactionTypeIngress, TransactionTypeTransfer:
 		return true
 	}
+
 	return false
 }
 
@@ -53,7 +54,7 @@ const (
 	TransactionStatusPending   TransactionStatus = "pending"
 	TransactionStatusCompleted TransactionStatus = "completed"
 	TransactionStatusFailed    TransactionStatus = "failed"
-	TransactionStatusCancelled TransactionStatus = "cancelled"
+	TransactionStatusCancelled TransactionStatus = "canceled"
 )
 
 // IsValid checks if the transaction status is valid
@@ -63,6 +64,7 @@ func (s TransactionStatus) IsValid() bool {
 		TransactionStatusFailed, TransactionStatusCancelled:
 		return true
 	}
+
 	return false
 }
 
@@ -74,6 +76,7 @@ func (s TransactionStatus) String() string {
 func RollbackTransaction(t *Transaction) *Transaction {
 	statusCompleted := TransactionStatusCompleted
 	balanceAfter := *t.BalanceAfter + t.Amount
+
 	return &Transaction{
 		ID:              t.ID,
 		AccountID:       t.AccountID,

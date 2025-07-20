@@ -40,6 +40,7 @@ func (c *Category) Activate() error {
 		return ErrCategoryAlreadyActive
 	}
 	c.Active = true
+
 	return nil
 }
 
@@ -48,5 +49,6 @@ func (c *Category) Deactivate() error {
 		return ErrCategoryAlreadyInactive
 	}
 	c.Active = false
+
 	return nil
 }

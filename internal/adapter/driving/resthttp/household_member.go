@@ -3,6 +3,7 @@ package resthttp
 import (
 	"context"
 	"errors"
+
 	"ghorkov32/proletariat-budget-be/internal/core/domain"
 	"ghorkov32/proletariat-budget-be/openapi"
 	"github.com/rs/zerolog/log"
@@ -17,6 +18,7 @@ func (c *Controller) ListHouseholdMembers(ctx context.Context, request openapi.L
 			},
 		}, err
 	}
+
 	return openapi.ListHouseholdMembers200JSONResponse(*ToOAPIHouseholdMemberList(list)), nil
 }
 
@@ -38,6 +40,7 @@ func (c *Controller) CreateHouseholdMember(ctx context.Context, request openapi.
 			},
 		}, err
 	}
+
 	return openapi.CreateHouseholdMember201JSONResponse(*ToOAPIHouseholdMember(householdMember)), nil
 }
 
@@ -58,6 +61,7 @@ func (c *Controller) DeleteHouseholdMember(ctx context.Context, request openapi.
 			}, nil
 		} else {
 			log.Err(err).Msg("Failed to delete household member")
+
 			return openapi.DeleteHouseholdMember500JSONResponse{
 				N500JSONResponse: openapi.N500JSONResponse{
 					Message: "Internal Server Error",
@@ -65,6 +69,7 @@ func (c *Controller) DeleteHouseholdMember(ctx context.Context, request openapi.
 			}, err
 		}
 	}
+
 	return openapi.DeleteHouseholdMember204Response{}, nil
 }
 
@@ -79,6 +84,7 @@ func (c *Controller) GetHouseholdMember(ctx context.Context, request openapi.Get
 			}, nil
 		} else {
 			log.Err(err).Msg("Failed to get household member")
+
 			return openapi.GetHouseholdMember500JSONResponse{
 				N500JSONResponse: openapi.N500JSONResponse{
 					Message: "Internal Server Error",
@@ -86,6 +92,7 @@ func (c *Controller) GetHouseholdMember(ctx context.Context, request openapi.Get
 			}, err
 		}
 	}
+
 	return openapi.GetHouseholdMember200JSONResponse(*ToOAPIHouseholdMember(member)), nil
 }
 
@@ -100,6 +107,7 @@ func (c *Controller) UpdateHouseholdMember(ctx context.Context, request openapi.
 			}, nil
 		} else {
 			log.Err(err).Msg("Failed to update household member")
+
 			return openapi.UpdateHouseholdMember500JSONResponse{
 				N500JSONResponse: openapi.N500JSONResponse{
 					Message: "Internal Server Error",
@@ -115,6 +123,7 @@ func (c *Controller) UpdateHouseholdMember(ctx context.Context, request openapi.
 			},
 		}, err
 	}
+
 	return openapi.UpdateHouseholdMember200JSONResponse(*ToOAPIHouseholdMember(member)), nil
 }
 
@@ -135,6 +144,7 @@ func (c *Controller) ActivateHouseholdMember(ctx context.Context, request openap
 			}, nil
 		} else {
 			log.Err(err).Msg("Failed to activate household member")
+
 			return openapi.ActivateHouseholdMember500JSONResponse{
 				N500JSONResponse: openapi.N500JSONResponse{
 					Message: "Internal Server Error",
@@ -142,6 +152,7 @@ func (c *Controller) ActivateHouseholdMember(ctx context.Context, request openap
 			}, err
 		}
 	}
+
 	return openapi.ActivateHouseholdMember204Response{}, nil
 }
 
@@ -162,6 +173,7 @@ func (c *Controller) DeactivateHouseholdMember(ctx context.Context, request open
 			}, nil
 		} else {
 			log.Err(err).Msg("Failed to deactivate household member")
+
 			return openapi.DeactivateHouseholdMember500JSONResponse{
 				N500JSONResponse: openapi.N500JSONResponse{
 					Message: "Internal Server Error",
@@ -169,5 +181,6 @@ func (c *Controller) DeactivateHouseholdMember(ctx context.Context, request open
 			}, err
 		}
 	}
+
 	return openapi.DeactivateHouseholdMember204Response{}, nil
 }

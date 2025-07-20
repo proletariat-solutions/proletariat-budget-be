@@ -3,6 +3,7 @@ package usecase
 import (
 	"context"
 	"errors"
+
 	"ghorkov32/proletariat-budget-be/internal/core/domain"
 	"ghorkov32/proletariat-budget-be/internal/core/port"
 )
@@ -57,8 +58,10 @@ func (u *HouseholdMemberUseCase) UpdateHouseholdMember(
 		) {
 			return domain.ErrMemberNotFound
 		}
+
 		return err
 	}
+
 	return u.householdMembersRepo.Update(
 		ctx,
 		id,
@@ -81,6 +84,7 @@ func (u *HouseholdMemberUseCase) DeleteHouseholdMember(
 		) {
 			return domain.ErrMemberNotFound
 		}
+
 		return err
 	}
 	canDelete, err := u.householdMembersRepo.CanDelete(
@@ -93,6 +97,7 @@ func (u *HouseholdMemberUseCase) DeleteHouseholdMember(
 	if !canDelete {
 		return domain.ErrMemberHasActiveAccounts
 	}
+
 	return u.householdMembersRepo.Delete(
 		ctx,
 		id,
@@ -117,8 +122,10 @@ func (u *HouseholdMemberUseCase) GetHouseholdMemberByID(
 		) {
 			return nil, domain.ErrMemberNotFound
 		}
+
 		return nil, err
 	}
+
 	return member, nil
 }
 
@@ -137,11 +144,13 @@ func (u *HouseholdMemberUseCase) DeactivateHouseholdMember(
 		) {
 			return domain.ErrMemberNotFound
 		}
+
 		return err
 	}
 	if !member.Active {
 		return domain.ErrMemberAlreadyInactive
 	}
+
 	return u.householdMembersRepo.Deactivate(
 		ctx,
 		id,
@@ -166,8 +175,10 @@ func (u *HouseholdMemberUseCase) CanDeleteHouseholdMember(
 		) {
 			return false, domain.ErrMemberNotFound
 		}
+
 		return false, err
 	}
+
 	return u.householdMembersRepo.CanDelete(
 		ctx,
 		id,
@@ -189,11 +200,13 @@ func (u *HouseholdMemberUseCase) ActivateHouseholdMember(
 		) {
 			return domain.ErrMemberNotFound
 		}
+
 		return err
 	}
 	if member.Active {
 		return domain.ErrMemberAlreadyActive
 	}
+
 	return u.householdMembersRepo.Activate(
 		ctx,
 		id,

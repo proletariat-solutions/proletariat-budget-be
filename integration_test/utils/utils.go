@@ -16,7 +16,10 @@ func StringPtr(s string) *string {
 func BoolPtr(b bool) *bool {
 	return &b
 }
-func PrepareRequestBody(v any) (*bytes.Buffer, error) {
+func PrepareRequestBody(v any) (
+	*bytes.Buffer,
+	error,
+) {
 	jsonBuffer, err := json.Marshal(v)
 
 	if err != nil {
@@ -26,20 +29,34 @@ func PrepareRequestBody(v any) (*bytes.Buffer, error) {
 	requestBody := bytes.NewBuffer(jsonBuffer)
 
 	return requestBody, nil
-
 }
 
-func ExecuteSQLFile(ctx context.Context, db *sql.DB, filename string) error {
+func ExecuteSQLFile(
+	ctx context.Context,
+	db *sql.DB,
+	filename string,
+) error {
 	// Read the embedded SQL file
 	sqlBytes, err := os.ReadFile(filename)
 	if err != nil {
-		return fmt.Errorf("failed to read embedded SQL file %s: %w", filename, err)
+		return fmt.Errorf(
+			"failed to read embedded SQL file %s: %w",
+			filename,
+			err,
+		)
 	}
 
 	// Execute the SQL
-	_, err = db.ExecContext(ctx, string(sqlBytes))
+	_, err = db.ExecContext(
+		ctx,
+		string(sqlBytes),
+	)
 	if err != nil {
-		return fmt.Errorf("failed to execute SQL from file %s: %w", filename, err)
+		return fmt.Errorf(
+			"failed to execute SQL from file %s: %w",
+			filename,
+			err,
+		)
 	}
 
 	return nil

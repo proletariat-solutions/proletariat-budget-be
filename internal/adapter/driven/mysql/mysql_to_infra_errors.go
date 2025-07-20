@@ -3,10 +3,11 @@ package mysql
 import (
 	"database/sql"
 	"errors"
+	"regexp"
+
 	"ghorkov32/proletariat-budget-be/internal/core/port"
 	"github.com/go-sql-driver/mysql"
 	"github.com/rs/zerolog/log"
-	"regexp"
 )
 
 // errorMapping maps MySQL error codes to infrastructure errors
@@ -56,7 +57,6 @@ func translateError(err error) error {
 			Cause:   err,
 		}
 	}
-
 }
 
 // handleMySQLError processes MySQL-specific errors
@@ -85,5 +85,6 @@ func extractConstraintName(message string) string {
 	if len(matches) > 1 {
 		return matches[1]
 	}
+
 	return "unknown_constraint"
 }

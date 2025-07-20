@@ -1,14 +1,18 @@
 package mysql
 
 import (
-	"fmt"
+	"errors"
+
 	"ghorkov32/proletariat-budget-be/internal/core/domain"
 	"ghorkov32/proletariat-budget-be/internal/core/port"
 )
 
+var ErrUnhandledConstraint = errors.New("unhandled constraint")
+
 // ForeignKeyConstraint represents all foreign key constraint names in the database
 type ForeignKeyConstraint string
 
+//goland:noinspection GoCommentStart
 const (
 	// Account constraints
 	FKAccountOwner    ForeignKeyConstraint = "fk_account_owner"
@@ -91,8 +95,8 @@ var ForeignKeyErrorMap = map[ForeignKeyConstraint]map[uint16]error{
 	FKAccountCurrency: {
 		1451: &port.InfrastructureError{
 			Type:    "unknown_constraint_error",
-			Message: "an unknown error occurred while deleting a record from the 'accounts' table",
-			Cause:   fmt.Errorf("depending foreign key violation on 'accounts' table for key 'currency_id'"),
+			Message: "depending foreign key violation on 'accounts' table for key 'currency_id'",
+			Cause:   ErrUnhandledConstraint,
 		}, // shouldn't happen because there's no option to delete a currency, but we'll create a custom error anyways just in case
 		1452: domain.ErrInvalidCurrency,
 	},
@@ -101,16 +105,16 @@ var ForeignKeyErrorMap = map[ForeignKeyConstraint]map[uint16]error{
 	FKTransactionAccount: {
 		1451: &port.InfrastructureError{
 			Type:    "unknown_constraint_error",
-			Message: "an unknown error occurred while deleting a record from the 'transactions' table",
-			Cause:   fmt.Errorf("depending foreign key violation on 'transactions' table for key 'account_id'"),
+			Message: "depending foreign key violation on 'transactions' table for key 'account_id'",
+			Cause:   ErrUnhandledConstraint,
 		}, // shouldn't happen because there's no way to delete a single TX, but we'll create a custom error anyways just in case
 		1452: domain.ErrAccountNotFound,
 	},
 	FKTransactionCurrency: {
 		1451: &port.InfrastructureError{
 			Type:    "unknown_constraint_error",
-			Message: "an unknown error occurred while deleting a record from the 'transactions' table",
-			Cause:   fmt.Errorf("depending foreign key violation on 'transactions' table for key 'currency_id'"),
+			Message: "depending foreign key violation on 'transactions' table for key 'currency_id'",
+			Cause:   ErrUnhandledConstraint,
 		}, // shouldn't happen because there's no way to delete a currency, but we'll create a custom error anyways just in case
 		1452: domain.ErrInvalidCurrency,
 	},
@@ -119,16 +123,16 @@ var ForeignKeyErrorMap = map[ForeignKeyConstraint]map[uint16]error{
 	FKExpenditureCategory: {
 		1451: &port.InfrastructureError{
 			Type:    "unknown_constraint_error",
-			Message: "an unknown error occurred while deleting a record from the 'expenditures' table",
-			Cause:   fmt.Errorf("depending foreign key violation on 'expenditures' table for key 'category_id'"),
+			Message: "depending foreign key violation on 'expenditures' table for key 'category_id'",
+			Cause:   ErrUnhandledConstraint,
 		}, // shouldn't happen because expenditures are immutable
 		1452: domain.ErrCategoryNotFound,
 	},
 	FKExpenditureTransaction: {
 		1451: &port.InfrastructureError{
 			Type:    "unknown_constraint_error",
-			Message: "an unknown error occurred while deleting a record from the 'expenditures' table",
-			Cause:   fmt.Errorf("depending foreign key violation on 'expenditures' table for key 'transaction_id'"),
+			Message: "depending foreign key violation on 'expenditures' table for key 'transaction_id'",
+			Cause:   ErrUnhandledConstraint,
 		}, // shouldn't happen because expenditures are immutable
 		1452: domain.ErrTransactionNotFound,
 	},
@@ -137,8 +141,8 @@ var ForeignKeyErrorMap = map[ForeignKeyConstraint]map[uint16]error{
 	FKExpenditureTagsExpenditureID: {
 		1451: &port.InfrastructureError{
 			Type:    "unknown_constraint_error",
-			Message: "an unknown error occurred while deleting a record from the 'expenditure_tags' table",
-			Cause:   fmt.Errorf("depending foreign key violation on 'expenditure_tags' table for key 'expenditure_id'"),
+			Message: "depending foreign key violation on 'expenditure_tags' table for key 'expenditure_id'",
+			Cause:   ErrUnhandledConstraint,
 		}, // shouldn't happen because expenditures are immutable
 		1452: domain.ErrExpenditureNotFound,
 	},
@@ -151,24 +155,24 @@ var ForeignKeyErrorMap = map[ForeignKeyConstraint]map[uint16]error{
 	FKIngressCategory: {
 		1451: &port.InfrastructureError{
 			Type:    "unknown_constraint_error",
-			Message: "an unknown error occurred while deleting a record from the 'ingresses' table",
-			Cause:   fmt.Errorf("depending foreign key violation on 'ingresses' table for key 'category_id'"),
+			Message: "depending foreign key violation on 'ingresses' table for key 'category_id'",
+			Cause:   ErrUnhandledConstraint,
 		}, // shouldn't happen because ingresses are immutable
 		1452: domain.ErrCategoryNotFound,
 	},
 	FKIngressRecurrencyPattern: {
 		1451: &port.InfrastructureError{
 			Type:    "unknown_constraint_error",
-			Message: "an unknown error occurred while deleting a record from the 'ingresses' table",
-			Cause:   fmt.Errorf("depending foreign key violation on 'ingresses' table for key 'recurrency_pattern_id'"),
+			Message: "depending foreign key violation on 'ingresses' table for key 'recurrency_pattern_id'",
+			Cause:   ErrUnhandledConstraint,
 		}, // shouldn't happen because ingresses are immutable
 		1452: domain.ErrRecurrencePatternNotFound,
 	},
 	FKIngressTransaction: {
 		1451: &port.InfrastructureError{
 			Type:    "unknown_constraint_error",
-			Message: "an unknown error occurred while deleting a record from the 'ingresses' table",
-			Cause:   fmt.Errorf("depending foreign key violation on 'ingresses' table for key 'transaction_id'"),
+			Message: "depending foreign key violation on 'ingresses' table for key 'transaction_id'",
+			Cause:   ErrUnhandledConstraint,
 		}, // shouldn't happen because ingresses are immutable
 		1452: domain.ErrTransactionNotFound,
 	},
@@ -177,8 +181,8 @@ var ForeignKeyErrorMap = map[ForeignKeyConstraint]map[uint16]error{
 	FKIngressTagsIngress: {
 		1451: &port.InfrastructureError{
 			Type:    "unknown_constraint_error",
-			Message: "an unknown error occurred while deleting a record from the 'ingress_tags' table",
-			Cause:   fmt.Errorf("depending foreign key violation on 'ingress_tags' table for key 'ingress_id'"),
+			Message: "depending foreign key violation on 'ingress_tags' table for key 'ingress_id'",
+			Cause:   ErrUnhandledConstraint,
 		}, // shouldn't happen because ingresses are immutable
 		1452: domain.ErrIngressNotFound,
 	},
@@ -205,8 +209,8 @@ var ForeignKeyErrorMap = map[ForeignKeyConstraint]map[uint16]error{
 	FKSavingsGoalCurrency: {
 		1451: &port.InfrastructureError{
 			Type:    "unknown_constraint_error",
-			Message: "an unknown error occurred while deleting a record from the 'savings_goals' table",
-			Cause:   fmt.Errorf("depending foreign key violation on 'savings_goals' table for key 'currency_id'"),
+			Message: "depending foreign key violation on 'savings_goals' table for key 'currency_id'",
+			Cause:   ErrUnhandledConstraint,
 		}, // shouldn't happen because there's no way to delete a currency
 		1452: domain.ErrInvalidCurrency,
 	},
@@ -215,8 +219,8 @@ var ForeignKeyErrorMap = map[ForeignKeyConstraint]map[uint16]error{
 	FKSavingsGoalTagsSavingsGoalID: {
 		1451: &port.InfrastructureError{
 			Type:    "unknown_constraint_error",
-			Message: "an unknown error occurred while deleting a record from the 'savings_goal_tags' table",
-			Cause:   fmt.Errorf("depending foreign key violation on 'savings_goal_tags' table for key 'savings_goal_id'"),
+			Message: "depending foreign key violation on 'savings_goal_tags' table for key 'savings_goal_id'",
+			Cause:   ErrUnhandledConstraint,
 		}, // shouldn't happen because savings goals are immutable
 		1452: domain.ErrSavingsGoalNotFound,
 	},
@@ -229,8 +233,8 @@ var ForeignKeyErrorMap = map[ForeignKeyConstraint]map[uint16]error{
 	FKSavingsContributionTransfer: {
 		1451: &port.InfrastructureError{
 			Type:    "unknown_constraint_error",
-			Message: "an unknown error occurred while deleting a record from the 'savings_contributions' table",
-			Cause:   fmt.Errorf("depending foreign key violation on 'savings_contributions' table for key 'transfer_id'"),
+			Message: "depending foreign key violation on 'savings_contributions' table for key 'transfer_id'",
+			Cause:   ErrUnhandledConstraint,
 		}, // shouldn't happen because savings contributions are immutable
 		1452: domain.ErrTransferNotFound,
 	},
@@ -239,8 +243,8 @@ var ForeignKeyErrorMap = map[ForeignKeyConstraint]map[uint16]error{
 	FKSavingsContributionTagSavingContribution: {
 		1451: &port.InfrastructureError{
 			Type:    "unknown_constraint_error",
-			Message: "an unknown error occurred while deleting a record from the 'savings_contribution_tags' table",
-			Cause:   fmt.Errorf("depending foreign key violation on 'savings_contribution_tags' table for key 'contribution_id'"),
+			Message: "depending foreign key violation on 'savings_contribution_tags' table for key 'contribution_id'",
+			Cause:   ErrUnhandledConstraint,
 		}, // shouldn't happen because savings contributions are immutable
 		1452: domain.ErrSavingsContributionNotFound,
 	},
@@ -257,8 +261,8 @@ var ForeignKeyErrorMap = map[ForeignKeyConstraint]map[uint16]error{
 	FKSavingsWithdrawalTransfer: {
 		1451: &port.InfrastructureError{
 			Type:    "unknown_constraint_error",
-			Message: "an unknown error occurred while deleting a record from the 'savings_withdrawals' table",
-			Cause:   fmt.Errorf("depending foreign key violation on 'savings_withdrawals' table for key 'transfer_id'"),
+			Message: "depending foreign key violation on 'savings_withdrawals' table for key 'transfer_id'",
+			Cause:   ErrUnhandledConstraint,
 		}, // shouldn't happen because savings withdrawals are immutable
 		1452: domain.ErrTransferNotFound,
 	},
@@ -267,8 +271,8 @@ var ForeignKeyErrorMap = map[ForeignKeyConstraint]map[uint16]error{
 	FKSavingsWithdrawalTagWithdrawal: {
 		1451: &port.InfrastructureError{
 			Type:    "unknown_constraint_error",
-			Message: "an unknown error occurred while deleting a record from the 'savings_withdrawal_tags' table",
-			Cause:   fmt.Errorf("depending foreign key violation on 'savings_withdrawal_tags' table for key 'withdrawal_id'"),
+			Message: "depending foreign key violation on 'savings_withdrawal_tags' table for key 'withdrawal_id'",
+			Cause:   ErrUnhandledConstraint,
 		}, // shouldn't happen because withdrawals are immutable
 		1452: domain.ErrSavingsWithdrawalNotFound,
 	},

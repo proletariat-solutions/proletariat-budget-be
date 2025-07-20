@@ -3,6 +3,7 @@ package resthttp
 import (
 	"context"
 	"errors"
+
 	"ghorkov32/proletariat-budget-be/internal/core/domain"
 	"ghorkov32/proletariat-budget-be/openapi"
 	"github.com/rs/zerolog/log"
@@ -21,6 +22,7 @@ func (c *Controller) ListCategories(
 	)
 	if err != nil {
 		log.Err(err).Msg("Failed to list categories")
+
 		return openapi.ListCategories500JSONResponse{
 			N500JSONResponse: openapi.N500JSONResponse{
 				Message: "Failed to list categories",
@@ -28,6 +30,7 @@ func (c *Controller) ListCategories(
 		}, nil
 	}
 	total := len(categories)
+
 	return openapi.ListCategories200JSONResponse{
 		Categories: ToOAPICategoryList(&categories),
 		Total:      &total,
@@ -50,12 +53,14 @@ func (c *Controller) CreateCategory(
 	)
 	if err != nil {
 		log.Err(err).Msg("Failed to create category")
+
 		return openapi.CreateCategory500JSONResponse{
 			N500JSONResponse: openapi.N500JSONResponse{
 				Message: "Failed to create category",
 			},
 		}, nil
 	}
+
 	return openapi.CreateCategory201JSONResponse(*ToOAPICategory(category)), nil
 }
 
@@ -103,12 +108,14 @@ func (c *Controller) DeleteCategory(
 			}, nil
 		}
 		log.Err(err).Msg("Failed to delete category")
+
 		return openapi.DeleteCategory500JSONResponse{
 			N500JSONResponse: openapi.N500JSONResponse{
 				Message: "Internal Server Error",
 			},
 		}, nil
 	}
+
 	return openapi.DeleteCategory204Response{}, nil
 }
 
@@ -138,12 +145,14 @@ func (c *Controller) UpdateCategory(
 			}, nil
 		}
 		log.Err(err).Msg("Failed to update category")
+
 		return openapi.UpdateCategory500JSONResponse{
 			N500JSONResponse: openapi.N500JSONResponse{
 				Message: "Internal Server Error",
 			},
 		}, nil
 	}
+
 	return openapi.UpdateCategory200JSONResponse(*ToOAPICategory(category)), nil
 }
 
@@ -180,12 +189,14 @@ func (c *Controller) ActivateCategory(
 			}, nil
 		}
 		log.Err(err).Msg("Failed to deactivate category")
+
 		return openapi.ActivateCategory500JSONResponse{
 			N500JSONResponse: openapi.N500JSONResponse{
 				Message: "Internal Server Error",
 			},
 		}, nil
 	}
+
 	return openapi.ActivateCategory204Response{}, nil
 }
 
@@ -222,11 +233,13 @@ func (c *Controller) DeactivateCategory(
 			}, nil
 		}
 		log.Err(err).Msg("Failed to deactivate category")
+
 		return openapi.DeactivateCategory500JSONResponse{
 			N500JSONResponse: openapi.N500JSONResponse{
 				Message: "Internal Server Error",
 			},
 		}, nil
 	}
+
 	return openapi.DeactivateCategory204Response{}, nil
 }

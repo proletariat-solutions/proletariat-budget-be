@@ -3,6 +3,7 @@ package resthttp
 import (
 	"context"
 	"errors"
+
 	"ghorkov32/proletariat-budget-be/internal/core/domain"
 	"ghorkov32/proletariat-budget-be/openapi"
 	"github.com/rs/zerolog/log"
@@ -21,12 +22,14 @@ func (c *Controller) ListExpenditures(
 	)
 	if err != nil {
 		log.Err(err).Msg("Failed to list expenditures")
+
 		return openapi.ListExpenditures500JSONResponse{
 			N500JSONResponse: openapi.N500JSONResponse{
 				Message: "Failed to list expenditures",
 			},
 		}, nil
 	}
+
 	return openapi.ListExpenditures200JSONResponse(*ToOAPIExpenditureList(list)), nil
 }
 
@@ -75,6 +78,7 @@ func (c *Controller) CreateExpenditure(
 			}, nil
 		} else {
 			log.Err(err).Msg("Failed to create expenditure")
+
 			return openapi.CreateExpenditure500JSONResponse{
 				N500JSONResponse: openapi.N500JSONResponse{
 					Message: "Failed to create expenditure",
@@ -82,6 +86,7 @@ func (c *Controller) CreateExpenditure(
 			}, nil
 		}
 	}
+
 	return openapi.CreateExpenditure201JSONResponse(*ToOAPIExpenditure(expenditure)), nil
 }
 
@@ -108,6 +113,7 @@ func (c *Controller) GetExpenditure(
 			}, nil
 		} else {
 			log.Err(err).Msg("Failed to get expenditure")
+
 			return openapi.GetExpenditure500JSONResponse{
 				N500JSONResponse: openapi.N500JSONResponse{
 					Message: "Failed to get expenditure",
@@ -115,5 +121,6 @@ func (c *Controller) GetExpenditure(
 			}, nil
 		}
 	}
+
 	return openapi.GetExpenditure200JSONResponse(*ToOAPIExpenditure(expenditure)), nil
 }

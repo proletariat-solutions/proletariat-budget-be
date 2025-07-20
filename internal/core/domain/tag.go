@@ -39,8 +39,9 @@ func (t Tag) Validate() error {
 	default:
 		return ErrUnknownTagType
 	}
-	if len(t.Name) == 0 {
+	if t.Name == "" {
 		return ErrTagNameEmpty
 	}
+
 	return nil
 }

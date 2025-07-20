@@ -3,15 +3,16 @@ package usecase
 import (
 	"context"
 	"errors"
+
 	"ghorkov32/proletariat-budget-be/internal/core/domain"
 	"ghorkov32/proletariat-budget-be/internal/core/port"
 )
 
 type TagsUseCase struct {
-	tagsRepo *port.TagsRepo
+	tagsRepo port.TagsRepo
 }
 
-func NewTagsUseCase(tagsRepo *port.TagsRepo) *TagsUseCase {
+func NewTagsUseCase(tagsRepo port.TagsRepo) *TagsUseCase {
 	return &TagsUseCase{tagsRepo: tagsRepo}
 }
 
@@ -23,13 +24,14 @@ func (u *TagsUseCase) ListTags(
 	error,
 ) {
 	if tagType == nil {
-		tags, err := (*u.tagsRepo).List(ctx)
+		tags, err := u.tagsRepo.List(ctx)
 		if err != nil {
 			return nil, err
 		}
+
 		return *tags, nil
 	}
-	tags, err := (*u.tagsRepo).ListByType(
+	tags, err := u.tagsRepo.ListByType(
 		ctx,
 		*tagType,
 		nil,
@@ -37,6 +39,7 @@ func (u *TagsUseCase) ListTags(
 	if err != nil {
 		return nil, err
 	}
+
 	return *tags, nil
 }
 
@@ -50,7 +53,7 @@ func (u *TagsUseCase) CreateTag(
 	if err := tag.Validate(); err != nil {
 		return nil, err
 	}
-	id, err := (*u.tagsRepo).Create(
+	id, err := u.tagsRepo.Create(
 		ctx,
 		*tag,
 	)
@@ -61,9 +64,11 @@ func (u *TagsUseCase) CreateTag(
 		) {
 			return nil, domain.ErrTagAlreadyExists
 		}
+
 		return nil, err
 	}
 	tag.ID = id
+
 	return tag, nil
 }
 
@@ -71,7 +76,7 @@ func (u *TagsUseCase) DeleteTag(
 	ctx context.Context,
 	id string,
 ) error {
-	err := (*u.tagsRepo).Delete(
+	err := u.tagsRepo.Delete(
 		ctx,
 		id,
 	)
@@ -83,5 +88,6 @@ func (u *TagsUseCase) DeleteTag(
 			return domain.ErrTagNotFound
 		}
 	}
+
 	return nil
 }

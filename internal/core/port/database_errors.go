@@ -20,6 +20,7 @@ var (
 	ErrForeignKeyNotFound  = errors.New("foreign key not found")
 	ErrDependingForeignKey = errors.New("dependent foreign key constraint")
 	ErrConstraintViolation = errors.New("constraint violation")
+	ErrUnimplementedError  = errors.New("operation not implemented")
 )
 
 type EntityRelationshipError struct {
@@ -54,6 +55,7 @@ func (e *InfrastructureError) Unwrap() error {
 
 func IsInfrastructureError(err error) bool {
 	var infraErr *InfrastructureError
+
 	return err != nil &&
 		(errors.As(
 			err,

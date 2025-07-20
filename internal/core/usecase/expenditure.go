@@ -3,24 +3,25 @@ package usecase
 import (
 	"context"
 	"errors"
+
 	"ghorkov32/proletariat-budget-be/internal/core/domain"
 	"ghorkov32/proletariat-budget-be/internal/core/port"
 )
 
 type ExpenditureUseCase struct {
-	expenditureRepo *port.ExpenditureRepo
-	accountRepo     *port.AccountRepo
-	tagsRepo        *port.TagsRepo
-	categoryRepo    *port.CategoryRepo
-	transactionRepo *port.TransactionRepo
+	expenditureRepo port.ExpenditureRepo
+	accountRepo     port.AccountRepo
+	tagsRepo        port.TagsRepo
+	categoryRepo    port.CategoryRepo
+	transactionRepo port.TransactionRepo
 }
 
 func NewExpenditureUseCase(
-	expenditureRepo *port.ExpenditureRepo,
-	accountRepo *port.AccountRepo,
-	tagsRepo *port.TagsRepo,
-	categoryRepo *port.CategoryRepo,
-	transactionRepo *port.TransactionRepo,
+	expenditureRepo port.ExpenditureRepo,
+	accountRepo port.AccountRepo,
+	tagsRepo port.TagsRepo,
+	categoryRepo port.CategoryRepo,
+	transactionRepo port.TransactionRepo,
 ) *ExpenditureUseCase {
 	return &ExpenditureUseCase{
 		expenditureRepo: expenditureRepo,
@@ -85,7 +86,7 @@ func (u *ExpenditureUseCase) Create(
 		return nil, err
 	}
 
-	return (*u.expenditureRepo).GetByID(
+	return u.expenditureRepo.GetByID(
 		ctx,
 		expID,
 	)
@@ -98,7 +99,7 @@ func (u *ExpenditureUseCase) Get(
 	*domain.Expenditure,
 	error,
 ) {
-	expenditure, err := (*u.expenditureRepo).GetByID(
+	expenditure, err := u.expenditureRepo.GetByID(
 		ctx,
 		id,
 	)
@@ -109,8 +110,10 @@ func (u *ExpenditureUseCase) Get(
 		) {
 			return nil, domain.ErrExpenditureNotFound
 		}
+
 		return nil, err
 	}
+
 	return expenditure, nil
 }
 
@@ -121,7 +124,7 @@ func (u *ExpenditureUseCase) List(
 	*domain.ExpenditureList,
 	error,
 ) {
-	return (*u.expenditureRepo).FindExpenditures(
+	return u.expenditureRepo.FindExpenditures(
 		ctx,
 		params,
 	)
@@ -134,7 +137,7 @@ func (u *ExpenditureUseCase) validateAccount(
 	*domain.Account,
 	error,
 ) {
-	account, err := (*u.accountRepo).GetByID(
+	account, err := u.accountRepo.GetByID(
 		ctx,
 		accountID,
 	)
@@ -145,6 +148,7 @@ func (u *ExpenditureUseCase) validateAccount(
 		) {
 			return nil, domain.ErrAccountNotFound
 		}
+
 		return nil, err
 	}
 
@@ -159,7 +163,7 @@ func (u *ExpenditureUseCase) validateCategory(
 	ctx context.Context,
 	categoryID string,
 ) error {
-	category, err := (*u.categoryRepo).GetByID(
+	category, err := u.categoryRepo.GetByID(
 		ctx,
 		categoryID,
 	)
@@ -170,6 +174,7 @@ func (u *ExpenditureUseCase) validateCategory(
 		) {
 			return domain.ErrCategoryNotFound
 		}
+
 		return err
 	}
 
@@ -194,7 +199,7 @@ func (u *ExpenditureUseCase) processTransaction(
 	statusCompleted := domain.TransactionStatusCompleted
 	expenditure.Transaction.Status = &statusCompleted
 
-	txID, err := (*u.transactionRepo).Create(
+	txID, err := u.transactionRepo.Create(
 		ctx,
 		*expenditure.Transaction,
 	)
@@ -204,7 +209,7 @@ func (u *ExpenditureUseCase) processTransaction(
 
 	expenditure.Transaction.ID = &txID
 
-	return (*u.accountRepo).Update(
+	return u.accountRepo.Update(
 		ctx,
 		*account,
 	)
@@ -217,7 +222,7 @@ func (u *ExpenditureUseCase) createExpenditureRecord(
 	string,
 	error,
 ) {
-	return (*u.expenditureRepo).Create(
+	return u.expenditureRepo.Create(
 		ctx,
 		expenditure,
 	)
@@ -232,7 +237,7 @@ func (u *ExpenditureUseCase) linkTags(
 		return nil
 	}
 
-	err := (*u.tagsRepo).LinkTagsToType(
+	err := u.tagsRepo.LinkTagsToType(
 		ctx,
 		expID,
 		tags,
@@ -244,6 +249,7 @@ func (u *ExpenditureUseCase) linkTags(
 		) {
 			return domain.ErrTagNotFound
 		}
+
 		return err
 	}
 

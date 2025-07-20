@@ -1,10 +1,11 @@
-package integration_tests
+package integration_test
 
 import (
-	"ghorkov32/proletariat-budget-be/integration_tests/utils"
+	"net/http"
+
+	"ghorkov32/proletariat-budget-be/integration_test/utils"
 	"ghorkov32/proletariat-budget-be/internal/core/domain"
 	"ghorkov32/proletariat-budget-be/openapi"
-	"net/http"
 )
 
 func (s *Suite) TestExpenditures() {

@@ -4,11 +4,12 @@ import (
 	"context"
 	"database/sql"
 	"errors"
-	"ghorkov32/proletariat-budget-be/internal/core/domain"
-	"ghorkov32/proletariat-budget-be/internal/core/port"
 	"strconv"
 	"strings"
 	"time"
+
+	"ghorkov32/proletariat-budget-be/internal/core/domain"
+	"ghorkov32/proletariat-budget-be/internal/core/port"
 )
 
 type AccountRepoImpl struct {
@@ -19,7 +20,13 @@ func NewAccountRepo(db *sql.DB) port.AccountRepo {
 	return &AccountRepoImpl{db: db}
 }
 
-func (r *AccountRepoImpl) Create(ctx context.Context, account domain.Account) (*string, error) {
+func (r *AccountRepoImpl) Create(
+	ctx context.Context,
+	account domain.Account,
+) (
+	*string,
+	error,
+) {
 	query := `
         INSERT INTO accounts (
             name, type, institution, currency, initial_balance, 
@@ -54,12 +61,21 @@ func (r *AccountRepoImpl) Create(ctx context.Context, account domain.Account) (*
 		return nil, translateError(err)
 	}
 
-	lastIDStr := strconv.FormatInt(lastID, 10)
+	lastIDStr := strconv.FormatInt(
+		lastID,
+		10,
+	)
 
 	return &lastIDStr, nil
 }
 
-func (r *AccountRepoImpl) GetByID(ctx context.Context, id string) (*domain.Account, error) {
+func (r *AccountRepoImpl) GetByID(
+	ctx context.Context,
+	id string,
+) (
+	*domain.Account,
+	error,
+) {
 	query := `SELECT 
 				a.id, a.name, type, institution, currency, 
 				initial_balance, current_balance, a.active, 
@@ -70,7 +86,11 @@ func (r *AccountRepoImpl) GetByID(ctx context.Context, id string) (*domain.Accou
 	account := &domain.Account{
 		Owner: &domain.HouseholdMember{},
 	}
-	err := r.db.QueryRowContext(ctx, query, id).Scan(
+	err := r.db.QueryRowContext(
+		ctx,
+		query,
+		id,
+	).Scan(
 		&account.ID,
 		&account.Name,
 		&account.Type,
@@ -94,17 +114,22 @@ func (r *AccountRepoImpl) GetByID(ctx context.Context, id string) (*domain.Accou
 		&account.Owner.CreatedAt,
 		&account.Owner.UpdatedAt,
 	)
-	if errors.Is(err, sql.ErrNoRows) {
+	if errors.Is(
+		err,
+		sql.ErrNoRows,
+	) {
 		return nil, port.ErrRecordNotFound
 	} else if err != nil {
 		return nil, translateError(err)
 	}
 
 	return account, nil
-
 }
 
-func (r *AccountRepoImpl) Update(ctx context.Context, account domain.Account) error {
+func (r *AccountRepoImpl) Update(
+	ctx context.Context,
+	account domain.Account,
+) error {
 	query := `
         UPDATE accounts SET 
             name =?, type =?, institution =?, currency =?, initial_balance =?, 
@@ -137,10 +162,14 @@ func (r *AccountRepoImpl) Update(ctx context.Context, account domain.Account) er
 	if err != nil {
 		return translateError(err)
 	}
+
 	return nil
 }
 
-func (r *AccountRepoImpl) Delete(ctx context.Context, id string) error {
+func (r *AccountRepoImpl) Delete(
+	ctx context.Context,
+	id string,
+) error {
 	query := `DELETE FROM accounts WHERE id =?`
 	result, err := r.db.ExecContext(
 		ctx,
@@ -157,10 +186,17 @@ func (r *AccountRepoImpl) Delete(ctx context.Context, id string) error {
 	if rowsAffected == 0 {
 		return port.ErrRecordNotFound
 	}
+
 	return nil
 }
 
-func (r *AccountRepoImpl) List(ctx context.Context, params domain.AccountListParams) (*domain.AccountList, error) {
+func (r *AccountRepoImpl) List(
+	ctx context.Context,
+	params domain.AccountListParams,
+) (
+	*domain.AccountList,
+	error,
+) {
 	query := `SELECT a.id,
 					   a.name,
 					   type,
@@ -185,34 +221,69 @@ func (r *AccountRepoImpl) List(ctx context.Context, params domain.AccountListPar
 				FROM accounts a
 						 left join household_members hm on a.owner = hm.id`
 
-	whereClause := make([]string, 0)
-	args := make([]any, 0)
+	whereClause := make(
+		[]string,
+		0,
+	)
+	args := make(
+		[]any,
+		0,
+	)
 	if params.Currency != nil {
-		whereClause = append(whereClause, "a.currency =?")
-		args = append(args, *params.Currency)
+		whereClause = append(
+			whereClause,
+			"a.currency =?",
+		)
+		args = append(
+			args,
+			*params.Currency,
+		)
 	}
 	if params.Type != nil {
-		whereClause = append(whereClause, "a.type =?")
-		args = append(args, *params.Type)
+		whereClause = append(
+			whereClause,
+			"a.type =?",
+		)
+		args = append(
+			args,
+			*params.Type,
+		)
 	}
 	if params.Active != nil {
-		whereClause = append(whereClause, "a.active =?")
-		args = append(args, *params.Active)
+		whereClause = append(
+			whereClause,
+			"a.active =?",
+		)
+		args = append(
+			args,
+			*params.Active,
+		)
 	}
 
 	queryCount := "SELECT COUNT(*) FROM accounts a"
 	if len(whereClause) > 0 {
-		query += " WHERE " + strings.Join(whereClause, " AND ")
-		queryCount += " WHERE " + strings.Join(whereClause, " AND ")
-
+		query += " WHERE " + strings.Join(
+			whereClause,
+			AND_CLAUSE,
+		)
+		queryCount += " WHERE " + strings.Join(
+			whereClause,
+			AND_CLAUSE,
+		)
 	}
 	query += " ORDER BY a.created_at DESC"
-	stmtCount, errQueryCountStmt := r.db.PrepareContext(ctx, queryCount)
+	stmtCount, errQueryCountStmt := r.db.PrepareContext(
+		ctx,
+		queryCount,
+	)
 	if errQueryCountStmt != nil {
 		return nil, translateError(errQueryCountStmt)
 	}
 	var count int
-	errCount := stmtCount.QueryRowContext(ctx, args...).Scan(&count)
+	errCount := stmtCount.QueryRowContext(
+		ctx,
+		args...,
+	).Scan(&count)
 	if errCount != nil {
 		return nil, translateError(errCount)
 	}
@@ -229,9 +300,17 @@ func (r *AccountRepoImpl) List(ctx context.Context, params domain.AccountListPar
 		}, nil
 	}
 	query += " LIMIT? OFFSET?"
-	args = append(args, params.Limit, params.Offset)
+	args = append(
+		args,
+		params.Limit,
+		params.Offset,
+	)
 
-	rows, err := r.db.QueryContext(ctx, query, args...)
+	rows, err := r.db.QueryContext(
+		ctx,
+		query,
+		args...,
+	)
 	if err != nil {
 		return nil, translateError(err)
 	}
@@ -241,7 +320,7 @@ func (r *AccountRepoImpl) List(ctx context.Context, params domain.AccountListPar
 		account := domain.Account{
 			Owner: &domain.HouseholdMember{},
 		}
-		err := rows.Scan(
+		errScan := rows.Scan(
 			&account.ID,
 			&account.Name,
 			&account.Type,
@@ -264,11 +343,15 @@ func (r *AccountRepoImpl) List(ctx context.Context, params domain.AccountListPar
 			&account.Owner.CreatedAt,
 			&account.Owner.UpdatedAt,
 		)
-		if err != nil {
-			return nil, translateError(err)
+		if errScan != nil {
+			return nil, translateError(errScan)
 		}
-		accounts = append(accounts, account)
+		accounts = append(
+			accounts,
+			account,
+		)
 	}
+
 	return &domain.AccountList{
 			Metadata: domain.ListMetadata{
 				Total:  count,
@@ -280,12 +363,23 @@ func (r *AccountRepoImpl) List(ctx context.Context, params domain.AccountListPar
 		nil
 }
 
-func (r *AccountRepoImpl) HasTransactions(ctx context.Context, id string) (bool, error) {
+func (r *AccountRepoImpl) HasTransactions(
+	ctx context.Context,
+	id string,
+) (
+	bool,
+	error,
+) {
 	query := `SELECT COUNT(*) FROM transactions WHERE account_id =?`
 	var count int
-	err := r.db.QueryRowContext(ctx, query, id).Scan(&count)
+	err := r.db.QueryRowContext(
+		ctx,
+		query,
+		id,
+	).Scan(&count)
 	if err != nil {
 		return false, translateError(err)
 	}
+
 	return count > 0, nil
 }

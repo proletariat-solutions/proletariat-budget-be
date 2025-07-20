@@ -1,15 +1,15 @@
-package integration_tests
+package integration_test
 
 import (
-	"ghorkov32/proletariat-budget-be/integration_tests/utils"
-	"ghorkov32/proletariat-budget-be/internal/core/domain"
-	"ghorkov32/proletariat-budget-be/openapi"
 	"net/http"
 	"strconv"
+
+	"ghorkov32/proletariat-budget-be/integration_test/utils"
+	"ghorkov32/proletariat-budget-be/internal/core/domain"
+	"ghorkov32/proletariat-budget-be/openapi"
 )
 
 func (s *Suite) TestHouseholdMember() {
-
 	var deletableMemberId string
 
 	s.T().Log("Starting TestHouseholdMember")
@@ -46,7 +46,7 @@ func (s *Suite) TestHouseholdMember() {
 	)
 
 	s.Run(
-		"Update a non-existant household member",
+		"Update a non-existent household member",
 		func() {
 			member := s.createTestHouseholdMember()
 			member.Id = "0"
@@ -117,7 +117,6 @@ func (s *Suite) TestHouseholdMember() {
 	s.Run(
 		"Delete a household member with active accounts",
 		func() {
-
 			apiResponse, err := s.deleteHouseholdMember("1") // ID coming from mock data
 			s.handleErr(
 				err,
@@ -717,7 +716,6 @@ func (s *Suite) listHouseholdMembers(params openapi.ListHouseholdMembersParams) 
 	)
 
 	return members, nil
-
 }
 
 func (s *Suite) getHouseholdMember(id string) (
@@ -785,6 +783,7 @@ func (s *Suite) updateHouseholdMember(member *openapi.HouseholdMember) (
 		err,
 		"error while making request",
 	)
+
 	return apiResponse, nil
 }
 func (s *Suite) deleteHouseholdMember(id string) (
@@ -807,6 +806,7 @@ func (s *Suite) deleteHouseholdMember(id string) (
 		err,
 		"error while making request",
 	)
+
 	return apiResponse, nil
 }
 func (s *Suite) deactivateHouseholdMember(id string) (
@@ -833,6 +833,7 @@ func (s *Suite) deactivateHouseholdMember(id string) (
 		err,
 		"error while making request",
 	)
+
 	return apiResponse, nil
 }
 
@@ -860,5 +861,6 @@ func (s *Suite) activateHouseholdMember(id string) (
 		err,
 		"error while making request",
 	)
+
 	return apiResponse, nil
 }

@@ -30,6 +30,7 @@ func (m *ListMetadata) GetNextOffset() int {
 	if m.HasNextPage() {
 		return m.Offset + m.Limit
 	}
+
 	return m.Offset
 }
 
@@ -40,8 +41,10 @@ func (m *ListMetadata) GetPreviousOffset() int {
 		if previousOffset < 0 {
 			return 0
 		}
+
 		return previousOffset
 	}
+
 	return m.Offset
 }
 
@@ -50,6 +53,7 @@ func (m *ListMetadata) GetCurrentPage() int {
 	if m.Limit == 0 {
 		return 1
 	}
+
 	return (m.Offset / m.Limit) + 1
 }
 
@@ -58,6 +62,7 @@ func (m *ListMetadata) GetTotalPages() int {
 	if m.Limit == 0 {
 		return 1
 	}
+
 	return (m.Total + m.Limit - 1) / m.Limit
 }
 

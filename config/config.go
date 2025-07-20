@@ -5,9 +5,8 @@ import (
 	"time"
 
 	"github.com/caarlos0/env/v11"
-	"github.com/rs/zerolog/log"
-
 	"github.com/joho/godotenv"
+	"github.com/rs/zerolog/log"
 )
 
 type Configs struct {

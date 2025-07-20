@@ -1,16 +1,17 @@
-package integration_tests
+package integration_test
 
 import (
 	"encoding/json"
-	"ghorkov32/proletariat-budget-be/integration_tests/utils"
-	"ghorkov32/proletariat-budget-be/internal/core/domain"
-	"ghorkov32/proletariat-budget-be/internal/core/port"
-	"ghorkov32/proletariat-budget-be/openapi"
 	"net/http"
 	"net/url"
 	"path"
 	"strconv"
 	"time"
+
+	"ghorkov32/proletariat-budget-be/integration_test/utils"
+	"ghorkov32/proletariat-budget-be/internal/core/domain"
+	"ghorkov32/proletariat-budget-be/internal/core/port"
+	"ghorkov32/proletariat-budget-be/openapi"
 )
 
 const accountResourceURL = "http://localhost:9091/accounts"
@@ -92,7 +93,7 @@ func (s *Suite) TestAccount() {
 	)
 
 	s.Run(
-		"Create account and get 400 error to non existant member",
+		"Create account and get 400 error to non existent member",
 		func() {
 			nonExistentMember := &openapi.HouseholdMember{
 				Id:        "0",
@@ -116,7 +117,7 @@ func (s *Suite) TestAccount() {
 	)
 
 	s.Run(
-		"Create account and get 400 error to non existant currency",
+		"Create account and get 400 error to non existent currency",
 		func() {
 			householdMember := s.createTestHouseholdMember()
 			account := s.createTestAccountRequest(
@@ -262,7 +263,6 @@ func (s *Suite) TestAccount() {
 	s.Run(
 		"Deactivate an account",
 		func() {
-
 			householdMember := s.createTestHouseholdMember()
 			account := s.createTestAccountRequest(
 				&householdMember,
@@ -298,7 +298,6 @@ func (s *Suite) TestAccount() {
 	s.Run(
 		"Deactivate an already deactivated account",
 		func() {
-
 			householdMember := s.createTestHouseholdMember()
 			account := s.createTestAccountRequest(
 				&householdMember,
@@ -358,7 +357,6 @@ func (s *Suite) TestAccount() {
 	s.Run(
 		"Reactivate an account",
 		func() {
-
 			householdMember := s.createTestHouseholdMember()
 			account := s.createTestAccountRequest(
 				&householdMember,
@@ -400,7 +398,6 @@ func (s *Suite) TestAccount() {
 	s.Run(
 		"Activate an already active account",
 		func() {
-
 			householdMember := s.createTestHouseholdMember()
 			account := s.createTestAccountRequest(
 				&householdMember,
@@ -567,9 +564,8 @@ func (s *Suite) TestAccount() {
 	)
 
 	s.Run(
-		"Update a non existant account",
+		"Update a non existent account",
 		func() {
-
 			owner := &openapi.HouseholdMember{
 				Id:        "0",
 				FirstName: "John",
@@ -605,12 +601,11 @@ func (s *Suite) TestAccount() {
 				http.StatusNotFound,
 				domain.ErrAccountNotFound.Error(),
 			)
-
 		},
 	)
 
 	s.Run(
-		"Update account and get 400 error to non existant member",
+		"Update account and get 400 error to non existent member",
 		func() {
 			householdMember := s.createTestHouseholdMember()
 			account := s.createTestAccountRequest(
@@ -646,12 +641,11 @@ func (s *Suite) TestAccount() {
 				http.StatusBadRequest,
 				domain.ErrMemberNotFound.Error(),
 			)
-
 		},
 	)
 
 	s.Run(
-		"Update account and get 400 error to non existant currency",
+		"Update account and get 400 error to non existent currency",
 		func() {
 			householdMember := s.createTestHouseholdMember()
 			account := s.createTestAccountRequest(
@@ -824,7 +818,6 @@ func (s *Suite) TestAccount() {
 	s.Run(
 		"List accounts with account type filter",
 		func() {
-
 			filters := openapi.ListAccountsParams{
 				Type:     utils.StringPtr("bank"),
 				Currency: nil,
@@ -889,7 +882,6 @@ func (s *Suite) TestAccount() {
 	s.Run(
 		"List active accounts",
 		func() {
-
 			filters := openapi.ListAccountsParams{
 				Type:     nil,
 				Currency: nil,
@@ -925,7 +917,6 @@ func (s *Suite) TestAccount() {
 	s.Run(
 		"List inactive accounts",
 		func() {
-
 			filters := openapi.ListAccountsParams{
 				Type:     nil,
 				Currency: nil,
@@ -957,7 +948,6 @@ func (s *Suite) TestAccount() {
 			}
 		},
 	)
-
 }
 
 func (s *Suite) assertAccountsEquals(expected, actual *openapi.Account) {
@@ -1077,6 +1067,7 @@ func (s *Suite) makeAccountRequest(account *openapi.AccountRequest) (
 	)
 
 	client := &http.Client{}
+
 	return client.Do(req)
 }
 func (s *Suite) updateAccountRequest(account *openapi.Account) (
@@ -1103,13 +1094,13 @@ func (s *Suite) updateAccountRequest(account *openapi.Account) (
 	)
 
 	client := &http.Client{}
+
 	return client.Do(req)
 }
 func (s *Suite) deleteAccountRequest(id string) (
 	*http.Response,
 	error,
 ) {
-
 	req, err := http.NewRequestWithContext(
 		s.ctx,
 		http.MethodDelete,
@@ -1126,6 +1117,7 @@ func (s *Suite) deleteAccountRequest(id string) (
 	)
 
 	client := &http.Client{}
+
 	return client.Do(req)
 }
 
@@ -1152,6 +1144,7 @@ func (s *Suite) checkCanDeleteAccount(id string) (
 	)
 
 	client := &http.Client{}
+
 	return client.Do(req)
 }
 
@@ -1178,6 +1171,7 @@ func (s *Suite) deactivateAccountRequest(id string) (
 	)
 
 	client := &http.Client{}
+
 	return client.Do(req)
 }
 
@@ -1204,6 +1198,7 @@ func (s *Suite) activateAccountRequest(id string) (
 	)
 
 	client := &http.Client{}
+
 	return client.Do(req)
 }
 
@@ -1232,7 +1227,6 @@ func (s *Suite) getAccountRequest(id string) (
 }
 
 func (s *Suite) listAccountRequest(params openapi.ListAccountsParams) *http.Response {
-
 	req, err := http.NewRequestWithContext(
 		s.ctx,
 		http.MethodGet,
@@ -1302,6 +1296,7 @@ func (s *Suite) createTestHouseholdMember() openapi.HouseholdMember {
 		err,
 		"error while creating household member",
 	)
+
 	return householdMember
 }
 
@@ -1327,7 +1322,7 @@ func (s *Suite) createTestAccountRequest(
 // Generic helper to decode response body
 func (s *Suite) decodeResponse(
 	response *http.Response,
-	target interface{},
+	target any,
 ) {
 	defer response.Body.Close()
 	err := json.NewDecoder(response.Body).Decode(target)

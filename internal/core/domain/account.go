@@ -77,6 +77,7 @@ func (a *Account) SetActive() error {
 	}
 	a.Active = true
 	a.UpdatedAt = time.Now()
+
 	return nil
 }
 
@@ -86,6 +87,7 @@ func (a *Account) SetInactive() error {
 	}
 	a.Active = false
 	a.UpdatedAt = time.Now()
+
 	return nil
 }
 

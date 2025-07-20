@@ -1,24 +1,23 @@
-package integration_tests
+package integration_test
 
 import (
 	"context"
 	"database/sql"
-	"errors"
 	"fmt"
+	"os"
+	"testing"
+	"time"
+
 	"ghorkov32/proletariat-budget-be/config"
-	"ghorkov32/proletariat-budget-be/integration_tests/containers"
-	"ghorkov32/proletariat-budget-be/integration_tests/utils"
+	"ghorkov32/proletariat-budget-be/integration_test/containers"
+	"ghorkov32/proletariat-budget-be/integration_test/utils"
 	"ghorkov32/proletariat-budget-be/internal/adapter/driven/mysql"
 	"ghorkov32/proletariat-budget-be/internal/adapter/driving/middleware"
 	"ghorkov32/proletariat-budget-be/internal/adapter/driving/resthttp"
 	"ghorkov32/proletariat-budget-be/internal/core/port"
 	"ghorkov32/proletariat-budget-be/internal/core/usecase"
 	"ghorkov32/proletariat-budget-be/openapi"
-	mysql2 "github.com/go-sql-driver/mysql"
 	"github.com/stretchr/testify/suite"
-	"os"
-	"testing"
-	"time"
 )
 
 type Suite struct {
@@ -49,7 +48,6 @@ func (s *Suite) SetupSuite() {
 	if false { // change this to true to spin up a container
 		s.dbContainer = containers.NewMysqlContainer()
 		s.config.MySQL, err = s.dbContainer.InitContainer(s.config.MySQL)
-
 	}
 	s.handleErr(
 		err,
@@ -87,7 +85,7 @@ func (s *Suite) SetupSuite() {
 
 	useCases := instantiateUseCases(ports)
 
-	controller := resthttp.NewController(useCases)
+	controller := resthttp.NewController(*useCases)
 
 	handler := openapi.NewStrictHandler(
 		controller,
@@ -136,21 +134,22 @@ func instantiatePorts(db *sql.DB) *port.Ports {
 	tagsRepo := mysql.NewTagsRepo(db)
 	expenditureRepo := mysql.NewExpenditureRepo(
 		db,
-		&tagsRepo,
+		tagsRepo,
 	)
 	householdMembersRepo := mysql.NewHouseholdMemberRepository(db)
 	ingressRepo := mysql.NewIngressRepo(
 		db,
-		&tagsRepo,
+		tagsRepo,
 	)
 	savingsGoalRepo := mysql.NewSavingGoalRepo(
 		db,
-		&tagsRepo,
+		tagsRepo,
 	)
 	transactionRepo := mysql.NewTransactionRepo(
 		db,
 		tagsRepo,
 	)
+
 	return &port.Ports{
 		Account:          &accountRepo,
 		Auth:             &authRepo,
@@ -166,20 +165,20 @@ func instantiatePorts(db *sql.DB) *port.Ports {
 
 func instantiateUseCases(ports *port.Ports) *usecase.UseCases {
 	account := usecase.NewAccountUseCase(
-		ports.Account,
-		ports.HouseholdMembers,
+		*ports.Account,
+		*ports.HouseholdMembers,
 	)
 	auth := usecase.NewAuthUseCase(*ports.Auth)
 	householdMember := usecase.NewHouseholdMemberUseCase(*ports.HouseholdMembers)
-	category := usecase.NewCategoryUseCase(ports.Category)
+	category := usecase.NewCategoryUseCase(*ports.Category)
 	expenditure := usecase.NewExpenditureUseCase(
-		ports.Expenditure,
-		ports.Account,
-		ports.Tags,
-		ports.Category,
-		ports.Transaction,
+		*ports.Expenditure,
+		*ports.Account,
+		*ports.Tags,
+		*ports.Category,
+		*ports.Transaction,
 	)
-	tags := usecase.NewTagsUseCase(ports.Tags)
+	tags := usecase.NewTagsUseCase(*ports.Tags)
 
 	return &usecase.UseCases{
 		Account:         account,
@@ -188,7 +187,6 @@ func instantiateUseCases(ports *port.Ports) *usecase.UseCases {
 		Category:        category,
 		Expenditure:     expenditure,
 		Tags:            tags,
-		// TODO:  Instantiate other use cases
 	}
 }
 
@@ -218,6 +216,7 @@ func (s *Suite) runMigrations() error {
 	if err != nil {
 		return err
 	}
+
 	return nil
 }
 
@@ -276,31 +275,15 @@ func (s *Suite) ClearTables() {
 	}
 
 	for _, stmt := range statements {
-		_, err := s.db.Exec(stmt)
+		_, err := s.db.ExecContext(
+			context.Background(),
+			stmt,
+		)
 		if err != nil {
-			mysqlError := &mysql2.MySQLError{}
-			if errors.As(
+			s.handleErr(
 				err,
-				&mysqlError,
-			) {
-				if mysqlError.Number != 1146 {
-					s.handleErr(
-						err,
-						fmt.Sprintf(
-							"failed to execute: %s",
-							stmt,
-						),
-					)
-				}
-			} else {
-				s.handleErr(
-					err,
-					fmt.Sprintf(
-						"failed to execute: %s",
-						stmt,
-					),
-				)
-			}
+				"failed to execute statement: "+stmt,
+			)
 		}
 	}
 }

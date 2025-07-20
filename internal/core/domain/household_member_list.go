@@ -28,6 +28,7 @@ func (hml *HouseholdMemberList) GetActiveMembers() []HouseholdMember {
 			activeMembers = append(activeMembers, member)
 		}
 	}
+
 	return activeMembers
 }
 
@@ -38,6 +39,7 @@ func (hml *HouseholdMemberList) GetMemberByID(id string) *HouseholdMember {
 			return &member
 		}
 	}
+
 	return nil
 }
 
@@ -49,5 +51,6 @@ func (hml *HouseholdMemberList) GetMembersByRole(role string) []HouseholdMember 
 			members = append(members, member)
 		}
 	}
+
 	return members
 }
