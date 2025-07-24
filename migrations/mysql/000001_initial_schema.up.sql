@@ -579,7 +579,6 @@ ALTER TABLE savings_goal_tags
         FOREIGN KEY (savings_goal_id) REFERENCES savings_goals (id) ON DELETE CASCADE;
 
 
--- Link to transfers (assuming a transfers table exists or will be created)
 CREATE TABLE transfers
 (
     id                       BIGINT PRIMARY KEY auto_increment,

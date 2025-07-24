@@ -13,10 +13,48 @@ import (
 
 type CategoryRepoImpl struct {
 	db *sql.DB
+	tx *sql.Tx
 }
 
 func NewCategoryRepo(db *sql.DB) port.CategoryRepo {
 	return &CategoryRepoImpl{db: db}
+}
+
+// getExecutor returns either the transaction or the database connection
+func (r CategoryRepoImpl) getExecutor() interface {
+	QueryContext(
+		ctx context.Context,
+		query string,
+		args ...interface{},
+	) (
+		*sql.Rows,
+		error,
+	)
+	QueryRowContext(
+		ctx context.Context,
+		query string,
+		args ...interface{},
+	) *sql.Row
+	ExecContext(
+		ctx context.Context,
+		query string,
+		args ...interface{},
+	) (
+		sql.Result,
+		error,
+	)
+	PrepareContext(
+		ctx context.Context,
+		query string,
+	) (
+		*sql.Stmt,
+		error,
+	)
+} {
+	if r.tx != nil {
+		return r.tx
+	}
+	return r.db
 }
 
 func (c CategoryRepoImpl) Create(
@@ -28,7 +66,8 @@ func (c CategoryRepoImpl) Create(
 ) {
 	queryInsert := `INSERT INTO categories  (name, description, color, background_color, active, category_type) 
 						VALUES (?,?,?,?,?,?)`
-	result, errInsert := c.db.ExecContext(
+	executor := c.getExecutor()
+	result, errInsert := executor.ExecContext(
 		ctx,
 		queryInsert,
 		category.Name,
@@ -62,7 +101,8 @@ func (c CategoryRepoImpl) Update(
 ) error {
 	queryUpdate := `UPDATE categories SET name=?, description=?, color=?, background_color=?, active=?, category_type=? WHERE id=?`
 
-	result, err := c.db.ExecContext(
+	executor := c.getExecutor()
+	result, err := executor.ExecContext(
 		ctx,
 		queryUpdate,
 		category.Name,
@@ -96,7 +136,8 @@ func (c CategoryRepoImpl) Delete(
 ) error {
 	queryUpdate := `delete from categories where id=?`
 
-	result, err := c.db.ExecContext(
+	executor := c.getExecutor()
+	result, err := executor.ExecContext(
 		ctx,
 		queryUpdate,
 		id,
@@ -125,7 +166,8 @@ func (c CategoryRepoImpl) GetByID(
 	query := `SELECT id, name, description, color, background_color, active, category_type FROM categories WHERE id=?`
 
 	var category domain.Category
-	err := c.db.QueryRowContext(
+	executor := c.getExecutor()
+	err := executor.QueryRowContext(
 		ctx,
 		query,
 		id,
@@ -156,7 +198,8 @@ func (c CategoryRepoImpl) List(ctx context.Context) (
 ) {
 	query := `SELECT id, name, description, color, background_color, active, category_type FROM categories WHERE active=true`
 
-	rows, err := c.db.QueryContext(
+	executor := c.getExecutor()
+	rows, err := executor.QueryContext(
 		ctx,
 		query,
 	)
@@ -201,7 +244,8 @@ func (c CategoryRepoImpl) FindByType(
 ) {
 	query := `SELECT id, name, description, color, background_color, active, category_type FROM categories WHERE category_type=? AND active=true`
 
-	rows, err := c.db.QueryContext(
+	executor := c.getExecutor()
+	rows, err := executor.QueryContext(
 		ctx,
 		query,
 		categoryType,
@@ -245,7 +289,8 @@ func (c CategoryRepoImpl) FindByIDs(
 	error,
 ) {
 	query := `SELECT id, name, description, color, background_color, active FROM categories WHERE id IN (?) AND active=true`
-	rows, err := c.db.QueryContext(
+	executor := c.getExecutor()
+	rows, err := executor.QueryContext(
 		ctx,
 		query,
 		ids,

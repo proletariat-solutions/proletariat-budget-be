@@ -87,15 +87,3 @@ func (hm *HouseholdMember) Activate() {
 	hm.Active = true
 	hm.UpdatedAt = time.Now()
 }
-
-// Update updates the household member with new data
-func (hm *HouseholdMember) Update(req openapi.HouseholdMemberRequest) {
-	hm.FirstName = req.FirstName
-	hm.LastName = req.LastName
-	hm.Nickname = req.Nickname
-	hm.Role = req.Role
-	if req.Active != nil {
-		hm.Active = *req.Active
-	}
-	hm.UpdatedAt = time.Now()
-}

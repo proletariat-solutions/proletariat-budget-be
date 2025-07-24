@@ -2,7 +2,6 @@ package port
 
 import (
 	"errors"
-	"fmt"
 )
 
 var (
@@ -22,22 +21,6 @@ var (
 	ErrConstraintViolation = errors.New("constraint violation")
 	ErrUnimplementedError  = errors.New("operation not implemented")
 )
-
-type EntityRelationshipError struct {
-	Type                string
-	Message             string
-	OffendingConstraint string
-	Cause               error
-}
-
-func (e EntityRelationshipError) Error() string {
-	return fmt.Sprintf(
-		"%s: %s (offending constraint: %s)",
-		e.Type,
-		e.Message,
-		e.OffendingConstraint,
-	)
-}
 
 type InfrastructureError struct {
 	Type    string

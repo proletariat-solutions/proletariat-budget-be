@@ -14,10 +14,48 @@ import (
 
 type AccountRepoImpl struct {
 	db *sql.DB
+	tx *sql.Tx
 }
 
 func NewAccountRepo(db *sql.DB) port.AccountRepo {
 	return &AccountRepoImpl{db: db}
+}
+
+// getExecutor returns either the transaction or the database connection
+func (r *AccountRepoImpl) getExecutor() interface {
+	QueryContext(
+		ctx context.Context,
+		query string,
+		args ...interface{},
+	) (
+		*sql.Rows,
+		error,
+	)
+	QueryRowContext(
+		ctx context.Context,
+		query string,
+		args ...interface{},
+	) *sql.Row
+	ExecContext(
+		ctx context.Context,
+		query string,
+		args ...interface{},
+	) (
+		sql.Result,
+		error,
+	)
+	PrepareContext(
+		ctx context.Context,
+		query string,
+	) (
+		*sql.Stmt,
+		error,
+	)
+} {
+	if r.tx != nil {
+		return r.tx
+	}
+	return r.db
 }
 
 func (r *AccountRepoImpl) Create(
@@ -35,7 +73,8 @@ func (r *AccountRepoImpl) Create(
         ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NOW(), now())
     `
 
-	result, err := r.db.ExecContext(
+	executor := r.getExecutor()
+	result, err := executor.ExecContext(
 		ctx,
 		query,
 		account.Name,
@@ -86,7 +125,8 @@ func (r *AccountRepoImpl) GetByID(
 	account := &domain.Account{
 		Owner: &domain.HouseholdMember{},
 	}
-	err := r.db.QueryRowContext(
+	executor := r.getExecutor()
+	err := executor.QueryRowContext(
 		ctx,
 		query,
 		id,
@@ -141,7 +181,8 @@ func (r *AccountRepoImpl) Update(
 	now := time.Now()
 	account.UpdatedAt = now
 
-	_, err := r.db.ExecContext(
+	executor := r.getExecutor()
+	_, err := executor.ExecContext(
 		ctx,
 		query,
 		account.Name,
@@ -171,7 +212,8 @@ func (r *AccountRepoImpl) Delete(
 	id string,
 ) error {
 	query := `DELETE FROM accounts WHERE id =?`
-	result, err := r.db.ExecContext(
+	executor := r.getExecutor()
+	result, err := executor.ExecContext(
 		ctx,
 		query,
 		id,
@@ -272,7 +314,9 @@ func (r *AccountRepoImpl) List(
 		)
 	}
 	query += " ORDER BY a.created_at DESC"
-	stmtCount, errQueryCountStmt := r.db.PrepareContext(
+
+	executor := r.getExecutor()
+	stmtCount, errQueryCountStmt := executor.PrepareContext(
 		ctx,
 		queryCount,
 	)
@@ -306,7 +350,7 @@ func (r *AccountRepoImpl) List(
 		params.Offset,
 	)
 
-	rows, err := r.db.QueryContext(
+	rows, err := executor.QueryContext(
 		ctx,
 		query,
 		args...,
@@ -372,7 +416,8 @@ func (r *AccountRepoImpl) HasTransactions(
 ) {
 	query := `SELECT COUNT(*) FROM transactions WHERE account_id =?`
 	var count int
-	err := r.db.QueryRowContext(
+	executor := r.getExecutor()
+	err := executor.QueryRowContext(
 		ctx,
 		query,
 		id,
